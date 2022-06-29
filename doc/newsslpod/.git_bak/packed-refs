@@ -1,0 +1,12 @@
+# pack-refs with: peeled fully-peeled sorted 
+7a7cebc3c428967881503427dfa60d50add891c7 refs/remotes/origin/codecc
+5b982e68b206834a77fc224bfa14e1bfe53672c4 refs/remotes/origin/dev/feat-hank
+4233e54df0aee89dedf88610b3c58908a0c70d54 refs/remotes/origin/dev/multi-ip-certs
+a65916b71998209cdfd1e1ddb7f48fe8e56fe87d refs/remotes/origin/dev/new-code
+bc42c5ac20c424d7b8d4bc935e36eecb34501538 refs/remotes/origin/dev_backup
+f18fe85c66af4c034ad3489330f45b5a28c4136a refs/remotes/origin/feature/monitor-ip
+b8fcc02d15cfb729e03694f2598be910ce764c75 refs/remotes/origin/master
+81cc6c818b99fc185493eaa8416317a1b7d6ac04 refs/remotes/origin/master_backup
+dfa4602b5d2dd5cbd0fd7827e2e83d2bf99e0dd2 refs/remotes/origin/oteam
+e0a998cc88ad6da5146bd96c88a93d03d6ace6d3 refs/remotes/origin/release
+c223d94ad87265f0952c09c539d9bc5d22d5f781 refs/remotes/origin/trustasia-newest-commit

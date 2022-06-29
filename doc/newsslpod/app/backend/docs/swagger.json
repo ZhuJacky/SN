@@ -1,0 +1,944 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "description": "为 qcloud 提供 openapi 功能.",
+        "title": "MySSL EE Backend API",
+        "contact": {
+            "name": "henry.chen",
+            "email": "henry.chen@trustasia.com"
+        },
+        "license": {},
+        "version": "1.0"
+    },
+    "host": "localhost:20000",
+    "basePath": "/api",
+    "paths": {
+        "/app/infos": {
+            "get": {
+                "description": "app信息",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "内部调用"
+                ],
+                "summary": "app 相关信息",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/message.Message"
+                        }
+                    }
+                }
+            }
+        },
+        "/certs": {
+            "get": {
+                "description": "获取已经添加域名的证书",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "SSL证书"
+                ],
+                "summary": "证书列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "DescribeCerts",
+                        "name": "action",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "sslpod",
+                        "name": "serviceType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "偏移量",
+                        "name": "Offset",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "数量",
+                        "name": "Limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "domainId",
+                            "commonName",
+                            "hash"
+                        ],
+                        "type": "string",
+                        "description": "搜索的类型，可选：domainId,commonName,hash",
+                        "name": "Search",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "搜索类型的值",
+                        "name": "Target",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "msg.Data",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.CertInfoShow"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/dashboard": {
+            "get": {
+                "description": "获取图表dashboard数据",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "监控面板"
+                ],
+                "summary": "dashboard图表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "DescribeDashboard",
+                        "name": "action",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "sslpod",
+                        "name": "serviceType",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "json string",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/domains": {
+            "post": {
+                "description": "通过域名端口添加监控, 0 web, 1 smtp, 2 imap, 3 pops",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "监控管理"
+                ],
+                "summary": "添加监控域名",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "CreateDomain",
+                        "name": "action",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "sslpod",
+                        "name": "serviceType",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            0,
+                            1,
+                            2,
+                            3
+                        ],
+                        "type": "integer",
+                        "description": "监控的服务器类型",
+                        "name": "ServerType",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "添加的域名",
+                        "name": "Domain",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "添加的端口",
+                        "name": "Port",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "指定域名的IP，可选",
+                        "name": "IP",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "是否开启通知告警",
+                        "name": "Notice",
+                        "in": "formData"
+                    },
+                    {
+                        "type": "string",
+                        "description": "给域名添加标签，多个以逗号隔开",
+                        "name": "Tags",
+                        "in": "formData"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/qcloud.ResponseBack"
+                        }
+                    }
+                }
+            }
+        },
+        "/domains/cert/{DomainId}": {
+            "get": {
+                "description": "获取域名关联证书",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "监控管理"
+                ],
+                "summary": "获取域名关联证书",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "DescribeDomainCerts",
+                        "name": "action",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "sslpod",
+                        "name": "serviceType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "域名ID",
+                        "name": "DomainId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "msg.Data",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.CertInfoShow"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/domains/notice/{domainId}": {
+            "put": {
+                "description": "域名是否需要通知",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "监控管理"
+                ],
+                "summary": "域名通知开关",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ChangeDomainSwitch",
+                        "name": "action",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "sslpod",
+                        "name": "serviceType",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "域名列表中的ID",
+                        "name": "DomainId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/qcloud.ResponseBack"
+                        }
+                    }
+                }
+            }
+        },
+        "/domains/refresh/{domainId}": {
+            "put": {
+                "description": "强制刷新域名检测",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "监控管理"
+                ],
+                "summary": "刷新域名",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "RefreshDomain",
+                        "name": "action",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "sslpod",
+                        "name": "serviceType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "域名列表中的ID",
+                        "name": "DomainId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/qcloud.ResponseBack"
+                        }
+                    }
+                }
+            }
+        },
+        "/domains/resolve": {
+            "get": {
+                "description": "解析域名获取IP地址",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "监控管理"
+                ],
+                "summary": "解析域名，获取IP",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ResolveDomain",
+                        "name": "action",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "sslpod",
+                        "name": "serviceType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "解析的域名",
+                        "name": "Domain",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "msg.Data",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/domains/search": {
+            "post": {
+                "description": "通过searchType搜索已经添加的域名, 这里逻辑比较复杂",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "监控管理"
+                ],
+                "summary": "搜索域名，域名列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "DescribeDomains",
+                        "name": "action",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "sslpod",
+                        "name": "serviceType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "偏移量",
+                        "name": "Offset",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "获取数量",
+                        "name": "Limit",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "enum": [
+                            "none",
+                            "tags",
+                            "grade",
+                            "brand",
+                            "code",
+                            "hash",
+                            "limit"
+                        ],
+                        "type": "string",
+                        "description": "搜索的类型",
+                        "name": "SearchType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "tag",
+                        "name": "Tag",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "等级",
+                        "name": "Grade",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "品牌名",
+                        "name": "Brand",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "混合搜索",
+                        "name": "Code",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "证书hash",
+                        "name": "Hash",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/services.Paging"
+                        }
+                    }
+                }
+            }
+        },
+        "/domains/tags": {
+            "get": {
+                "description": "获取所有tag",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "监控管理"
+                ],
+                "summary": "tag列表",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "DescribeDomainTags",
+                        "name": "action",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "sslpod",
+                        "name": "serviceType",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/domains/tags/{AccountDomainId}": {
+            "put": {
+                "description": "改变域名tag",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "监控管理"
+                ],
+                "summary": "改变域名tag",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ModifyDomainTags",
+                        "name": "action",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "sslpod",
+                        "name": "serviceType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "域名ID",
+                        "name": "AccountDomainId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "更新后的tag，多个以逗号隔开",
+                        "name": "Tags",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/qcloud.ResponseBack"
+                        }
+                    }
+                }
+            }
+        },
+        "/domains/{domainId}": {
+            "delete": {
+                "description": "通过域名ID删除",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "监控管理"
+                ],
+                "summary": "删除监控的域名",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "DeleteDomain",
+                        "name": "action",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "sslpod",
+                        "name": "serviceType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "域名列表中的ID",
+                        "name": "DomainId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/qcloud.ResponseBack"
+                        }
+                    }
+                }
+            }
+        },
+        "/notice/info": {
+            "get": {
+                "description": "获取通知信息",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "通知告警"
+                ],
+                "summary": "获取通知信息",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "DescribeNoticeInfo",
+                        "name": "action",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "sslpod",
+                        "name": "serviceType",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "msg.Data, limit_infos中的type可能为:limit_email,limit_wechat,limit_phone",
+                        "schema": {
+                            "$ref": "#/definitions/services.NoticeInfo"
+                        }
+                    }
+                }
+            }
+        },
+        "/notice/switch": {
+            "put": {
+                "description": "通知类型更改，用二进制进行表示: 001微信，010短信，100邮箱。对应二进制位，如果是1代表开启,0代表关闭",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "通知告警"
+                ],
+                "summary": "更改通知类型",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "ModifyNoticeType",
+                        "name": "action",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "sslpod",
+                        "name": "serviceType",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "通知开关的二进制: 1 微信|2 短信|4 邮件",
+                        "name": "Type",
+                        "in": "formData",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/qcloud.ResponseBack"
+                        }
+                    }
+                }
+            }
+        },
+        "/plan/{uin}": {
+            "get": {
+                "description": "account plan",
+                "consumes": [
+                    "multipart/form-data"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "内部调用"
+                ],
+                "summary": "get account plan or refresh",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "账户ID",
+                        "name": "uin",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "ok",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/profile": {
+            "get": {
+                "description": "account profile",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "账户信息"
+                ],
+                "summary": "get account profile",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "DescribeProfile",
+                        "name": "action",
+                        "in": "query",
+                        "required": true
+                    },
+                    {
+                        "type": "string",
+                        "description": "sslpod",
+                        "name": "serviceType",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.AccountShow"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "message.Message": {
+            "type": "object",
+            "properties": {
+                "code": {
+                    "type": "integer"
+                },
+                "data": {
+                    "type": "object"
+                },
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "model.AccountShow": {
+            "type": "object",
+            "properties": {
+                "createdAt": {
+                    "type": "string"
+                },
+                "name": {
+                    "type": "string"
+                },
+                "plan": {
+                    "type": "PlanInfo"
+                },
+                "status": {
+                    "type": "integer"
+                }
+            }
+        },
+        "model.CertInfoShow": {
+            "type": "object",
+            "properties": {
+                "beginTime": {
+                    "type": "string"
+                },
+                "brand": {
+                    "type": "string"
+                },
+                "certType": {
+                    "type": "string"
+                },
+                "cn": {
+                    "type": "string"
+                },
+                "days": {
+                    "type": "integer"
+                },
+                "endTime": {
+                    "type": "string"
+                },
+                "hash": {
+                    "type": "string"
+                },
+                "issuer": {
+                    "type": "string"
+                },
+                "keyAlgo": {
+                    "type": "string"
+                },
+                "sans": {
+                    "type": "string"
+                },
+                "trustStatus": {
+                    "type": "string"
+                }
+            }
+        },
+        "qcloud.ResponseBack": {
+            "type": "object",
+            "properties": {
+                "response": {
+                    "type": "object"
+                }
+            }
+        },
+        "services.NoticeInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer"
+                },
+                "limitInfos": {
+                    "type": "string"
+                },
+                "noticeType": {
+                    "type": "integer"
+                }
+            }
+        },
+        "services.Paging": {
+            "type": "object",
+            "properties": {
+                "allowMaxAddDomain": {
+                    "description": "允许添加域名总数",
+                    "type": "integer"
+                },
+                "allowMonitoringCount": {
+                    "description": "允许的监控数量",
+                    "type": "integer"
+                },
+                "currentMonitoringCount": {
+                    "description": "当前监控的数量",
+                    "type": "integer"
+                },
+                "result": {
+                    "description": "结果",
+                    "type": "object"
+                },
+                "searchTotal": {
+                    "description": "搜索出来的数量",
+                    "type": "integer"
+                },
+                "total": {
+                    "description": "总数",
+                    "type": "integer"
+                }
+            }
+        }
+    }
+}

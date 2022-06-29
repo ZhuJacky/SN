@@ -1,0 +1,47 @@
+[
+    {
+        "Id": 2000,
+	"Pid": 15958,
+        "Name": "SSLPod企业免费版",
+        "Description": "sslpod_v1",
+        "TimeUnit": "y",
+        "UintPrice": 0,
+        "Content": {
+            "MaxAllowAddDomainCount": 20,
+            "MaxAllowMonitoringCount": 3,
+            "MaxAllowEmailWarnCount": 30,
+            "MaxAllowPhoneWarnCount": 0,
+            "MaxAllowWechatWarnCount": 30
+        }
+    },
+    {
+        "Id": 2001,
+	"Pid": 15959,
+        "Name": "SSLPod企业专业版",
+        "Description": "sslpod_v2",
+        "TimeUnit": "y",
+        "UintPrice": 0,
+        "Content": {
+            "MaxAllowAddDomainCount": 200,
+            "MaxAllowMonitoringCount": 50,
+            "MaxAllowEmailWarnCount": 2000,
+            "MaxAllowPhoneWarnCount": 2000,
+            "MaxAllowWechatWarnCount": 2000
+        }
+    },
+    {
+        "Id": 2002,
+        "Pid": 15960,
+        "Name": "SSLPod企业旗舰版",
+        "Description": "sslpod_v3",
+        "TimeUnit": "y",
+        "UintPrice": 0,
+        "Content": {
+            "MaxAllowAddDomainCount": 1000,
+            "MaxAllowMonitoringCount": 300,
+            "MaxAllowEmailWarnCount": 10000,
+            "MaxAllowPhoneWarnCount": 10000,
+            "MaxAllowWechatWarnCount": 10000
+        }
+    }
+]

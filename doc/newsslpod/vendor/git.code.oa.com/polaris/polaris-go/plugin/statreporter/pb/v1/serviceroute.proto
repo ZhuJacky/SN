@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package v1;
+
+import "sdktoken.proto";
+import "google/protobuf/timestamp.proto";
+
+//路由调用结果
+message RouteResult {
+    //返回码
+    string ret_code = 1;
+    //一个周期内的这种返回码的调用次数
+    uint32 period_times = 2;
+}
+
+//路由规则调用记录
+message RouteRecord {
+    //使用这个规则的插件名字
+    string plugin_name = 1;
+    //各种不同返回码的结果
+    repeated RouteResult results = 2;
+}
+
+//一个服务不同类型路由规则调用记录
+message ServiceRouteRecord {
+    //该条记录的唯一id
+    string id = 1;
+    //sdk标识
+    SDKToken sdk_token = 2;
+    //命名空间
+    string namespace = 3;
+    //服务名
+    string service = 4;
+    //上报的时间
+    google.protobuf.Timestamp time = 5;
+    //路由规则调用记录
+    repeated RouteRecord records = 6;
+}

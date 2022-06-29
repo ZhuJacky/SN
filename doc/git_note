@@ -1,0 +1,50 @@
+更改分支名
+ git branch -m dev/SSLCertificate dev/ssl_certificate
+ git push origin :dev/SSLCertificate
+ git push --set-upstream origin dev/ssl_certificate
+
+ 舍弃当前修改，回退到上次commit
+ //查看提交记录
+ git reflog
+ //
+ git reset -hard 045f965
+
+ 推送地址：https://git.woa.com/yonghuizhu/sslcertificate
+
+ git remote set-url origin https://git.woa.com/yonghuizhu/sslcertificate
+
+
+# 移除原来的远程链接
+git remote remove origin
+# 查看git的远程链接
+git remote -v
+# 重新新增git远程链接
+git remote add origin https://<your token>@github.com/<your account>/<your repository>.git
+# 下拉master分支
+git push origin master -u
+————————————————
+
+
+
+ 1. 172.28.10.0-172.28.10.63
+2. grep -E '^futu|^\ futu' file
+   egrep '^futu|^\ futu' file
+3. lsof -i:80
+   lsof |grep $fileName
+4. 原因：文件被打开后，进程一直占用文件句柄，生成了比较大的文件或者多个小文件。在文件在文件系统中删除，但是磁盘空间没有释放。
+    解决方法：找到打开文件的进程，重启或者停止
+5. x的含义是可打开，需要权限：rwx
+6. /etc/limit.d/limit.conf
+7. cat AFile|awk {print }
+
+
+npm环境安装
+https://zhuanlan.zhihu.com/p/66420757
+
+
+
+
+
+
+
+

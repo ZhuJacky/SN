@@ -1,0 +1,120 @@
+version: '3'
+services:
+    backend:
+        image: harbor.trustasia.cn/mysslee/qcloud-backend:dev
+        ports:
+            - 20000:20000
+            - 6060:6060
+        environment:
+            - RUN_MODE=development
+
+            - MYSSLEE_DB_DRIVER=mysql
+            - MYSSLEE_DB_SOURCE=root:123456@tcp(192.168.252.41:3306)/sslpod?charset=utf8mb4&parseTime=True&loc=Local
+            - MYSSLEE_REDIS_ADDRESS=192.168.252.135:6379
+            - MYSSLEE_REDIS_PASSWORD=
+            - MYSSLEE_PROMETHEUS_GATEWAY=192.168.252.16:9092
+            - MYSSLEE_PROMETHEUS_ECHOURL=http://192.168.252.135:8089/latest/meta-data
+            - MYSSLEE_ETCD_ENDPOINTS=http://192.168.252.135:2379
+            - MYSSLEE_ETCD_ECHOURL=http://192.168.252.135:8089/latest/meta-data
+            - MYSSLEE_FORCE_L5=false
+
+            # myssl 配置使用 app.yml
+
+            - MYSSLEE_QCLOUD_ACCOUNT_GATEWAY=http://192.168.252.135:9030/internal/api
+            - MYSSLEE_QCLOUD_BILLING_GATEWAY=http://192.168.252.135:9030/internal/api
+            - MYSSLEE_QCLOUD_NOTIFY_GATEWAY=http://192.168.252.135:9030/internal/api
+            - MYSSLEE_QCLOUD_MODULE=sslpod
+            - MYSSLEE_QCLOUD_THEMEIDS=2452
+            - MYSSLEE_QCLOUD_CALLER=sslpod
+            - MYSSLEE_QCLOUD_ENV=idc
+        restart: always
+        logging:
+            options:
+                max-size: "500m"
+                max-file: "5"
+    checker:
+        image: harbor.trustasia.cn/mysslee/qcloud-checker:dev
+        ports:
+            - 20010:20010
+            - 6070:6060
+        environment:
+            - RUN_MODE=development
+
+            - MYSSLEE_DB_DRIVER=mysql
+            - MYSSLEE_DB_SOURCE=root:123456@tcp(192.168.252.41:3306)/sslpod?charset=utf8mb4&parseTime=True&loc=Local
+            - MYSSLEE_REDIS_ADDRESS=192.168.252.135:6379
+            - MYSSLEE_REDIS_PASSWORD=
+            - MYSSLEE_PROMETHEUS_GATEWAY=192.168.252.16:9092
+            - MYSSLEE_PROMETHEUS_ECHOURL=http://192.168.252.135:8089/latest/meta-data
+            - MYSSLEE_ETCD_ENDPOINTS=http://192.168.252.135:2379
+            - MYSSLEE_ETCD_ECHOURL=http://192.168.252.135:8089/latest/meta-data
+            - MYSSLEE_FORCE_L5=false
+
+            - MYSSLEE_MYSSL_DOMAIN=192.168.252.135:8015
+            - MYSSLEE_MYSSL_ID=mysslee
+            - MYSSLEE_MYSSL_KEY=d138865ddab238e702524ded8c6f8b8818553676
+            - MYSSLEE_MYSSL_API=http://192.168.252.135:8015/eeapi/v1/analyze
+
+            - MYSSLEE_QCLOUD_ACCOUNT_GATEWAY=http://192.168.252.135:9030/internal/api
+            - MYSSLEE_QCLOUD_BILLING_GATEWAY=http://192.168.252.135:9030/internal/api
+            - MYSSLEE_QCLOUD_NOTIFY_GATEWAY=http://192.168.252.135:9030/internal/api
+            - MYSSLEE_QCLOUD_MODULE=sslpod
+            - MYSSLEE_QCLOUD_THEMEIDS=2452
+            - MYSSLEE_QCLOUD_CALLER=xxxxxx
+            - MYSSLEE_QCLOUD_ENV=idc
+        restart: always
+        logging:
+            options:
+                max-size: "500m"
+                max-file: "5"
+    notifier:
+        image: harbor.trustasia.cn/mysslee/qcloud-notifier:dev
+        ports:
+            - 20020:20020
+            - 6080:6060
+        environment:
+            - RUN_MODE=development
+
+            - MYSSLEE_DB_DRIVER=mysql
+            - MYSSLEE_DB_SOURCE=root:123456@tcp(192.168.252.41:3306)/sslpod?charset=utf8mb4&parseTime=True&loc=Local
+            - MYSSLEE_REDIS_ADDRESS=192.168.252.135:6379
+            - MYSSLEE_REDIS_PASSWORD=
+            - MYSSLEE_PROMETHEUS_GATEWAY=192.168.252.16:9092
+            - MYSSLEE_PROMETHEUS_ECHOURL=http://192.168.252.135:8089/latest/meta-data
+            - MYSSLEE_ETCD_ENDPOINTS=http://192.168.252.135:2379
+            - MYSSLEE_ETCD_ECHOURL=http://192.168.252.135:8089/latest/meta-data
+            - MYSSLEE_FORCE_L5=false
+
+            - MYSSLEE_QCLOUD_ACCOUNT_GATEWAY=http://192.168.252.135:9030/internal/api
+            - MYSSLEE_QCLOUD_BILLING_GATEWAY=http://192.168.252.135:9030/internal/api
+            - MYSSLEE_QCLOUD_NOTIFY_GATEWAY=http://192.168.252.135:9030/internal/api
+            - MYSSLEE_QCLOUD_MODULE=sslpod
+            - MYSSLEE_QCLOUD_THEMEIDS=2452
+            - MYSSLEE_QCLOUD_CALLER=xxxxxx
+            - MYSSLEE_QCLOUD_ENV=idc
+        logging:
+            options:
+                max-size: "500m"
+                max-file: "5"
+    mock:
+        image: harbor.trustasia.cn/mysslee/qcloud-mock
+        ports:
+            - 9030:9030
+        environment:
+            - RUN_MODE=development
+            - MYSSLEE_BACKEND_ADDR=http://192.168.252.135:20000
+        logging:
+            options:
+                max-size: "500m"
+                max-file: "5"
+    front:
+        image: harbor.trustasia.cn/frontend/qcloud-myssl:1.3.0
+        ports:
+            - 9040:9000
+        environment:
+            # NOTE change ip
+            - API_URL_ENV=http://192.168.252.135:9030/external/api
+        logging:
+            options:
+                max-size: "500m"
+                max-file: "5"

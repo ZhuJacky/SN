@@ -1,0 +1,70 @@
+runmode: DEV
+forcel5: false
+ormdebug: false
+database:
+    driver: mysql
+    source: "root:123456@tcp(192.168.252.41:3306)/sslpod?charset=utf8mb4&parseTime=True&loc=Local"
+redis:
+    address: 192.168.252.41:6379
+    password: ""
+prometheus:
+    gateway:
+    - https://192.168.252.16:9095
+    echourl: http://192.168.252.135:8089/latest/meta-data
+    open: true
+    cert: conf/certs/client.pem
+    key: conf/certs/client.key
+etcd:
+    endpoints:
+    - http://192.168.252.41:2379
+    echourl: http://192.168.252.135:8089/latest/meta-data
+    cacert: conf/etcd/ca.pem
+    cert: conf/etcd/cert.pem
+    key: conf/etcd/key.pem
+
+myssl:
+    domain: 192.168.252.135:8015
+    id: eeqcloud
+    key: d138865ddab238e702524ded8c6f8b8818553676
+    anaapi: http://192.168.252.135:8015/eeapi/v1/analyze
+    detectioncount: 40
+# dnsnodes:
+#     - locationcode: "86"
+#       addr: 10.112.65.55
+#       name: 中国大陆Slave
+#       supportedns: false
+#       level: 1
+qcloud:
+    billinggateway: http://192.168.10.145:9030/internal/api
+    accountgateway: http://account.tencentyun.com:50001
+    notifygateway: http://message.tencentyun.com:50011
+    module: sslpod
+    caller: "sslpod"
+    themeids:
+        - 2452
+    env: "idc"
+# define app
+backend:
+    listen: 20000
+    basicauth:
+        qcloud: bab658e3c1176a664ccbdd74a4f4b9a5
+    basicplan: 15958
+    task:
+        duration: 6 # count
+        interval: 5
+    logpath: backend.log
+checker:
+    listen: 20010
+    basicauth:
+        backend: 2fde7b35d23015f3e94462f3880dfb4d
+    task:
+        fastworker: 160 # one cpu config
+        fasttimeout: 12 # /s
+        fullworker: 15 # one cpu config
+        fulltimeout: 120 # /s
+    logpath: checker.log
+notifier:
+    listen: 20020
+    logpath: notifier.log
+    ratelimit: 5000
+

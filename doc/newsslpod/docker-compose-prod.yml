@@ -1,0 +1,150 @@
+version: '3'
+services:
+    backend:
+        image: harbor.trustasia.cn/mysslee/qcloud-backend:dev
+        ports:
+            - 20000:20000
+        environment:
+            # 生产环境: production,测试环境: development
+            - RUN_MODE=production
+            - MYSSLEE_BACKEND_PORT=80
+
+            # 数据库驱动,默认: mysql
+            - MYSSLEE_DB_DRIVER=mysql
+            # 数据库的地址: root:123456@tcp(192.168.252.41:3306)/sslpod?charset=utf8mb4&parseTime=True&loc=Local
+            - MYSSLEE_DB_SOURCE=
+            # redis 地址: 192.168.252.135:6379
+            - MYSSLEE_REDIS_ADDRESS=
+            # redis 密码:
+            - MYSSLEE_REDIS_PASSWORD=
+            # prometheus pushgateway 地址: 192.168.252.16:9091
+            - MYSSLEE_PROMETHEUS_GATEWAY=
+            # 获取实例IP: http://169.254.169.254/latest/meta-data
+            - MYSSLEE_PROMETHEUS_ECHOURL=
+            # ETCD节点信息: http://192.168.252.41:2379,http://192.168.252.42:2379
+            - MYSSLEE_ETCD_ENDPOINTS=
+            # ETCD获取实例IP: http://169.254.169.254/latest/meta-data
+            - MYSSLEE_ETCD_ECHOURL=
+            # 是否使用 L5
+            - MYSSLEE_FORCE_L5=false
+
+            # 全量检测MySSL地址: myssl.com
+            - MYSSLEE_MYSSL_DOMAIN=myssl.com
+            # MySSL给的partner: mysslee_qcloud
+            - MYSSLEE_MYSSL_ID=sslpod
+            # MySSL给的密钥: d138865ddab23xxxxxxx4ded8c6f8b88185536
+            - MYSSLEE_MYSSL_KEY=
+            # MySSL检测API: https://myssl.com/eeapi/v1/analyze
+            - MYSSLEE_MYSSL_API=https://myssl.com/eeapi/v1/analyze
+
+            # QCloud 账号网关地址: http://192.168.252.135:9030/internal/api
+            - MYSSLEE_QCLOUD_ACCOUNT_GATEWAY=
+            # QCloud 财务网关地址: http://192.168.252.135:9030/internal/api
+            - MYSSLEE_QCLOUD_BILLING_GATEWAY=
+            # QCloud 通知网关地址: http://192.168.252.135:9030/internal/api
+            - MYSSLEE_QCLOUD_NOTIFY_GATEWAY=
+            # 通知相关
+            - MYSSLEE_QCLOUD_MODULE=sslpod
+            - MYSSLEE_QCLOUD_THEMEIDS=2452
+            - MYSSLEE_QCLOUD_CALLER=sslpod
+            - MYSSLEE_QCLOUD_ENV=idc
+        restart: always
+        logging:
+            options:
+                max-size: "500m"
+                max-file: "5"
+    checker:
+        image: harbor.trustasia.cn/mysslee/qcloud-checker:dev
+        ports:
+            - 20010:20010
+        environment:
+            # 生产环境: production,测试环境: development
+            - RUN_MODE=production
+
+            # 数据库驱动,默认: mysql
+            - MYSSLEE_DB_DRIVER=mysql
+            # 数据库的地址: 
+            - MYSSLEE_DB_SOURCE=root:123456@tcp(192.168.252.41:3306)/sslpod?charset=utf8mb4&parseTime=True&loc=Local
+            # redis 地址: 192.168.252.135:6379
+            - MYSSLEE_REDIS_ADDRESS=
+            # redis 密码:
+            - MYSSLEE_REDIS_PASSWORD=
+            # prometheus pushgateway 地址:
+            - MYSSLEE_PROMETHEUS_GATEWAY=
+            # 获取实例IP: http://169.254.169.254/latest/meta-data
+            - MYSSLEE_PROMETHEUS_ECHOURL=
+            # ETCD节点信息: http://192.168.252.41:2379,http://192.168.252.42:2379
+            - MYSSLEE_ETCD_ENDPOINTS=
+            # ETCD获取实例IP: http://169.254.169.254/latest/meta-data
+            - MYSSLEE_ETCD_ECHOURL=
+            # 是否使用 L5
+            - MYSSLEE_FORCE_L5=false
+
+            # 全量检测MySSL地址: myssl.com
+            - MYSSLEE_MYSSL_DOMAIN=myssl.com
+            # MySSL给的partner: mysslee_qcloud
+            - MYSSLEE_MYSSL_ID=mysslee_qcloud
+            # MySSL给的密钥: d138865ddab23xxxxxxx4ded8c6f8b88185536
+            - MYSSLEE_MYSSL_KEY=
+            # MySSL检测API: https://myssl.com/eeapi/v1/analyze
+            - MYSSLEE_MYSSL_API=
+
+            # QCloud 账号网关地址: http://192.168.252.135:9030/internal/api
+            - MYSSLEE_QCLOUD_ACCOUNT_GATEWAY=
+            # QCloud 财务网关地址: http://192.168.252.135:9030/internal/api
+            - MYSSLEE_QCLOUD_BILLING_GATEWAY=
+            # QCloud 通知网关地址: http://192.168.252.135:9030/internal/api
+            - MYSSLEE_QCLOUD_NOTIFY_GATEWAY=
+            # 通知相关
+            - MYSSLEE_QCLOUD_MODULE=sslpod
+            - MYSSLEE_QCLOUD_THEMEIDS=2452
+            - MYSSLEE_QCLOUD_CALLER=xxxxxx
+            - MYSSLEE_QCLOUD_ENV=idc
+        restart: always
+        logging:
+            options:
+                max-size: "500m"
+                max-file: "5"
+    notifier:
+        image: harbor.trustasia.cn/mysslee/qcloud-notifier:dev
+        ports:
+            - 20020:20020
+        environment:
+            # 生产环境: production,测试环境: development
+            - RUN_MODE=production
+
+            # 数据库驱动,默认: mysql
+            - MYSSLEE_DB_DRIVER=mysql
+            # 数据库的地址: root:123456@tcp(192.168.252.41:3306)/sslpod?charset=utf8mb4&parseTime=True&loc=Local
+            - MYSSLEE_DB_SOURCE=
+            # redis 地址: 192.168.252.135:6379
+            - MYSSLEE_REDIS_ADDRESS=
+            # redis 密码:
+            - MYSSLEE_REDIS_PASSWORD=
+            # prometheus pushgateway 地址:
+            - MYSSLEE_PROMETHEUS_GATEWAY=
+            # 获取实例IP: http://169.254.169.254/latest/meta-data
+            - MYSSLEE_PROMETHEUS_ECHOURL=
+            # ETCD节点信息: http://192.168.252.41:2379,http://192.168.252.42:2379
+            - MYSSLEE_ETCD_ENDPOINTS=
+            # ETCD获取实例IP: http://169.254.169.254/latest/meta-data
+            - MYSSLEE_ETCD_ECHOURL=
+            # 是否使用 L5
+            - MYSSLEE_FORCE_L5=false
+
+            # QCloud 账号网关地址: http://192.168.252.135:9030/internal/api
+            - MYSSLEE_QCLOUD_ACCOUNT_GATEWAY=
+            # QCloud 财务网关地址: http://192.168.252.135:9030/internal/api
+            - MYSSLEE_QCLOUD_BILLING_GATEWAY=
+            # QCloud 通知网关地址: http://192.168.252.135:9030/internal/api
+            - MYSSLEE_QCLOUD_NOTIFY_GATEWAY=
+            # 通知相关
+            - MYSSLEE_QCLOUD_MODULE=sslpod
+            - MYSSLEE_QCLOUD_THEMEIDS=2452
+            - MYSSLEE_QCLOUD_CALLER=xxxxxx
+            - MYSSLEE_QCLOUD_ENV=idc
+        restart: always
+        logging:
+            options:
+                max-size: "500m"
+                max-file: "5"
