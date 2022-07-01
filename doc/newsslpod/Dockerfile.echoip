@@ -1,8 +1,0 @@
-FROM alpine:latest
-
-RUN apk add --update --no-cache ca-certificates
-
-WORKDIR /app
-COPY app/echoip/backend /app/backend
-
-CMD ["./backend"]

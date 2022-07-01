@@ -1,1 +1,0 @@
-myocsp.go 为扩展ocsp包，非“进入式”，ocsp.go是golang官方扩展包，没有直接修改，可以更新。
