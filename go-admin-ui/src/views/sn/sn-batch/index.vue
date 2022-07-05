@@ -78,11 +78,18 @@
           </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="postList" border @selection-change="handleSelectionChange">
+        <el-table v-loading="loading" :data="batchList" border @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
-          <el-table-column label="批次编号" width="80" align="center" prop="BatchId" />
-          <el-table-column label="批次编码" align="center" prop="BatchCode" />
-          <el-table-column label="批次名称" align="center" prop="BatchName" />
+          <el-table-column label="编号" width="80" align="center" prop="BatchId" />
+          <el-table-column label="编码" align="center" prop="BatchCode" />
+          <el-table-column label="名称" align="center" prop="BatchName" />
+          <el-table-column label="数量" align="center" prop="BatchNumber" />
+          <el-table-column label="附加数量" align="center" prop="BatchExtra" />
+          <el-table-column label="UDI" align="center" prop="UDI" />
+          <el-table-column label="工单号" align="center" prop="WorkCode" />
+          
+          <el-table-column label="备注" align="center" prop="Comment" />
+
           <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat">
             <template slot-scope="scope">
               <el-tag
@@ -190,7 +197,7 @@ export default {
       // 总条数
       total: 0,
       // 岗位表格数据
-      postList: [],
+      batchList: [],
       // 弹出层标题
       title: '',
       // 是否显示弹出层
@@ -232,7 +239,7 @@ export default {
     getList() {
       this.loading = true
       listPost(this.queryParams).then(response => {
-        this.postList = response.data.list
+        this.batchList = response.data.list
         this.total = response.data.count
         this.loading = false
       })
@@ -353,7 +360,7 @@ export default {
         import('@/vendor/Export2Excel').then(excel => {
           const tHeader = ['批次ID', '批次编码', '批次名称', '创建时间']
           const filterVal = ['BatchId', 'BatchCode', 'BatchName', 'createdAt']
-          const list = this.postList
+          const list = this.batchList
           const data = formatJson(filterVal, list)
           excel.export_json_to_excel({
             header: tHeader,
