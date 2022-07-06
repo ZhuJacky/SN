@@ -80,14 +80,21 @@
 
         <el-table v-loading="loading" :data="batchList" border @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
-          <el-table-column label="编号" width="80" align="center" prop="BatchId" />
+          <el-table-column label="序号" width="80" align="center" prop="BatchId" />
           <el-table-column label="编码" align="center" prop="BatchCode" />
           <el-table-column label="名称" align="center" prop="BatchName" />
           <el-table-column label="数量" align="center" prop="BatchNumber" />
           <el-table-column label="附加数量" align="center" prop="BatchExtra" />
-          <el-table-column label="UDI" align="center" prop="UDI" />
+          <el-table-column label="产品型号" align="center" prop="ProductCode" />
+          <el-table-column label="UDI号" align="center" prop="UDI" />
           <el-table-column label="工单号" align="center" prop="WorkCode" />
-          
+          <el-table-column label="SN最大值" align="center" prop="SNMax" />
+          <el-table-column label="SN最小值" align="center" prop="SNMin" />
+          <el-table-column label="生产月份" align="center" prop="ProductMonth" :formatter="dateFormat">
+            <template slot-scope="scope">
+              <el-tag>{{ dateFormat(scope.row) }}</el-tag>
+            </template>
+          </el-table-column>
           <el-table-column label="备注" align="center" prop="Comment" />
 
           <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat">
@@ -134,26 +141,26 @@
         <!-- 添加或修改批次对话框 -->
         <el-dialog :title="title" :visible.sync="open" width="500px">
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-            <el-form-item label="批次名称" prop="postName">
-              <el-input v-model="form.postName" placeholder="请输入批次名称" />
+            <el-form-item label="批次名称" prop="BatchName">
+              <el-input v-model="form.BatchName" placeholder="请输入批次名称" />
             </el-form-item>
-            <el-form-item label="机器型号" prop="postCode">
-              <el-input v-model="form.postCode" placeholder="机器型号" />
+            <el-form-item label="产品型号" prop="ProductCode">
+              <el-input v-model="form.ProductCode" placeholder="机器型号" />
             </el-form-item>
-            <el-form-item label="工单号" prop="workCode">
-              <el-input v-model="form.workCode" placeholder="工单号" />
+            <el-form-item label="工单号" prop="WorkCode">
+              <el-input v-model="form.WorkCode" placeholder="工单号" />
             </el-form-item>
             <el-form-item label="UDI号" prop="UDI">
               <el-input v-model="form.UDI" placeholder="UDI号" />
             </el-form-item>
-            <el-form-item label="批次数量" prop="sort">
-              <el-input-number v-model="form.sort" controls-position="right" :min="0" />
+            <el-form-item label="批次数量" prop="BatchNumber">
+              <el-input-number v-model="form.BatchNumber" controls-position="right" :min="0" />
             </el-form-item>
-            <el-form-item label="多备数量" prop="extra">
-              <el-input-number v-model="form.extra" controls-position="right" :min="0" />
+            <el-form-item label="多备数量" prop="BatchExtra">
+              <el-input-number v-model="form.BatchExtra" controls-position="right" :min="0" />
             </el-form-item>
-            <el-form-item label="生产月份" prop="productDate">
-              <el-date-picker v-model="form.productDate" type="date" placeholder="选择日期" format="yyyy年MM月dd日" value-format="yyyy-MM-dd" controls-position="right" :min="0" />
+            <el-form-item label="生产月份" prop="ProductMonth">
+              <el-date-picker v-model="form.ProductMonth" type="month" placeholder="选择日期" format="yyyy年MM月" value-format="yyyy-MM" controls-position="right" :min="0" />
             </el-form-item>
             <el-form-item label="批次状态" prop="status">
               <el-radio-group v-model="form.status">
@@ -165,7 +172,7 @@
               </el-radio-group>
             </el-form-item>
             <el-form-item label="备注" prop="remark">
-              <el-input v-model="form.remark" type="textarea" placeholder="请输入内容" />
+              <el-input v-model="form.Comment" type="textarea" placeholder="请输入内容" />
             </el-form-item>
           </el-form>
           <div slot="footer" class="dialog-footer">
@@ -181,6 +188,7 @@
 <script>
 import { listPost, getPost, delPost, addPost, updatePost } from '@/api/sn/sn-batch'
 import { formatJson } from '@/utils'
+import moment from 'moment'
 
 export default {
   name: 'SysPostManage',
@@ -204,6 +212,8 @@ export default {
       open: false,
       // 状态数据字典
       statusOptions: [],
+      // 外协
+      externalOptions: [],
       // 查询参数
       queryParams: {
         pageIndex: 1,
@@ -216,13 +226,13 @@ export default {
       form: {},
       // 表单校验
       rules: {
-        postName: [
+        BatchName: [
           { required: true, message: '批次名称不能为空', trigger: 'blur' }
         ],
-        postCode: [
-          { required: true, message: '机器编码不能为空', trigger: 'blur' }
+        ProductCode: [
+          { required: true, message: '产品型号不能为空', trigger: 'blur' }
         ],
-        sort: [
+        BatchNumber: [
           { required: true, message: '批次数量不能为空', trigger: 'blur' }
         ]
       }
@@ -248,6 +258,9 @@ export default {
     statusFormat(row) {
       return this.selectDictLabel(this.statusOptions, row.status)
     },
+    dateFormat(row) {
+      return moment(row.ProductMonth).format("YYYY-MM")
+    },
     // 取消按钮
     cancel() {
       this.open = false
@@ -256,7 +269,7 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        postId: undefined,
+        BatchId: undefined,
         postCode: undefined,
         postName: undefined,
         sort: 0,
@@ -277,7 +290,7 @@ export default {
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.postId)
+      this.ids = selection.map(item => item.BatchId)
       this.single = selection.length !== 1
       this.multiple = !selection.length
     },
@@ -291,12 +304,13 @@ export default {
     handleUpdate(row) {
       this.reset()
 
-      const postId = row.BatchId || this.ids
+//      const postId = row.BatchId || this.ids
+      const postId=row.BatchId || this.Ids
       getPost(postId).then(response => {
         this.form = response.data
         this.form.status = String(this.form.status)
         this.open = true
-        this.title = '修改岗位'
+        this.title = '修改批次'
       })
     },
     /** 提交按钮 */
@@ -304,8 +318,9 @@ export default {
       this.$refs['form'].validate(valid => {
         if (valid) {
           this.form.status = parseInt(this.form.status)
-          if (this.form.postId !== undefined) {
-            updatePost(this.form, this.form.postId).then(response => {
+          if (this.form.BatchId !== undefined) {
+            this.form.ProductMonth=this.form.ProductMonth.slice(0,7)
+            updatePost(this.form, this.form.BatchId).then(response => {
               if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
@@ -331,8 +346,8 @@ export default {
     /** 删除按钮操作 */
     handleDelete(row) {
       // const postIds = row.postId || this.ids
-      const Ids = (row.postId && [row.postId]) || this.ids
-      this.$confirm('是否确认删除岗位编号为"' + Ids + '"的数据项?', '警告', {
+      const Ids = (row.BatchId && [row.BatchId]) || this.ids
+      this.$confirm('是否确认删除批次编号为"' + Ids + '"的数据项?', '警告', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'

@@ -15,7 +15,7 @@ type BatchInfo struct {
 	ProductCode string `gorm:"size:128;" json:"ProductCode"` //产品型号
 	UDI         string `gorm:"size:128;" json:"UDI"`         //
 
-	SNMax string `gorm:"size:128;" json:"SNMax" orm:"column(SNMax)"`
+	SNMax string `gorm:"column(SNMax);size:128;" json:"SNMax"`
 	SNMin string `gorm:"column(SNMin);size:128;" json:"SNMin"`
 
 	Status  int    `gorm:"size:4;" json:"status"`    //状态
@@ -24,7 +24,7 @@ type BatchInfo struct {
 	models.ControlBy
 	models.ModelTime
 
-	ProductMonth time.Time `json:"ProductMonth" gorm:"comment:批次月份"`
+	ProductMonth time.Time `json:"ProductMonth" gorm:"column(product_month);comment:批次月份"`
 }
 
 func (BatchInfo) TableName() string {

@@ -113,6 +113,8 @@ func (e BatchInfo) Insert(c *gin.Context) {
 	req.SetCreateBy(user.GetUserId(c))
 
 	err = s.Insert(&req)
+	e.Logger.Info(&req)
+
 	if err != nil {
 		e.Error(500, err, fmt.Sprintf("新建批次失败！错误详情：%s", err.Error()))
 		return
