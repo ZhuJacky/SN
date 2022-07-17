@@ -12,15 +12,15 @@ import (
 // SysPostPageReq 列表或者搜索使用结构体
 type BatchInfoPageReq struct {
 	dto.Pagination `search:"-"`
-	BatchId        int    `form:"postId" search:"type:exact;column:batch_id;table:batch_info" comment:"id"`        // id
-	BatchName      string `form:"postName" search:"type:contains;column:batch_name;table:batch_info" comment:"名称"` // 名称
-	BatchCode      string `form:"postCode" search:"type:contains;column:batch_code;table:batch_info" comment:"编码"` // 编码
+	BatchId        int    `form:"postId" search:"type:exact;column:batch_id;table:sn_batch_info" comment:"id"`        // id
+	BatchName      string `form:"postName" search:"type:contains;column:batch_name;table:sn_batch_info" comment:"名称"` // 名称
+	BatchCode      string `form:"postCode" search:"type:contains;column:batch_code;table:sn_batch_info" comment:"编码"` // 编码
 
-	ProductCode string `form:"productCode" search:"type:contains;column:product_code;table:batch_info" comment:"编码"` // 编码
-	SNMax       string `form:"snMax" search:"type:exact;column:snmax;table:batch_info" comment:"SNMAX"`              // 编码
-	SNMin       string `form:"snMin" search:"type:exact;column:snmax;table:batch_info" comment:"SNMIN"`              // 编码
-	Status      int    `form:"status" search:"type:exact;column:status;table:batch_info" comment:"状态"`               // 状态
-	Comment     string `form:"Comment" search:"type:exact;column:comment;table:batch_info" comment:"备注"`             // 备注
+	ProductCode string `form:"productCode" search:"type:contains;column:product_code;table:sn_batch_info" comment:"编码"` // 编码
+	SNMax       string `form:"snMax" search:"type:exact;column:snmax;table:sn_batch_info" comment:"SNMAX"`              // 编码
+	SNMin       string `form:"snMin" search:"type:exact;column:snmax;table:sn_batch_info" comment:"SNMIN"`              // 编码
+	Status      int    `form:"status" search:"type:exact;column:status;table:sn_batch_info" comment:"状态"`               // 状态
+	Comment     string `form:"Comment" search:"type:exact;column:comment;table:sn_batch_info" comment:"备注"`             // 备注
 }
 
 func (m *BatchInfoPageReq) GetNeedSearch() interface{} {

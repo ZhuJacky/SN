@@ -21,6 +21,7 @@
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
+
           <el-form-item label="状态" prop="status">
             <el-select v-model="queryParams.status" placeholder="批次状态" clearable size="small">
               <el-option
@@ -120,6 +121,13 @@
                 @click="handleUpdate(scope.row)"
               >修改</el-button>
               <el-button
+                v-permisaction="['admin:sysPost:edit']"
+                size="mini"
+                type="text"
+                icon="el-icon-edit"
+                @click="handleUpdate(scope.row)"
+              >详情</el-button>
+              <el-button
                 v-permisaction="['admin:sysPost:remove']"
                 size="mini"
                 type="text"
@@ -141,17 +149,45 @@
         <!-- 添加或修改批次对话框 -->
         <el-dialog :title="title" :visible.sync="open" width="500px">
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+         
             <el-form-item label="批次名称" prop="BatchName">
               <el-input v-model="form.BatchName" placeholder="请输入批次名称" />
             </el-form-item>
+          
+
+            <el-form-item label="产品名称" prop="ProductName">
+             <!-- <el-input v-model="form.ProductName" placeholder="机器型号" /> -->
+              <el-select v-model="form.ProductName" placeholder="请选择"  v-on:input="changeForm()">
+                  <el-option
+                    v-for="dict in productList"
+                    :key="dict.ProductName"
+                    :label="dict.ProductName"
+                    :value="dict.ProductName"
+                  />
+                </el-select>
+            </el-form-item>
+          
             <el-form-item label="产品型号" prop="ProductCode">
               <el-input v-model="form.ProductCode" placeholder="机器型号" />
+            </el-form-item>
+            <el-form-item label="UDI号" prop="UDI">
+              <el-input v-model="form.UDI" placeholder="UDI号" />
             </el-form-item>
             <el-form-item label="工单号" prop="WorkCode">
               <el-input v-model="form.WorkCode" placeholder="工单号" />
             </el-form-item>
-            <el-form-item label="UDI号" prop="UDI">
-              <el-input v-model="form.UDI" placeholder="UDI号" />
+            <el-form-item label="制作类型" prop="External">
+              <el-radio-group v-model="form.External">
+                <el-radio
+                  :key="1"
+                  :label="1"
+                >外做</el-radio>
+                <el-radio
+                  :key="0"
+                  :label="0"
+                >内做</el-radio>
+                                
+              </el-radio-group>
             </el-form-item>
             <el-form-item label="批次数量" prop="BatchNumber">
               <el-input-number v-model="form.BatchNumber" controls-position="right" :min="0" />
@@ -163,17 +199,22 @@
               <el-date-picker v-model="form.ProductMonth" type="month" placeholder="选择日期" format="yyyy年MM月" value-format="yyyy-MM" controls-position="right" :min="0" />
             </el-form-item>
             <el-form-item label="批次状态" prop="status">
-              <el-radio-group v-model="form.status">
-                <el-radio
-                  v-for="dict in statusOptions"
-                  :key="dict.value"
-                  :label="dict.value"
-                >{{ dict.label }}</el-radio>
-              </el-radio-group>
+              <el-select v-model="form.status" placeholder="请选择" >
+                  <el-option
+                    v-for="dict in statusOptions"
+                    :key="dict.value"
+                    :label="dict.label"
+                    :value="dict.value"
+                  />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="图样" prop="ProductSNImage">
+                  <img v-if="form.ProductSNImage" :src='form.ProductSNImage' class="el-upload el-upload--picture-card" style="float:left">
             </el-form-item>
             <el-form-item label="备注" prop="remark">
               <el-input v-model="form.Comment" type="textarea" placeholder="请输入内容" />
             </el-form-item>
+  
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -187,6 +228,7 @@
 
 <script>
 import { listPost, getPost, delPost, addPost, updatePost } from '@/api/sn/sn-batch'
+import { listProduct } from '@/api/sn/sn-product'
 import { formatJson } from '@/utils'
 import moment from 'moment'
 
@@ -206,6 +248,7 @@ export default {
       total: 0,
       // 岗位表格数据
       batchList: [],
+      productList: [],
       // 弹出层标题
       title: '',
       // 是否显示弹出层
@@ -229,18 +272,25 @@ export default {
         BatchName: [
           { required: true, message: '批次名称不能为空', trigger: 'blur' }
         ],
-        ProductCode: [
-          { required: true, message: '产品型号不能为空', trigger: 'blur' }
+        ProductName: [
+          { required: true, message: '产品名称不能为空', trigger: 'blur' }
+        ],
+        WorkCode: [
+          { required: true, message: '工单号不能为空', trigger: 'blur' }
         ],
         BatchNumber: [
           { required: true, message: '批次数量不能为空', trigger: 'blur' }
+        ],
+        External: [
+          { required: true, message: '制作类型不能为空', trigger: 'blur' }
         ]
       }
     }
   },
+
   created() {
     this.getList()
-    this.getDicts('sys_normal_disable').then(response => {
+    this.getDicts('sn_batch_status').then(response => {
       this.statusOptions = response.data
     })
   },
@@ -252,6 +302,12 @@ export default {
         this.batchList = response.data.list
         this.total = response.data.count
         this.loading = false
+      })
+    },
+
+    getProductList() {
+      listProduct(this.queryParams).then(response => {
+        this.productList = response.data.list
       })
     },
     // 岗位状态字典翻译
@@ -297,21 +353,30 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset()
+      this.getProductList()
       this.open = true
       this.title = '添加批次'
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-
-//      const postId = row.BatchId || this.ids
-      const postId=row.BatchId || this.Ids
+      /** const postId=row.BatchId || this.Ids */
+      const postId = (row.BatchId && [row.BatchId]) || this.ids
       getPost(postId).then(response => {
         this.form = response.data
         this.form.status = String(this.form.status)
         this.open = true
         this.title = '修改批次'
       })
+    },
+    changeForm: function() {
+      for(let i=0; i<this.productList.length; i++) {
+        if(this.productList[i].ProductName === this.form.ProductName) {
+          this.form.UDI=this.productList[i].UDI
+          this.form.ProductCode=this.productList[i].ProductCode
+          this.form.ProductSNImage=this.productList[i].ImageFile
+        }
+      }
     },
     /** 提交按钮 */
     submitForm: function() {
@@ -373,8 +438,8 @@ export default {
       }).then(() => {
         this.downloadLoading = true
         import('@/vendor/Export2Excel').then(excel => {
-          const tHeader = ['批次ID', '批次编码', '批次名称', '创建时间']
-          const filterVal = ['BatchId', 'BatchCode', 'BatchName', 'createdAt']
+          const tHeader = ['批次ID', '批次编码', '批次名称','批次数量','附加数量','产品型号','UDI号','工单号','SN最大值','SN最小值','生产月份','备注', '状态','创建时间']
+          const filterVal = ['BatchId', 'BatchCode', 'BatchName','BatchNumber','BatchExtra','ProductCode','UDI','WorkCode','SNMax','SNMin', 'ProductMonth','Comment','status','createdAt']
           const list = this.batchList
           const data = formatJson(filterVal, list)
           excel.export_json_to_excel({

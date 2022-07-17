@@ -28,7 +28,7 @@ type BatchInfo struct {
 }
 
 func (BatchInfo) TableName() string {
-	return "batch_info"
+	return "sn_batch_info"
 }
 
 func (e *BatchInfo) Generate() models.ActiveRecord {
