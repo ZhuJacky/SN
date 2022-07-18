@@ -12,6 +12,7 @@ import (
 	"go-admin/app/sn/models"
 	"go-admin/app/sn/service"
 	"go-admin/app/sn/service/dto"
+	"go-admin/common/actions"
 )
 
 type BatchInfo struct {
@@ -45,8 +46,9 @@ func (e BatchInfo) GetPage(c *gin.Context) {
 
 	list := make([]models.BatchInfo, 0)
 	var count int64
-
-	err = s.GetPage(&req, &list, &count)
+	//数据权限检查
+	p := actions.GetPermissionFromContext(c)
+	err = s.GetPage(&req, &list, p, &count)
 	if err != nil {
 		e.Error(500, err, "查询失败")
 		return

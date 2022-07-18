@@ -86,8 +86,9 @@
           <el-table-column label="名称" align="center" prop="BatchName" />
           <el-table-column label="数量" align="center" prop="BatchNumber" />
           <el-table-column label="附加数量" align="center" prop="BatchExtra" />
-          <el-table-column label="产品型号" align="center" prop="ProductCode" />
-          <el-table-column label="UDI号" align="center" prop="UDI" />
+          <el-table-column label="产品型号" align="center" prop="Product.ProductCode" />
+          <el-table-column label="产品名称" align="center" prop="Product.ProductName" />
+          <el-table-column label="UDI号" align="center" prop="Product.UDI" />
           <el-table-column label="工单号" align="center" prop="WorkCode" />
           <el-table-column label="SN最大值" align="center" prop="SNMax" />
           <el-table-column label="SN最小值" align="center" prop="SNMin" />
@@ -96,8 +97,12 @@
               <el-tag>{{ dateFormat(scope.row) }}</el-tag>
             </template>
           </el-table-column>
+          <el-table-column prop="Product.ImageFile" label="图样" align="center" width="100px">
+          <template slot-scope="scope">
+            <el-image v-if="scope.row.Product" :src="scope.row.Product.ImageFile" :preview-src-list="[scope.row.Product.ImageFile]"></el-image>
+          </template>
+          </el-table-column>
           <el-table-column label="备注" align="center" prop="Comment" />
-
           <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat">
             <template slot-scope="scope">
               <el-tag
@@ -153,20 +158,17 @@
             <el-form-item label="批次名称" prop="BatchName">
               <el-input v-model="form.BatchName" placeholder="请输入批次名称" />
             </el-form-item>
-          
-
             <el-form-item label="产品名称" prop="ProductName">
              <!-- <el-input v-model="form.ProductName" placeholder="机器型号" /> -->
-              <el-select v-model="form.ProductName" placeholder="请选择"  v-on:input="changeForm()">
+              <el-select v-model="form.ProductId" placeholder="请选择"  v-on:input="changeForm()">
                   <el-option
                     v-for="dict in productList"
                     :key="dict.ProductName"
                     :label="dict.ProductName"
-                    :value="dict.ProductName"
+                    :value="dict.ProductId"
                   />
                 </el-select>
             </el-form-item>
-          
             <el-form-item label="产品型号" prop="ProductCode">
               <el-input v-model="form.ProductCode" placeholder="机器型号" />
             </el-form-item>
@@ -185,8 +187,7 @@
                 <el-radio
                   :key="0"
                   :label="0"
-                >内做</el-radio>
-                                
+                >内做</el-radio>  
               </el-radio-group>
             </el-form-item>
             <el-form-item label="批次数量" prop="BatchNumber">
@@ -209,7 +210,7 @@
               </el-select>
             </el-form-item>
             <el-form-item label="图样" prop="ProductSNImage">
-                  <img v-if="form.ProductSNImage" :src='form.ProductSNImage' class="el-upload el-upload--picture-card" style="float:left">
+              <img v-if="form.ProductSNImage" :src="form.ProductSNImage" style="float:left" align="center" width="300px">
             </el-form-item>
             <el-form-item label="备注" prop="remark">
               <el-input v-model="form.Comment" type="textarea" placeholder="请输入内容" />
@@ -272,7 +273,7 @@ export default {
         BatchName: [
           { required: true, message: '批次名称不能为空', trigger: 'blur' }
         ],
-        ProductName: [
+        ProductId: [
           { required: true, message: '产品名称不能为空', trigger: 'blur' }
         ],
         WorkCode: [
@@ -360,10 +361,12 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-      /** const postId=row.BatchId || this.Ids */
+
+      this.getProductList()
       const postId = (row.BatchId && [row.BatchId]) || this.ids
       getPost(postId).then(response => {
         this.form = response.data
+        this.form.ProductSNImage=row.Product.ImageFile
         this.form.status = String(this.form.status)
         this.open = true
         this.title = '修改批次'
@@ -371,7 +374,7 @@ export default {
     },
     changeForm: function() {
       for(let i=0; i<this.productList.length; i++) {
-        if(this.productList[i].ProductName === this.form.ProductName) {
+        if(this.productList[i].ProductId === this.form.ProductId) {
           this.form.UDI=this.productList[i].UDI
           this.form.ProductCode=this.productList[i].ProductCode
           this.form.ProductSNImage=this.productList[i].ImageFile

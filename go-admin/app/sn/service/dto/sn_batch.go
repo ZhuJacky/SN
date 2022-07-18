@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+type ProductJoin struct {
+	ProductID string `search:"type:exact;column:product_id;table:sn_product_id" form:"productID"`
+}
+
 // SysPostPageReq 列表或者搜索使用结构体
 type BatchInfoPageReq struct {
 	dto.Pagination `search:"-"`
@@ -16,11 +20,13 @@ type BatchInfoPageReq struct {
 	BatchName      string `form:"postName" search:"type:contains;column:batch_name;table:sn_batch_info" comment:"名称"` // 名称
 	BatchCode      string `form:"postCode" search:"type:contains;column:batch_code;table:sn_batch_info" comment:"编码"` // 编码
 
-	ProductCode string `form:"productCode" search:"type:contains;column:product_code;table:sn_batch_info" comment:"编码"` // 编码
-	SNMax       string `form:"snMax" search:"type:exact;column:snmax;table:sn_batch_info" comment:"SNMAX"`              // 编码
-	SNMin       string `form:"snMin" search:"type:exact;column:snmax;table:sn_batch_info" comment:"SNMIN"`              // 编码
-	Status      int    `form:"status" search:"type:exact;column:status;table:sn_batch_info" comment:"状态"`               // 状态
-	Comment     string `form:"Comment" search:"type:exact;column:comment;table:sn_batch_info" comment:"备注"`             // 备注
+	ProductCode  string `form:"productCode" search:"type:contains;column:product_code;table:sn_batch_info" comment:"编码"`     // 编码
+	ProductMonth string `form:"productMonth" search:"type:contains;column:product_month;table:sn_batch_info" comment:"生产月份"` // 编码
+	SNMax        string `form:"snMax" search:"type:exact;column:snmax;table:sn_batch_info" comment:"SNMAX"`                  // 编码
+	SNMin        string `form:"snMin" search:"type:exact;column:snmax;table:sn_batch_info" comment:"SNMIN"`                  // 编码
+	Status       int    `form:"status" search:"type:exact;column:status;table:sn_batch_info" comment:"状态"`                   // 状态
+	Comment      string `form:"Comment" search:"type:exact;column:comment;table:sn_batch_info" comment:"备注"`                 // 备注
+	ProductJoin  `search:"type:left;on:product_id:product_id;table:sn_batch_info;join:sn_product_info"`
 }
 
 func (m *BatchInfoPageReq) GetNeedSearch() interface{} {
@@ -40,6 +46,8 @@ type BatchInfoInsertReq struct {
 	Status       int    `form:"status"   comment:"状态"`
 	Comment      string `form:"Comment"   comment:"备注"`
 	ProductMonth string `form:"ProductMonth"   comment:"生产月份"`
+	ProductId    int    `form:"ProductId"  comment:"产品ID"`
+
 	common.ControlBy
 }
 
@@ -63,7 +71,7 @@ func (s *BatchInfoInsertReq) Generate(model *models.BatchInfo) {
 	model.SNMax = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + smin
 	model.SNMin = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + smax
 	model.BatchCode = strconv.Itoa(year) + strconv.Itoa(int(month)) + "001"
-
+	model.ProductId = uint(s.ProductId)
 	if s.ControlBy.UpdateBy != 0 {
 		model.UpdateBy = s.UpdateBy
 	}
@@ -79,14 +87,14 @@ func (s *BatchInfoInsertReq) GetId() interface{} {
 
 // SysPostUpdateReq 改使用的结构体
 type BatchInfoUpdateReq struct {
-	BatchId     int    `uri:"id"  comment:"id"`
-	BatchName   string `form:"BatchName"  comment:"批次名称"`
-	BatchNumber int    `form:"BatchNumber"  comment:"批次数量"`
-	BatchExtra  int    `form:"BatchExtra"  comment:"附加数量"`
-	ProductCode string `form:"ProductCode" comment:"产品型号"`
-	WorkCode    string `form:"WorkCode" comment:"工单号"`
-	UDI         string `form:"UDI" comment:"UDI号"`
-
+	BatchId      int    `uri:"id"  comment:"id"`
+	BatchName    string `form:"BatchName"  comment:"批次名称"`
+	BatchNumber  int    `form:"BatchNumber"  comment:"批次数量"`
+	BatchExtra   int    `form:"BatchExtra"  comment:"附加数量"`
+	ProductCode  string `form:"ProductCode" comment:"产品型号"`
+	WorkCode     string `form:"WorkCode" comment:"工单号"`
+	UDI          string `form:"UDI" comment:"UDI号"`
+	External     int    `form:"External" comment:"制作类型"`
 	Status       int    `form:"status"   comment:"状态"`
 	Comment      string `form:"Comment"   comment:"备注"`
 	ProductMonth string `form:"ProductMonth"   comment:"生产月份"`
@@ -106,7 +114,7 @@ func (s *BatchInfoUpdateReq) Generate(model *models.BatchInfo) {
 	//date, _ := time.Parse("2022-01-03", s.ProductMonth+"-03")
 	date, _ := time.Parse("2006-01-02", dateString)
 	model.ProductMonth = date
-
+	model.External = s.External
 	year := date.Year()
 	ycode := (year - 33) % 100
 	month := date.Month()

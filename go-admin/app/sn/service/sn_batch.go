@@ -8,6 +8,7 @@ import (
 
 	"go-admin/app/sn/models"
 	"go-admin/app/sn/service/dto"
+	"go-admin/common/actions"
 	cDto "go-admin/common/dto"
 )
 
@@ -16,18 +17,25 @@ type BatchInfo struct {
 }
 
 // GetPage 获取BatchInfo列表
-func (e *BatchInfo) GetPage(c *dto.BatchInfoPageReq, list *[]models.BatchInfo, count *int64) error {
+func (e *BatchInfo) GetPage(c *dto.BatchInfoPageReq, list *[]models.BatchInfo, p *actions.DataPermission, count *int64) error {
 	var err error
 	var data models.BatchInfo
 
-	err = e.Orm.Model(&data).
+	// err = e.Orm.Model(&data).
+	// 	Scopes(
+	// 		cDto.MakeCondition(c.GetNeedSearch()),
+	// 		cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
+	// 	).
+	// 	Find(list).Limit(-1).Offset(-1).
+	// 	Count(count).Error
+	err = e.Orm.Debug().Preload("Product").
 		Scopes(
 			cDto.MakeCondition(c.GetNeedSearch()),
 			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
+			actions.Permission(data.TableName(), p),
 		).
 		Find(list).Limit(-1).Offset(-1).
 		Count(count).Error
-
 	if err != nil {
 		e.Log.Errorf("db error:%s \r", err)
 		return err

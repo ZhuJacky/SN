@@ -18,13 +18,16 @@ type BatchInfo struct {
 	SNMax string `gorm:"column(SNMax);size:128;" json:"SNMax"`
 	SNMin string `gorm:"column(SNMin);size:128;" json:"SNMin"`
 
-	Status  int    `gorm:"size:4;" json:"status"`    //状态
-	Comment string `gorm:"size:255;" json:"Comment"` //描述备注
-
+	Status   int    `gorm:"size:4;" json:"status"`    //状态
+	Comment  string `gorm:"size:255;" json:"Comment"` //描述备注
+	External int    `gorm:"size:4;" json:"External"`  //状态
 	models.ControlBy
 	models.ModelTime
 
 	ProductMonth time.Time `json:"ProductMonth" gorm:"column(product_month);comment:批次月份"`
+
+	ProductId uint         `gorm:"column(product_id)" json:"ProductId"` //批次ID
+	Product   *ProductInfo `json:"Product"`
 }
 
 func (BatchInfo) TableName() string {
