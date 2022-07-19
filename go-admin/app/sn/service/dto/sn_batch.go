@@ -1,11 +1,9 @@
 package dto
 
 import (
-	"fmt"
 	"go-admin/app/sn/models"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
-	"strconv"
 	"time"
 )
 
@@ -47,11 +45,20 @@ type BatchInfoInsertReq struct {
 	Comment      string `form:"Comment"   comment:"备注"`
 	ProductMonth string `form:"ProductMonth"   comment:"生产月份"`
 	ProductId    int    `form:"ProductId"  comment:"产品ID"`
-
+	External     int    `form:"External" comment:"制作类型"`
 	common.ControlBy
+}
+type BatchInfoSub struct {
+	ProductID    int    `search:"type:exact;column:product_id;table:sn_batch_info" comment:"编码"`         // 编码
+	ProductMonth string `search:"type:contains;column:product_month;table:sn_batch_info" comment:"生产月份"` // 编码
+}
+
+func (m *BatchInfoSub) GetNeedSearch() interface{} {
+	return *m
 }
 
 func (s *BatchInfoInsertReq) Generate(model *models.BatchInfo) {
+
 	model.BatchName = s.BatchName
 	model.BatchNumber = s.BatchNumber
 	model.BatchExtra = s.BatchExtra
@@ -60,17 +67,17 @@ func (s *BatchInfoInsertReq) Generate(model *models.BatchInfo) {
 	model.WorkCode = s.WorkCode
 	model.Status = s.Status
 	model.Comment = s.Comment
-	date, _ := time.Parse("2006-01-02", s.ProductMonth+"-03")
-	model.ProductMonth = date
-	year := date.Year()
-	ycode := (year - 33) % 100
-	month := date.Month()
-	mcode := month + 22
-	smin := fmt.Sprintf("%06d", 1)
-	smax := fmt.Sprintf("%06d", model.BatchNumber+model.BatchExtra)
-	model.SNMax = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + smin
-	model.SNMin = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + smax
-	model.BatchCode = strconv.Itoa(year) + strconv.Itoa(int(month)) + "001"
+
+	// year := date.Year()
+	// ycode := (year - 33) % 100
+	// month := date.Month()
+	// mcode := month + 22
+	// smin := fmt.Sprintf("%06d", 1)
+	// smax := fmt.Sprintf("%06d", model.BatchNumber+model.BatchExtra)
+	// model.SNMax = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + smin
+	// model.SNMin = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + smax
+	// model.BatchCode = strconv.Itoa(year) + strconv.Itoa(int(month)) + "001"
+
 	model.ProductId = uint(s.ProductId)
 	if s.ControlBy.UpdateBy != 0 {
 		model.UpdateBy = s.UpdateBy
@@ -97,6 +104,7 @@ type BatchInfoUpdateReq struct {
 	External     int    `form:"External" comment:"制作类型"`
 	Status       int    `form:"status"   comment:"状态"`
 	Comment      string `form:"Comment"   comment:"备注"`
+	ProductId    int    `form:"ProductId"  comment:"产品ID"`
 	ProductMonth string `form:"ProductMonth"   comment:"生产月份"`
 	common.ControlBy
 }
@@ -115,15 +123,6 @@ func (s *BatchInfoUpdateReq) Generate(model *models.BatchInfo) {
 	date, _ := time.Parse("2006-01-02", dateString)
 	model.ProductMonth = date
 	model.External = s.External
-	year := date.Year()
-	ycode := (year - 33) % 100
-	month := date.Month()
-	mcode := month + 22
-	smin := fmt.Sprintf("%06d", 1)
-	smax := fmt.Sprintf("%06d", model.BatchNumber+model.BatchExtra)
-	model.SNMax = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + smin
-	model.SNMin = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + smax
-	model.BatchCode = strconv.Itoa(year) + strconv.Itoa(int(month)) + "001"
 
 	if s.ControlBy.UpdateBy != 0 {
 		model.UpdateBy = s.UpdateBy

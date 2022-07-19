@@ -290,6 +290,7 @@ export default {
   },
 
   created() {
+    this.getProductList()
     this.getList()
     this.getDicts('sn_batch_status').then(response => {
       this.statusOptions = response.data
@@ -334,6 +335,7 @@ export default {
         remark: undefined
       }
       this.resetForm('form')
+      
     },
     /** 搜索按钮操作 */
     handleQuery() {
@@ -354,15 +356,13 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset()
-      this.getProductList()
+
       this.open = true
       this.title = '添加批次'
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
-
-      this.getProductList()
       const postId = (row.BatchId && [row.BatchId]) || this.ids
       getPost(postId).then(response => {
         this.form = response.data

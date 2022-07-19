@@ -2,6 +2,9 @@ package service
 
 import (
 	"errors"
+	"fmt"
+	"strconv"
+	"time"
 
 	"github.com/go-admin-team/go-admin-core/sdk/service"
 	"gorm.io/gorm"
@@ -63,10 +66,49 @@ func (e *BatchInfo) Get(d *dto.BatchInfoGetReq, model *models.BatchInfo) error {
 	return nil
 }
 
+func ProductFilter(db *gorm.DB, productID int) *gorm.DB {
+	return db.Where("product_id = ?", productID)
+}
+
+func MonthFilter(db *gorm.DB, month string) *gorm.DB {
+	date, _ := time.Parse("2006-01-02", month+"-03")
+	return db.Where("product_month = ?", date)
+}
+
+func (e *BatchInfo) GenerateInsertID(model *models.BatchInfo, s *dto.BatchInfoInsertReq) error {
+	var list []models.BatchInfo
+	date, _ := time.Parse("2006-01-02", s.ProductMonth+"-03")
+	e.Orm.Unscoped().Where("product_id= ? AND DATE_FORMAT(product_month,'%Y-%m')= ?", s.ProductId, s.ProductMonth).Find(&list)
+	model.ProductMonth = date
+	var sum int = 0
+	for _, batch := range list {
+		sum = sum + batch.BatchNumber + batch.BatchExtra
+	}
+	year := date.Year()
+	ycode := (year - 33) % 100
+	month := date.Month()
+	mcode := month + 22
+	smin := fmt.Sprintf("%06d", sum+1)
+	smax := fmt.Sprintf("%06d", sum+s.BatchNumber+s.BatchExtra)
+	model.SNMax = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smax
+	model.SNMin = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smin
+	count := len(list)
+	var cstr string = strconv.Itoa(count + 1)
+	monthStr := fmt.Sprintf("%02d", int(month))
+	model.BatchCode = strconv.Itoa(year) + monthStr + cstr
+	model.External = s.External
+	if model.External == 1 {
+		model.SNMax = "(01)" + model.SNMax
+		model.SNMin = "(01)" + model.SNMin
+	}
+	return nil
+}
+
 // Insert 创建SysPost对象
 func (e *BatchInfo) Insert(c *dto.BatchInfoInsertReq) error {
 	var err error
 	var data models.BatchInfo
+	_ = e.GenerateInsertID(&data, c)
 	c.Generate(&data)
 	err = e.Orm.Create(&data).Error
 	if err != nil {
@@ -76,11 +118,59 @@ func (e *BatchInfo) Insert(c *dto.BatchInfoInsertReq) error {
 	return nil
 }
 
+func (e *BatchInfo) GenerateUpdateID(model *models.BatchInfo, s *dto.BatchInfoUpdateReq) error {
+	var list []models.BatchInfo
+	date, _ := time.Parse("2006-01-02", s.ProductMonth+"-03")
+	e.Orm.Unscoped().Where("product_id= ? AND DATE_FORMAT(product_month,'%Y-%m')= ?", s.ProductId, s.ProductMonth).Find(&list)
+	model.ProductMonth = date
+	var sum int = 0
+	var isLast bool = true
+	for _, batch := range list {
+
+		if batch.BatchId < model.BatchId {
+			sum = sum + batch.BatchNumber + batch.BatchExtra
+		} else {
+			isLast = false
+			break
+		}
+	}
+
+	if !isLast {
+		if s.BatchNumber+s.BatchExtra > model.BatchNumber+model.BatchExtra {
+			return errors.New("不是当月最后一批，不要增加总数")
+		}
+
+	}
+	year := date.Year()
+	ycode := (year - 33) % 100
+	month := date.Month()
+	mcode := month + 22
+	smin := fmt.Sprintf("%06d", sum+1)
+	smax := fmt.Sprintf("%06d", sum+model.BatchNumber+model.BatchExtra)
+	SNMax := strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smax
+	SNMin := strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smin
+	count := len(list)
+	var cstr string = strconv.Itoa(count + 1)
+	monthStr := fmt.Sprintf("%02d", int(month))
+	if s.External == 1 && model.External == 0 {
+		model.External = s.External
+		model.SNMax = "(01)" + SNMax
+		model.SNMin = "(01)" + SNMin
+	}
+	model.BatchCode = strconv.Itoa(year) + monthStr + cstr
+
+	return nil
+}
+
 // Update 修改SysPost对象
 func (e *BatchInfo) Update(c *dto.BatchInfoUpdateReq) error {
 	var err error
 	var model = models.BatchInfo{}
 	e.Orm.First(&model, c.GetId())
+	err = e.GenerateUpdateID(&model, c)
+	if err != nil {
+		return err
+	}
 	c.Generate(&model)
 	e.Log.Info("%v", &model)
 	db := e.Orm.Save(&model)
@@ -91,7 +181,6 @@ func (e *BatchInfo) Update(c *dto.BatchInfoUpdateReq) error {
 	}
 	if db.RowsAffected == 0 {
 		return errors.New("无权更新该数据")
-
 	}
 	return nil
 }
