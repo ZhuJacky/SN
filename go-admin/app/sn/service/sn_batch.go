@@ -93,7 +93,7 @@ func (e *BatchInfo) GenerateInsertID(model *models.BatchInfo, s *dto.BatchInfoIn
 	model.SNMax = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smax
 	model.SNMin = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smin
 	count := len(list)
-	var cstr string = strconv.Itoa(count + 1)
+	var cstr string = fmt.Sprintf("%03d", count+1)
 	monthStr := fmt.Sprintf("%02d", int(month))
 	model.BatchCode = strconv.Itoa(year) + monthStr + cstr
 	model.External = s.External
