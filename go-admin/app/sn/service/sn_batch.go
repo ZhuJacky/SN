@@ -125,10 +125,12 @@ func (e *BatchInfo) GenerateUpdateID(model *models.BatchInfo, s *dto.BatchInfoUp
 	model.ProductMonth = date
 	var sum int = 0
 	var isLast bool = true
+	var count int = 1
 	for _, batch := range list {
 
 		if batch.BatchId < model.BatchId {
 			sum = sum + batch.BatchNumber + batch.BatchExtra
+			count++
 		} else if batch.BatchId > model.BatchId {
 			isLast = false
 		}
@@ -152,7 +154,7 @@ func (e *BatchInfo) GenerateUpdateID(model *models.BatchInfo, s *dto.BatchInfoUp
 	smax := fmt.Sprintf("%06d", sum+numMax)
 	SNMax := strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smax
 	SNMin := strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smin
-	count := len(list)
+
 	var cstr string = fmt.Sprintf("%03d", count+1)
 	monthStr := fmt.Sprintf("%02d", int(month))
 	if s.External == 1 {
