@@ -129,9 +129,8 @@ func (e *BatchInfo) GenerateUpdateID(model *models.BatchInfo, s *dto.BatchInfoUp
 
 		if batch.BatchId < model.BatchId {
 			sum = sum + batch.BatchNumber + batch.BatchExtra
-		} else {
+		}  else if batch.BatchId > model.BatchId {
 			isLast = false
-			break
 		}
 	}
 
