@@ -153,7 +153,7 @@ func (e *BatchInfo) GenerateUpdateID(model *models.BatchInfo, s *dto.BatchInfoUp
 	SNMax := strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smax
 	SNMin := strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smin
 	count := len(list)
-	var cstr string = strconv.Itoa(count + 1)
+	var cstr string = fmt.Sprintf("%03d", count+1)
 	monthStr := fmt.Sprintf("%02d", int(month))
 	if s.External == 1 {
 		model.External = s.External
