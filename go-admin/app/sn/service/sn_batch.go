@@ -129,23 +129,27 @@ func (e *BatchInfo) GenerateUpdateID(model *models.BatchInfo, s *dto.BatchInfoUp
 
 		if batch.BatchId < model.BatchId {
 			sum = sum + batch.BatchNumber + batch.BatchExtra
-		}  else if batch.BatchId > model.BatchId {
+		} else if batch.BatchId > model.BatchId {
 			isLast = false
 		}
 	}
-
 	if !isLast {
-		if s.BatchNumber+s.BatchExtra > model.BatchNumber+model.BatchExtra {
-			return errors.New("不是当月最后一批，不要增加总数")
+		if s.BatchNumber+s.BatchExtra != model.BatchNumber+model.BatchExtra {
+			return errors.New("不是当月最后一批，不要改变数量，以免影响其他批次")
 		}
-
 	}
 	year := date.Year()
 	ycode := (year - 33) % 100
 	month := date.Month()
 	mcode := month + 22
 	smin := fmt.Sprintf("%06d", sum+1)
-	smax := fmt.Sprintf("%06d", sum+model.BatchNumber+model.BatchExtra)
+	var numMax int
+	if s.BatchNumber+s.BatchExtra > model.BatchNumber+model.BatchExtra {
+		numMax = s.BatchNumber + s.BatchExtra
+	} else {
+		numMax = model.BatchNumber + model.BatchExtra
+	}
+	smax := fmt.Sprintf("%06d", sum+numMax)
 	SNMax := strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smax
 	SNMin := strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smin
 	count := len(list)
@@ -161,7 +165,6 @@ func (e *BatchInfo) GenerateUpdateID(model *models.BatchInfo, s *dto.BatchInfoUp
 		model.SNMin = SNMin
 	}
 	model.BatchCode = strconv.Itoa(year) + monthStr + cstr
-
 	return nil
 }
 
