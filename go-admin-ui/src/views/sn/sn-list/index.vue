@@ -3,7 +3,7 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="批次编码" prop="postCode">
+          <el-form-item label="批号" prop="postCode">
             <el-input
               v-model="queryParams.postCode"
               placeholder="请输入批次编码"
@@ -21,7 +21,6 @@
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
-
           <el-form-item label="状态" prop="status">
             <el-select v-model="queryParams.status" placeholder="批次状态" clearable size="small">
               <el-option
@@ -77,32 +76,31 @@
               @click="handleExport"
             >导出</el-button>
           </el-col>
+          <el-col :span="1.5">
+              <el-button
+                v-permisaction="['admin:sysPost:export']"
+                type="warning"
+                icon="el-icon-view"
+                size="mini"
+                @click="handleDetails"
+              >详情</el-button>
+            </el-col>
         </el-row>
 
         <el-table v-loading="loading" :data="batchList" border @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="40" align="center" />
-          <el-table-column label="序号" width="60" align="center" prop="BatchId" />
-          <el-table-column label="批号" align="center" prop="BatchCode" />
-          <el-table-column label="名称" align="center" prop="BatchName" />
-          <el-table-column label="数量" width="60" align="center" prop="BatchNumber" />
-          <el-table-column label="附加数量" width="80" align="center" prop="BatchExtra" />
-          <el-table-column label="产品型号" width="80" align="center" prop="Product.ProductCode" />
-          <el-table-column label="产品名称" align="center" prop="Product.ProductName" />
-          <el-table-column label="UDI号" align="center" prop="Product.UDI" />
-          <el-table-column label="工单号" align="center" prop="WorkCode" />
-          <el-table-column label="SN最小值" align="center" prop="SNMin" />
-          <el-table-column label="SN最大值" align="center" prop="SNMax" />
+          <el-table-column type="selection" width="55" align="center" />
+          <el-table-column label="批号" width="100" align="center" prop="BatchCode" />
+          <el-table-column label="批次名称" width="180" align="center" prop="BatchName" />
+          <el-table-column label="产品型号" width="100" align="center" prop="ProductCode" />
+          <el-table-column label="UDI号" width="150" align="center" prop="UDI" />
+          <el-table-column label="工单号" width="150" align="center" prop="WorkCode" />
+          <el-table-column label="SN编码" width="180" align="center" prop="SNCode" />
           <el-table-column label="生产月份" align="center" prop="ProductMonth" :formatter="dateFormat">
             <template slot-scope="scope">
               <el-tag>{{ dateFormat(scope.row) }}</el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="Product.ImageFile" label="图样" align="center" width="100px">
-          <template slot-scope="scope">
-            <el-image v-if="scope.row.Product" :src="scope.row.Product.ImageFile" :preview-src-list="[scope.row.Product.ImageFile]"></el-image>
-          </template>
-          </el-table-column>
-          <el-table-column label="备注" align="center" prop="Comment" />
+
           <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat">
             <template slot-scope="scope">
               <el-tag
@@ -116,31 +114,6 @@
               <span>{{ parseTime(scope.row.createdAt) }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
-            <template slot-scope="scope">
-              <el-button
-                v-permisaction="['admin:sysPost:edit']"
-                size="mini"
-                type="text"
-                icon="el-icon-edit"
-                @click="handleUpdate(scope.row)"
-              >修改</el-button>
-              <el-button
-                  v-permisaction="['admin:sysPost:edit']"
-                  size="mini"
-                  type="text"
-                  icon="el-icon-view"
-                  @click="handleDetails(scope.row)"
-                >SN列表</el-button>
-              <el-button
-                v-permisaction="['admin:sysPost:remove']"
-                size="mini"
-                type="text"
-                icon="el-icon-delete"
-                @click="handleDelete(scope.row)"
-              >删除</el-button>
-            </template>
-          </el-table-column>
         </el-table>
 
         <pagination
@@ -150,86 +123,13 @@
           :limit.sync="queryParams.pageSize"
           @pagination="getList"
         />
-
-        <!-- 添加或修改批次对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-         
-            <el-form-item label="批次名称" prop="BatchName">
-              <el-input v-model="form.BatchName" placeholder="请输入批次名称" />
-            </el-form-item>
-            <el-form-item label="产品名称" prop="ProductName">
-             <!-- <el-input v-model="form.ProductName" placeholder="机器型号" /> -->
-              <el-select v-model="form.ProductId" placeholder="请选择"  v-on:input="changeForm()">
-                  <el-option
-                    v-for="dict in productList"
-                    :key="dict.ProductName"
-                    :label="dict.ProductName"
-                    :value="dict.ProductId"
-                  />
-                </el-select>
-            </el-form-item>
-            <el-form-item label="产品型号" prop="ProductCode">
-              <el-input v-model="form.ProductCode" placeholder="机器型号" />
-            </el-form-item>
-            <el-form-item label="UDI号" prop="UDI">
-              <el-input v-model="form.UDI" placeholder="UDI号" />
-            </el-form-item>
-            <el-form-item label="工单号" prop="WorkCode">
-              <el-input v-model="form.WorkCode" placeholder="工单号" />
-            </el-form-item>
-            <el-form-item label="制作类型" prop="External">
-              <el-radio-group v-model="form.External">
-                <el-radio
-                  :key="1"
-                  :label="1"
-                >外做</el-radio>
-                <el-radio
-                  :key="0"
-                  :label="0"
-                >内做</el-radio>  
-              </el-radio-group>
-            </el-form-item>
-            <el-form-item label="批次数量" prop="BatchNumber">
-              <el-input-number v-model="form.BatchNumber" controls-position="right" :min="0" />
-            </el-form-item>
-            <el-form-item label="多备数量" prop="BatchExtra">
-              <el-input-number v-model="form.BatchExtra" controls-position="right" :min="0" />
-            </el-form-item>
-            <el-form-item label="生产月份" prop="ProductMonth">
-              <el-date-picker v-model="form.ProductMonth" type="month" placeholder="选择日期" format="yyyy年MM月" value-format="yyyy-MM" controls-position="right" :min="0" />
-            </el-form-item>
-            <el-form-item label="批次状态" prop="status">
-              <el-select v-model="form.status" placeholder="请选择" >
-                  <el-option
-                    v-for="dict in statusOptions"
-                    :key="dict.value"
-                    :label="dict.label"
-                    :value="dict.value"
-                  />
-              </el-select>
-            </el-form-item>
-            <el-form-item label="图样" prop="ProductSNImage">
-              <img v-if="form.ProductSNImage" :src="form.ProductSNImage" style="float:left" align="center" width="300px">
-            </el-form-item>
-            <el-form-item label="备注" prop="remark">
-              <el-input v-model="form.Comment" type="textarea" placeholder="请输入内容" />
-            </el-form-item>
-  
-          </el-form>
-          <div slot="footer" class="dialog-footer">
-            <el-button type="primary" @click="submitForm">确 定</el-button>
-            <el-button @click="cancel">取 消</el-button>
-          </div>
-        </el-dialog>
       </el-card>
     </template>
   </BasicLayout>
 </template>
 
 <script>
-import { listPost, getPost, delPost, addPost, updatePost } from '@/api/sn/sn-batch'
-import { listProduct } from '@/api/sn/sn-product'
+import { listPost, getPost, delPost, addPost, updatePost } from '@/api/sn/sn-info'
 import { formatJson } from '@/utils'
 import moment from 'moment'
 
@@ -249,7 +149,6 @@ export default {
       total: 0,
       // 岗位表格数据
       batchList: [],
-      productList: [],
       // 弹出层标题
       title: '',
       // 是否显示弹出层
@@ -273,26 +172,18 @@ export default {
         BatchName: [
           { required: true, message: '批次名称不能为空', trigger: 'blur' }
         ],
-        ProductId: [
-          { required: true, message: '产品名称不能为空', trigger: 'blur' }
-        ],
-        WorkCode: [
-          { required: true, message: '工单号不能为空', trigger: 'blur' }
+        ProductCode: [
+          { required: true, message: '产品型号不能为空', trigger: 'blur' }
         ],
         BatchNumber: [
           { required: true, message: '批次数量不能为空', trigger: 'blur' }
-        ],
-        External: [
-          { required: true, message: '制作类型不能为空', trigger: 'blur' }
         ]
       }
     }
   },
-
   created() {
-    this.getProductList()
     this.getList()
-    this.getDicts('sn_batch_status').then(response => {
+    this.getDicts('sys_normal_disable').then(response => {
       this.statusOptions = response.data
     })
   },
@@ -306,13 +197,7 @@ export default {
         this.loading = false
       })
     },
-
-    getProductList() {
-      listProduct(this.queryParams).then(response => {
-        this.productList = response.data.list
-      })
-    },
-    // 岗位状态字典翻译
+    // SN状态翻译
     statusFormat(row) {
       return this.selectDictLabel(this.statusOptions, row.status)
     },
@@ -335,7 +220,6 @@ export default {
         remark: undefined
       }
       this.resetForm('form')
-      
     },
     /** 搜索按钮操作 */
     handleQuery() {
@@ -346,6 +230,10 @@ export default {
     resetQuery() {
       this.resetForm('queryForm')
       this.handleQuery()
+      var query=this.$route.query;
+      let batch_code = query.batch_code;
+      this.queryParams.postCode = batch_code;
+      //alert(batch_code)
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
@@ -356,34 +244,28 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset()
-
       this.open = true
       this.title = '添加批次'
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
       this.reset()
+
+//      const postId = row.BatchId || this.ids
+      /*const postId=row.BatchId || this.Ids*/
       const postId = (row.BatchId && [row.BatchId]) || this.ids
       getPost(postId).then(response => {
         this.form = response.data
-        this.form.ProductSNImage=row.Product.ImageFile
         this.form.status = String(this.form.status)
         this.open = true
         this.title = '修改批次'
       })
     },
-    changeForm: function() {
-      for(let i=0; i<this.productList.length; i++) {
-        if(this.productList[i].ProductId === this.form.ProductId) {
-          this.form.UDI=this.productList[i].UDI
-          this.form.ProductCode=this.productList[i].ProductCode
-          this.form.ProductSNImage=this.productList[i].ImageFile
-        }
-      }
-    },
     handleDetails(row) {
-        this.$router.push({path: '/sn/sn-list?batch_code=' + row.BatchCode});
-    },
+      var query=this.$route.query;
+      let batch_code = query.batch_code;
+      },
+
     /** 提交按钮 */
     submitForm: function() {
       this.$refs['form'].validate(valid => {
@@ -444,8 +326,8 @@ export default {
       }).then(() => {
         this.downloadLoading = true
         import('@/vendor/Export2Excel').then(excel => {
-          const tHeader = ['批次ID', '批次编码', '批次名称','批次数量','附加数量','产品型号','UDI号','工单号','SN最大值','SN最小值','生产月份','备注', '状态','创建时间']
-          const filterVal = ['BatchId', 'BatchCode', 'BatchName','BatchNumber','BatchExtra','ProductCode','UDI','WorkCode','SNMax','SNMin', 'ProductMonth','Comment','status','createdAt']
+          const tHeader = ['批次ID', '批次编码', '批次名称', '创建时间']
+          const filterVal = ['BatchId', 'BatchCode', 'BatchName', 'createdAt']
           const list = this.batchList
           const data = formatJson(filterVal, list)
           excel.export_json_to_excel({

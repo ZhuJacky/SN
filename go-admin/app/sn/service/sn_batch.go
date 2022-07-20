@@ -115,6 +115,70 @@ func (e *BatchInfo) Insert(c *dto.BatchInfoInsertReq) error {
 		e.Log.Errorf("db error:%s", err)
 		return err
 	}
+	//批量添加SN信息
+	e.InsertSNInfo(&data)
+	return nil
+}
+
+
+//添加SN信息
+func (e *BatchInfo) InsertSNInfo(batch *models.BatchInfo) error {
+	var err error
+	var number int = batch.BatchNumber + batch.BatchExtra
+	for i:=1;i<number;i++{
+		var data models.SNInfo
+		data.BatchId = batch.BatchId
+		data.BatchName = batch.BatchName
+		data.BatchCode = batch.BatchCode
+		data.WorkCode = batch.WorkCode
+		data.ProductCode = batch.ProductCode
+		data.UDI = batch.UDI
+		data.ProductMonth = batch.ProductMonth
+		date := data.ProductMonth
+
+		year := date.Year()
+		ycode := (year - 33) % 100
+		month := date.Month()
+		mcode := month + 22
+		sn := fmt.Sprintf("%06d", i)
+		data.SNCode  = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) +data.ProductCode+ sn
+		External := batch.External
+		if External == 1 {
+			data.SNCode = "(01)" + data.SNCode
+		}
+
+		data.Status = batch.Status
+
+		data.CreateBy = batch.CreateBy
+		data.UpdateBy = batch.UpdateBy
+
+		err = e.Orm.Create(&data).Error
+		if err != nil {
+			e.Log.Errorf("db error:%s", err)
+			return err
+		}
+	}
+
+	return nil
+}
+
+// GetPage 获取SNInfo列表
+func (e *BatchInfo) GetSNInfoList(c *dto.SNInfoPageReq, list *[]models.SNInfo, count *int64) error {
+	var err error
+	var data models.SNInfo
+
+	err = e.Orm.Model(&data).
+		Scopes(
+			cDto.MakeCondition(c.GetNeedSearch()),
+			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
+		).
+		Find(list).Limit(-1).Offset(-1).
+		Count(count).Error
+
+	if err != nil {
+		e.Log.Errorf("db error:%s \r", err)
+		return err
+	}
 	return nil
 }
 
