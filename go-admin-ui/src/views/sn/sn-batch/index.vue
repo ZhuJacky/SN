@@ -82,8 +82,7 @@
         <el-table v-loading="loading" :data="batchList" border @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="40" align="center" />
           <el-table-column label="序号" width="60" align="center" prop="BatchId" />
-          <el-table-column label="批号" align="center" prop="BatchCode" />
-          <el-table-column label="名称" align="center" prop="BatchName" />
+          <el-table-column label="批号(LOT号)" width="100" align="center" prop="BatchCode" />
           <el-table-column label="数量" width="60" align="center" prop="BatchNumber" />
           <el-table-column label="附加数量" width="80" align="center" prop="BatchExtra" />
           <el-table-column label="产品型号" width="80" align="center" prop="Product.ProductCode" />
@@ -102,7 +101,6 @@
             <el-image v-if="scope.row.Product" :src="scope.row.Product.ImageFile" :preview-src-list="[scope.row.Product.ImageFile]"></el-image>
           </template>
           </el-table-column>
-          <el-table-column label="备注" align="center" prop="Comment" />
           <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat">
             <template slot-scope="scope">
               <el-tag
@@ -119,19 +117,19 @@
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
               <el-button
-                v-permisaction="['admin:sysPost:edit']"
-                size="mini"
-                type="text"
-                icon="el-icon-edit"
-                @click="handleUpdate(scope.row)"
-              >修改</el-button>
-              <el-button
                   v-permisaction="['admin:sysPost:edit']"
                   size="mini"
                   type="text"
                   icon="el-icon-view"
                   @click="handleDetails(scope.row)"
                 >SN列表</el-button>
+              <el-button
+                  v-permisaction="['admin:sysPost:edit']"
+                  size="mini"
+                  type="text"
+                  icon="el-icon-edit"
+                  @click="handleUpdate(scope.row)"
+                >修改</el-button>
               <el-button
                 v-permisaction="['admin:sysPost:remove']"
                 size="mini"
@@ -154,12 +152,22 @@
         <!-- 添加或修改批次对话框 -->
         <el-dialog :title="title" :visible.sync="open" width="500px">
           <el-form ref="form" :model="form" :rules="rules" label-width="80px">
-         
-            <el-form-item label="批次名称" prop="BatchName">
-              <el-input v-model="form.BatchName" placeholder="请输入批次名称" />
+            <el-form-item label="SN格式" prop="snFormat">
+              <el-radio-group v-model="form.snFormat" v-on:input="changeSnFormat()">
+                <el-radio
+                  :key="0"
+                  :label="0"
+                >不带括号</el-radio>
+                <el-radio
+                  :key="1"
+                  :label="1"
+                >带括号</el-radio>
+              </el-radio-group>
+              <el-form-item v-if="is_show" label="SN格式" prop="snFormatInfo">
+                <el-input  v-model="form.snFormatInfo" placeholder="(01)" />
+              </el-form-item>
             </el-form-item>
             <el-form-item label="产品名称" prop="ProductName">
-             <!-- <el-input v-model="form.ProductName" placeholder="机器型号" /> -->
               <el-select v-model="form.ProductId" placeholder="请选择"  v-on:input="changeForm()">
                   <el-option
                     v-for="dict in productList"
@@ -183,11 +191,11 @@
                 <el-radio
                   :key="1"
                   :label="1"
-                >外做</el-radio>
+                >外购</el-radio>
                 <el-radio
                   :key="0"
                   :label="0"
-                >内做</el-radio>  
+                >自制</el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="批次数量" prop="BatchNumber">
@@ -380,6 +388,15 @@ export default {
           this.form.ProductSNImage=this.productList[i].ImageFile
         }
       }
+    },
+    changeSnFormat: function() {
+        if(this.form.snFormat===1) {
+            //alert("带括号")
+            this.is_show=true
+        } else {
+            this.is_show=false
+        }
+
     },
     handleDetails(row) {
         this.$router.push({path: '/sn/sn-list?batch_code=' + row.BatchCode});
