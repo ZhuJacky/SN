@@ -150,8 +150,8 @@
         />
 
         <!-- 添加或修改批次对话框 -->
-        <el-dialog :title="title" :visible.sync="open" width="500px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+        <el-dialog :title="title" :visible.sync="open" width="600px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="120px">
             <el-form-item label="SN格式" prop="snFormat">
               <el-radio-group v-model="form.snFormat" v-on:input="changeSnFormat()">
                 <el-radio
@@ -163,9 +163,42 @@
                   :label="1"
                 >带括号</el-radio>
               </el-radio-group>
-              <el-form-item v-if="is_show" label="SN格式" prop="snFormatInfo">
+              <el-form-item v-if="is_sn_format_show" label="SN格式" prop="snFormatInfo">
                 <el-input  v-model="form.snFormatInfo" placeholder="(01)" />
               </el-form-item>
+            </el-form-item>
+            <el-form-item label="批号(LOT号)格式" prop="batchCodeFormat">
+              <el-radio-group v-model="form.batchCodeFormat" v-on:input="changeBatchCodeFormat()">
+                <el-radio
+                  :key="0"
+                  :label="0"
+                >自动生成</el-radio>
+                <el-radio
+                  :key="1"
+                  :label="1"
+                >手动填写</el-radio>
+              </el-radio-group>
+              <el-form-item v-if="is_batch_code_show" label="批号(LOT号)" prop="batchCodeInfo">
+                <el-input  v-model="form.batchCodeInfo" placeholder="批号" />
+              </el-form-item>
+            </el-form-item>
+            <el-form-item label="SN生成规则" prop="SNCodeRules">
+              <el-radio-group v-model="form.SNCodeRules" v-on:input="changeSNCodeRulesFormat()">
+                <el-radio
+                  :key="0"
+                  :label="0"
+                >自动生成</el-radio>
+                <el-radio
+                  :key="1"
+                  :label="1"
+                >客户指定SN号</el-radio>
+              </el-radio-group>
+              <el-form-item v-if="is_min_sn_code_show" label="最小SN号" prop="minSNCode">
+                <el-input  v-model="form.minSNCode" placeholder="最小SN号" />
+              </el-form-item>
+              <el-form-item v-if="is_max_sn_code_show" label="最大SN号" prop="MaxSNCode">
+              <el-input  v-model="form.maxSNCode" placeholder="最大SN号" />
+            </el-form-item>
             </el-form-item>
             <el-form-item label="产品名称" prop="ProductName">
               <el-select v-model="form.ProductId" placeholder="请选择"  v-on:input="changeForm()">
@@ -266,6 +299,7 @@ export default {
       statusOptions: [],
       // 外协
       externalOptions: [],
+
       // 查询参数
       queryParams: {
         pageIndex: 1,
@@ -392,10 +426,29 @@ export default {
     changeSnFormat: function() {
         if(this.form.snFormat===1) {
             //alert("带括号")
-            this.is_show=true
+            this.is_sn_format_show=true
         } else {
-            this.is_show=false
+            this.is_sn_format_show=false
         }
+
+    },
+    changeBatchCodeFormat: function() {
+         if(this.form.batchCodeFormat===1) {
+             //alert("带括号")
+             this.is_batch_code_show=true
+         } else {
+             this.is_batch_code_show=false
+         }
+
+     },
+     changeSNCodeRulesFormat: function() {
+       if(this.form.SNCodeRules===1) {
+           this.is_min_sn_code_show=true
+           this.is_max_sn_code_show=true
+       } else {
+           this.is_min_sn_code_show=false
+           this.is_max_sn_code_show=false
+       }
 
     },
     handleDetails(row) {
