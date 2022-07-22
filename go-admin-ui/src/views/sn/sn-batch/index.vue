@@ -3,7 +3,7 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="批次编码" prop="postCode">
+          <el-form-item label="批号(LOT号)" prop="postCode">
             <el-input
               v-model="queryParams.postCode"
               placeholder="请输入批次编码"
