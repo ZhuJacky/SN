@@ -78,7 +78,8 @@ func MonthFilter(db *gorm.DB, month string) *gorm.DB {
 func (e *BatchInfo) GenerateInsertID(model *models.BatchInfo, s *dto.BatchInfoInsertReq) error {
 	var list []models.BatchInfo
 	date, _ := time.Parse("2006-01-02", s.ProductMonth+"-03")
-	e.Orm.Unscoped().Where("product_id= ? AND DATE_FORMAT(product_month,'%Y-%m')= ?", s.ProductId, s.ProductMonth).Find(&list)
+	//手动填写的LOT号，不需要占用自动生成批号的批次
+	e.Orm.Unscoped().Where("batch_code_format=0 AND product_id= ? AND DATE_FORMAT(product_month,'%Y-%m')= ?", s.ProductId, s.ProductMonth).Find(&list)
 	model.ProductMonth = date
 	var sum int = 0
 	for _, batch := range list {
@@ -97,10 +98,34 @@ func (e *BatchInfo) GenerateInsertID(model *models.BatchInfo, s *dto.BatchInfoIn
 	monthStr := fmt.Sprintf("%02d", int(month))
 	model.BatchCode = strconv.Itoa(year) + monthStr + cstr
 	model.External = s.External
-	if model.External == 1 {
-		model.SNMax = "(01)" + model.SNMax
-		model.SNMin = "(01)" + model.SNMin
+	model.SNFormat = s.SNFormat
+	model.SNFormatInfo = s.SNFormatInfo
+	/*
+		if model.External == 1 {
+			model.SNMax = "(01)" + model.SNMax
+			model.SNMin = "(01)" + model.SNMin
+		}*/
+
+	//是否手动填写LOT号
+	model.BatchCodeFormat = s.BatchCodeFormat
+	if model.BatchCodeFormat == 1 {
+		model.BatchCode = s.BatchCodeInfo
 	}
+
+	//客户指定SN号
+	model.SNCodeRules = s.SNCodeRules
+	if model.SNCodeRules == 1 {
+		model.SNMax = s.MaxSNCode
+		model.SNMin = s.MinSNCode
+	}
+
+	//如果SN格式是带括号的，在SN上增加括号，以及在LOT号上也增加括号
+	if model.SNFormat == 1 {
+		model.SNMax = model.SNFormatInfo + model.SNMax
+		model.SNMin = model.SNFormatInfo + model.SNMin
+		model.BatchCode = model.SNFormatInfo + model.BatchCode
+	}
+
 	return nil
 }
 
@@ -120,12 +145,11 @@ func (e *BatchInfo) Insert(c *dto.BatchInfoInsertReq) error {
 	return nil
 }
 
-
 //添加SN信息
 func (e *BatchInfo) InsertSNInfo(batch *models.BatchInfo) error {
 	var err error
 	var number int = batch.BatchNumber + batch.BatchExtra
-	for i:=1;i<number;i++{
+	for i := 1; i < number; i++ {
 		var data models.SNInfo
 		data.BatchId = batch.BatchId
 		data.BatchName = batch.BatchName
@@ -141,7 +165,7 @@ func (e *BatchInfo) InsertSNInfo(batch *models.BatchInfo) error {
 		month := date.Month()
 		mcode := month + 22
 		sn := fmt.Sprintf("%06d", i)
-		data.SNCode  = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) +data.ProductCode+ sn
+		data.SNCode = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + data.ProductCode + sn
 		External := batch.External
 		if External == 1 {
 			data.SNCode = "(01)" + data.SNCode

@@ -18,13 +18,17 @@ type BatchInfoPageReq struct {
 	BatchName      string `form:"postName" search:"type:contains;column:batch_name;table:sn_batch_info" comment:"名称"` // 名称
 	BatchCode      string `form:"postCode" search:"type:contains;column:batch_code;table:sn_batch_info" comment:"编码"` // 编码
 
-	ProductCode  string `form:"productCode" search:"type:contains;column:product_code;table:sn_batch_info" comment:"编码"`     // 编码
-	ProductMonth string `form:"productMonth" search:"type:contains;column:product_month;table:sn_batch_info" comment:"生产月份"` // 编码
-	SNMax        string `form:"snMax" search:"type:exact;column:snmax;table:sn_batch_info" comment:"SNMAX"`                  // 编码
-	SNMin        string `form:"snMin" search:"type:exact;column:snmax;table:sn_batch_info" comment:"SNMIN"`                  // 编码
-	Status       int    `form:"status" search:"type:exact;column:status;table:sn_batch_info" comment:"状态"`                   // 状态
-	Comment      string `form:"Comment" search:"type:exact;column:comment;table:sn_batch_info" comment:"备注"`                 // 备注
-	ProductJoin  `search:"type:left;on:product_id:product_id;table:sn_batch_info;join:sn_product_info"`
+	ProductCode     string `form:"productCode" search:"type:contains;column:product_code;table:sn_batch_info" comment:"编码"`         // 编码
+	ProductMonth    string `form:"productMonth" search:"type:contains;column:product_month;table:sn_batch_info" comment:"生产月份"`     // 编码
+	SNMax           string `form:"snMax" search:"type:exact;column:snmax;table:sn_batch_info" comment:"SNMAX"`                      // 编码
+	SNMin           string `form:"snMin" search:"type:exact;column:snmax;table:sn_batch_info" comment:"SNMIN"`                      // 编码
+	Status          int    `form:"status" search:"type:exact;column:status;table:sn_batch_info" comment:"状态"`                       // 状态
+	Comment         string `form:"Comment" search:"type:exact;column:comment;table:sn_batch_info" comment:"备注"`                     // 备注
+	SNFormat        int    `form:"snFormat" search:"type:exact;column:sn_format;table:sn_batch_info" comment:"SN格式"`                // SN格式
+	SNFormatInfo    string `form:"snFormatInfo" search:"type:contains;column:sn_format_info;table:sn_batch_info" comment:"SN格式信息"`  // SN格式信息
+	BatchCodeFormat int    `form:"batchCodeFormat" search:"type:exact;column:batch_code_format;table:sn_batch_info" comment:"批号格式"` // 批号格式
+	SNCodeRules     int    `form:"SNCodeRules" search:"type:exact;column:sn_code_rules;table:sn_batch_info" comment:"SN生成规则"`       // SN生成规则
+	ProductJoin     `search:"type:left;on:product_id:product_id;table:sn_batch_info;join:sn_product_info"`
 }
 
 func (m *BatchInfoPageReq) GetNeedSearch() interface{} {
@@ -41,11 +45,19 @@ type BatchInfoInsertReq struct {
 	WorkCode    string `form:"WorkCode" comment:"工单号"`
 	UDI         string `form:"UDI" comment:"UDI号"`
 
-	Status       int    `form:"status"   comment:"状态"`
-	Comment      string `form:"Comment"   comment:"备注"`
-	ProductMonth string `form:"ProductMonth"   comment:"生产月份"`
-	ProductId    int    `form:"ProductId"  comment:"产品ID"`
-	External     int    `form:"External" comment:"制作类型"`
+	Status          int    `form:"status"   comment:"状态"`
+	Comment         string `form:"Comment"   comment:"备注"`
+	ProductMonth    string `form:"ProductMonth"   comment:"生产月份"`
+	ProductId       int    `form:"ProductId"  comment:"产品ID"`
+	External        int    `form:"External" comment:"制作类型"`
+	SNFormat        int    `form:"SNFormat" comment:"SN格式"`
+	SNFormatInfo    string `form:"SNFormatInfo" comment:"SN格式信息"`
+	BatchCodeFormat int    `form:"BatchCodeFormat" comment:"批号格式"`
+	BatchCodeInfo   string `form:"batchCodeInfo" comment:"批号信息"`
+	SNCodeRules     int    `form:"SNCodeRules" comment:"SN生成规则"`
+	MinSNCode       string `form:"minSNCode" comment:"最小SN号"`
+	MaxSNCode       string `form:"MaxSNCode" comment:"最大SN号"`
+
 	common.ControlBy
 }
 type BatchInfoSub struct {
@@ -67,6 +79,10 @@ func (s *BatchInfoInsertReq) Generate(model *models.BatchInfo) {
 	model.WorkCode = s.WorkCode
 	model.Status = s.Status
 	model.Comment = s.Comment
+	model.SNFormat = s.SNFormat
+	model.SNFormatInfo = s.SNFormatInfo
+	model.BatchCodeFormat = s.BatchCodeFormat
+	model.SNCodeRules = s.SNCodeRules
 
 	// year := date.Year()
 	// ycode := (year - 33) % 100

@@ -2,7 +2,7 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
+        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="120px">
           <el-form-item label="批号(LOT号)" prop="postCode">
             <el-input
               v-model="queryParams.postCode"
@@ -374,8 +374,18 @@ export default {
         postName: undefined,
         sort: 0,
         status: '1',
+        //snFormat: '1',
+        //batchCodeFormat: '0',
+        //SNCodeRules: '0',
         remark: undefined
       }
+
+      //默认隐藏输入框
+      this.is_sn_format_show=false
+      this.is_batch_code_show=false
+      this.is_min_sn_code_show=false
+      this.is_max_sn_code_show=false
+
       this.resetForm('form')
       
     },
@@ -425,7 +435,6 @@ export default {
     },
     changeSnFormat: function() {
         if(this.form.snFormat===1) {
-            //alert("带括号")
             this.is_sn_format_show=true
         } else {
             this.is_sn_format_show=false
@@ -434,7 +443,6 @@ export default {
     },
     changeBatchCodeFormat: function() {
          if(this.form.batchCodeFormat===1) {
-             //alert("带括号")
              this.is_batch_code_show=true
          } else {
              this.is_batch_code_show=false

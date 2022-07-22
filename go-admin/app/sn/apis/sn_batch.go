@@ -113,7 +113,7 @@ func (e BatchInfo) Insert(c *gin.Context) {
 		return
 	}
 	req.SetCreateBy(user.GetUserId(c))
-
+	e.Logger.Info("batch info req :", &req)
 	err = s.Insert(&req)
 	e.Logger.Info(&req)
 
