@@ -2,7 +2,7 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="120px">
+        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
           <el-form-item label="批号(LOT号)" prop="postCode">
             <el-input
               v-model="queryParams.postCode"
@@ -97,9 +97,12 @@
             </template>
           </el-table-column>
           <el-table-column prop="Product.ImageFile" label="图样" align="center" width="100px">
-          <template slot-scope="scope">
+          <i class="el-icon-plus" />
+                  <template slot-scope="scope">
             <el-image v-if="scope.row.Product" :src="scope.row.Product.ImageFile" :preview-src-list="[scope.row.Product.ImageFile]"></el-image>
           </template>
+          </el-upload>
+          </el-form-item>
           </el-table-column>
           <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat">
             <template slot-scope="scope">
@@ -251,7 +254,11 @@
               </el-select>
             </el-form-item>
             <el-form-item label="图样" prop="ProductSNImage">
-              <img v-if="form.ProductSNImage" :src="form.ProductSNImage" style="float:left" align="center" width="300px">
+            <el-upload class="avatar-uploader" accept="image/jpeg,image/git,image/png"
+            ref="ProductSNImage" :headers="headers" :file-list="sys_app_logofileList" :action="sys_app_logoAction" style="float:left" :before-upload="sys_app_logoBeforeUpload" list-type="picture-card" :show-file-list="false"  :on-success="uploadSuccess">
+            <img alt v-if="form.ProductSNImage"  :src="form.ProductSNImage" class="el-upload el-upload--picture-card" style="float:left" align="center" width="300px">
+              <i class="el-icon-plus avatar-uploader-icon"  v-else></i>
+            </el-upload>
             </el-form-item>
             <el-form-item label="备注" prop="remark">
               <el-input v-model="form.Comment" type="textarea" placeholder="请输入内容" />
@@ -272,12 +279,14 @@
 import { listPost, getPost, delPost, addPost, updatePost } from '@/api/sn/sn-batch'
 import { listProduct } from '@/api/sn/sn-product'
 import { formatJson } from '@/utils'
+import { getToken } from '@/utils/auth'
 import moment from 'moment'
 
 export default {
   name: 'SysPostManage',
   data() {
     return {
+      headers: { 'Authorization': 'Bearer ' + getToken() },
       // 遮罩层
       loading: true,
       // 选中数组
@@ -286,6 +295,10 @@ export default {
       single: true,
       // 非多个禁用
       multiple: true,
+      is_batch_code_show:false,
+      is_sn_format_show:false,
+      is_min_sn_code_show:false,
+      is_max_sn_code_show:false,
       // 总条数
       total: 0,
       // 岗位表格数据
@@ -308,8 +321,11 @@ export default {
         postName: undefined,
         status: undefined
       },
+      sys_app_logoAction: 'http://localhost:8000/api/v1/public/uploadFile',
+      sys_app_logofileList: [],
       // 表单参数
       form: {},
+      
       // 表单校验
       rules: {
         BatchName: [
@@ -339,6 +355,24 @@ export default {
     })
   },
   methods: {
+
+
+    uploadSuccess(response, file, fileList) {
+      this.$forceUpdate()
+      this.form.ProductSNImage = process.env.VUE_APP_BASE_API + response.data.full_path
+
+      this.$forceUpdate()
+      console.log(this.form.ProductSNImage)
+      console.log(response.data.full_path)
+    },
+
+    sys_app_logoBeforeUpload(file) {
+      const isRightSize = file.size / 1024 / 1024 < 2
+      if (!isRightSize) {
+        this.$message.error('文件大小超过 2MB')
+      }
+      return isRightSize
+    },
     /** 查询岗位列表 */
     getList() {
       this.loading = true
@@ -374,18 +408,8 @@ export default {
         postName: undefined,
         sort: 0,
         status: '1',
-        //snFormat: '1',
-        //batchCodeFormat: '0',
-        //SNCodeRules: '0',
         remark: undefined
       }
-
-      //默认隐藏输入框
-      this.is_sn_format_show=false
-      this.is_batch_code_show=false
-      this.is_min_sn_code_show=false
-      this.is_max_sn_code_show=false
-
       this.resetForm('form')
       
     },
@@ -429,12 +453,13 @@ export default {
         if(this.productList[i].ProductId === this.form.ProductId) {
           this.form.UDI=this.productList[i].UDI
           this.form.ProductCode=this.productList[i].ProductCode
-          this.form.ProductSNImage=this.productList[i].ImageFile
+          
         }
       }
     },
     changeSnFormat: function() {
         if(this.form.snFormat===1) {
+            //alert("带括号")
             this.is_sn_format_show=true
         } else {
             this.is_sn_format_show=false
@@ -443,6 +468,7 @@ export default {
     },
     changeBatchCodeFormat: function() {
          if(this.form.batchCodeFormat===1) {
+             //alert("带括号")
              this.is_batch_code_show=true
          } else {
              this.is_batch_code_show=false
