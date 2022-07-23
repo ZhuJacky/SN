@@ -2,7 +2,7 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
+        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="120px">
           <el-form-item label="批号(LOT号)" prop="postCode">
             <el-input
               v-model="queryParams.postCode"
@@ -84,7 +84,7 @@
           <el-table-column label="序号" width="60" align="center" prop="BatchId" />
           <el-table-column label="批号(LOT号)" width="100" align="center" prop="BatchCode" />
           <el-table-column label="数量" width="60" align="center" prop="BatchNumber" />
-          <el-table-column label="附加数量" width="80" align="center" prop="BatchExtra" />
+          <el-table-column label="附加" width="60" align="center" prop="BatchExtra" />
           <el-table-column label="产品型号" width="80" align="center" prop="Product.ProductCode" />
           <el-table-column label="产品名称" align="center" prop="Product.ProductName" />
           <el-table-column label="UDI号" align="center" prop="Product.UDI" />
@@ -112,6 +112,14 @@
               >{{ statusFormat(scope.row) }}</el-tag>
             </template>
           </el-table-column>
+          <el-table-column label="制作类型" align="center" prop="External" :formatter="externalFormat">
+          <template slot-scope="scope">
+            <el-tag
+              :type="scope.row.External === 1 ? 'danger' : 'success'"
+              disable-transitions
+            >{{ externalFormat(scope.row) }}</el-tag>
+          </template>
+        </el-table-column>
           <el-table-column label="创建时间" align="center" prop="createdAt" width="180">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.createdAt) }}</span>
@@ -225,13 +233,13 @@
             <el-form-item label="制作类型" prop="External">
               <el-radio-group v-model="form.External">
                 <el-radio
-                  :key="1"
-                  :label="1"
-                >外购</el-radio>
-                <el-radio
                   :key="0"
                   :label="0"
                 >自制</el-radio>
+                <el-radio
+                  :key="1"
+                  :label="1"
+                >外购</el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="批次数量" prop="BatchNumber">
@@ -353,6 +361,9 @@ export default {
     this.getDicts('sn_batch_status').then(response => {
       this.statusOptions = response.data
     })
+    this.getDicts('sn_batch_external').then(response => {
+      this.externalOptions = response.data
+    })
   },
   methods: {
 
@@ -391,6 +402,9 @@ export default {
     // 岗位状态字典翻译
     statusFormat(row) {
       return this.selectDictLabel(this.statusOptions, row.status)
+    },
+    externalFormat(row) {
+      return this.selectDictLabel(this.externalOptions, row.External)
     },
     dateFormat(row) {
       return moment(row.ProductMonth).format("YYYY-MM")

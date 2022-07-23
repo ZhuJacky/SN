@@ -25,7 +25,7 @@ type BatchInfo struct {
 	BatchCodeFormat int    `gorm:"size:4;" json:"BatchCodeFormat"` //批号格式
 	SNCodeRules     int    `gorm:"size:4;" json:"SNCodeRules"`     //SN生成规则
 
-	External int `gorm:"size:4;" json:"External"` //状态
+	External int `gorm:"size:4;" json:"External"` //制作类型
 	models.ControlBy
 	models.ModelTime
 
