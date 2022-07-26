@@ -79,7 +79,7 @@ func (e *BatchInfo) GenerateInsertID(model *models.BatchInfo, s *dto.BatchInfoIn
 	var list []models.BatchInfo
 	date, _ := time.Parse("2006-01-02", s.ProductMonth+"-03")
 	//手动填写的LOT号，不需要占用自动生成批号的批次
-	e.Orm.Unscoped().Where("batch_code_format=0 AND product_id= ? AND DATE_FORMAT(product_month,'%Y-%m')= ?", s.ProductId, s.ProductMonth).Find(&list)
+	e.Orm.Unscoped().Where("batch_code_format=0 AND product_id= ? AND DATE_FORMAT(product_month,'%Y-%m')= ? AND sn_format=?", s.ProductId, s.ProductMonth, 0).Find(&list)
 	model.ProductMonth = date
 	var sum int = 0
 	for _, batch := range list {
@@ -93,6 +93,7 @@ func (e *BatchInfo) GenerateInsertID(model *models.BatchInfo, s *dto.BatchInfoIn
 	smax := fmt.Sprintf("%06d", sum+s.BatchNumber+s.BatchExtra)
 	model.SNMax = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smax
 	model.SNMin = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smin
+
 	count := len(list)
 	var cstr string = fmt.Sprintf("%03d", count+1)
 	monthStr := fmt.Sprintf("%02d", int(month))
@@ -224,37 +225,60 @@ func (e *BatchInfo) GenerateUpdateID(model *models.BatchInfo, s *dto.BatchInfoUp
 		}
 	}
 	if !isLast {
-		if s.BatchNumber+s.BatchExtra != model.BatchNumber+model.BatchExtra {
-			return errors.New("不是当月最后一批，不要改变数量，以免影响其他批次")
-		}
+		// if s.BatchNumber+s.BatchExtra != model.BatchNumber+model.BatchExtra {
+		// 	return errors.New("不是当月最后一批，不要改变数量，以免影响其他批次")
+		// }
+		return errors.New("不是当月最后一批，不要修改")
+	}
+	var list1 []models.BatchInfo
+	e.Orm.Unscoped().Where("batch_code_format=0 AND product_id= ? AND DATE_FORMAT(product_month,'%Y-%m')= ? AND sn_format=?", s.ProductId, s.ProductMonth, 0).Find(&list1)
+
+	var sum1 int = 0
+	for _, batch := range list1 {
+		sum1 = sum1 + batch.BatchNumber + batch.BatchExtra
 	}
 	year := date.Year()
 	ycode := (year - 33) % 100
 	month := date.Month()
 	mcode := month + 22
-	smin := fmt.Sprintf("%06d", sum+1)
-	var numMax int
-	if s.BatchNumber+s.BatchExtra > model.BatchNumber+model.BatchExtra {
-		numMax = s.BatchNumber + s.BatchExtra
-	} else {
-		numMax = model.BatchNumber + model.BatchExtra
-	}
-	smax := fmt.Sprintf("%06d", sum+numMax)
-	SNMax := strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smax
-	SNMin := strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smin
+	smin := fmt.Sprintf("%06d", sum1+1)
+	smax := fmt.Sprintf("%06d", sum1+s.BatchNumber+s.BatchExtra)
+	model.SNMax = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smax
+	model.SNMin = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smin
 
-	var cstr string = fmt.Sprintf("%03d", count+1)
+	count1 := len(list1)
+	var cstr string = fmt.Sprintf("%03d", count1+1)
 	monthStr := fmt.Sprintf("%02d", int(month))
-	if s.External == 1 {
-		model.External = s.External
-		model.SNMax = "(01)" + SNMax
-		model.SNMin = "(01)" + SNMin
-	} else {
-		model.External = s.External
-		model.SNMax = SNMax
-		model.SNMin = SNMin
-	}
 	model.BatchCode = strconv.Itoa(year) + monthStr + cstr
+	model.External = s.External
+	model.SNFormat = s.SNFormat
+	model.SNFormatInfo = s.SNFormatInfo
+	/*
+		if model.External == 1 {
+			model.SNMax = "(01)" + model.SNMax
+			model.SNMin = "(01)" + model.SNMin
+		}*/
+
+	//是否手动填写LOT号
+	model.BatchCodeFormat = s.BatchCodeFormat
+	if model.BatchCodeFormat == 1 {
+		model.BatchCode = s.BatchCodeInfo
+	}
+
+	//客户指定SN号
+	model.SNCodeRules = s.SNCodeRules
+	if model.SNCodeRules == 1 {
+		model.SNMax = s.MaxSNCode
+		model.SNMin = s.MinSNCode
+	}
+
+	//如果SN格式是带括号的，在SN上增加括号，以及在LOT号上也增加括号
+	if model.SNFormat == 1 {
+		model.SNMax = model.SNFormatInfo + model.SNMax
+		model.SNMin = model.SNFormatInfo + model.SNMin
+		model.BatchCode = model.SNFormatInfo + model.BatchCode
+	}
+
 	return nil
 }
 

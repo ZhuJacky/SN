@@ -96,10 +96,10 @@
               <el-tag>{{ dateFormat(scope.row) }}</el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="Product.ImageFile" label="图样" align="center" width="100px">
+          <el-table-column prop="BatchImgFile" label="图样" align="center" width="100px">
           <i class="el-icon-plus" />
                   <template slot-scope="scope">
-            <el-image v-if="scope.row.Product" :src="scope.row.Product.ImageFile" :preview-src-list="[scope.row.Product.ImageFile]"></el-image>
+            <el-image v-if="scope.row.Product" :src="scope.row.BatchImgFile" :preview-src-list="[scope.row.BatchImgFile]"></el-image>
           </template>
           </el-upload>
           </el-form-item>
@@ -189,8 +189,8 @@
                   :label="1"
                 >手动填写</el-radio>
               </el-radio-group>
-              <el-form-item v-if="is_batch_code_show" label="批号(LOT号)" prop="batchCodeInfo">
-                <el-input  v-model="form.batchCodeInfo" placeholder="批号" />
+              <el-form-item v-if="is_batch_code_show" label="批号(LOT号)" prop="batchCodeFormatInfo">
+                <el-input  v-model="form.batchCodeFormatInfo" placeholder="批号" />
               </el-form-item>
             </el-form-item>
             <el-form-item label="SN生成规则" prop="SNCodeRules">
@@ -456,8 +456,14 @@ export default {
       const postId = (row.BatchId && [row.BatchId]) || this.ids
       getPost(postId).then(response => {
         this.form = response.data
-        this.form.ProductSNImage=row.Product.ImageFile
+        this.form.ProductSNImage=row.BatchImgFile
         this.form.status = String(this.form.status)
+        this.form.snFormat=row.SNFormat
+        this.changeSnFormat()
+        this.form.snFormatInfo=row.SNFormatInfo
+        this.form.batchCodeFormat=row.BatchCodeFormat
+        this.changeBatchCodeFormat()
+        this.form.batchCodeFormatInfo=row.BatchCode
         this.open = true
         this.title = '修改批次'
       })
