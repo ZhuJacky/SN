@@ -291,7 +291,7 @@ import { getToken } from '@/utils/auth'
 import moment from 'moment'
 
 export default {
-  name: 'SysPostManage',
+  name: 'SNBatchManage',
   data() {
     return {
       headers: { 'Authorization': 'Bearer ' + getToken() },
@@ -350,7 +350,19 @@ export default {
         ],
         External: [
           { required: true, message: '制作类型不能为空', trigger: 'blur' }
-        ]
+        ],
+         snFormatInfo: [
+           { required: true, message: 'SN格式不能为空', trigger: 'blur' }
+         ],
+       batchCodeFormatInfo: [
+         { required: true, message: '批号不能为空', trigger: 'blur' }
+       ],
+         minSNCode: [
+           { required: true, message: '最小SN号不能为空', trigger: 'blur' }
+         ],
+       maxSNCode: [
+         { required: true, message: '最大SN号不能为空', trigger: 'blur' }
+       ]
       }
     }
   },

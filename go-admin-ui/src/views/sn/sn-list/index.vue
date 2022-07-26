@@ -2,20 +2,11 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="68px">
-          <el-form-item label="批号" prop="postCode">
+        <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="120px">
+          <el-form-item label="批号(LOT号)" prop="postCode">
             <el-input
               v-model="queryParams.postCode"
-              placeholder="请输入批次编码"
-              clearable
-              size="small"
-              @keyup.enter.native="handleQuery"
-            />
-          </el-form-item>
-          <el-form-item label="批次名称" prop="postName">
-            <el-input
-              v-model="queryParams.postName"
-              placeholder="请输入批次名称"
+              placeholder="请输入批号"
               clearable
               size="small"
               @keyup.enter.native="handleQuery"
@@ -89,8 +80,8 @@
 
         <el-table v-loading="loading" :data="batchList" border @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
-          <el-table-column label="批号" width="100" align="center" prop="BatchCode" />
-          <el-table-column label="批次名称" width="180" align="center" prop="BatchName" />
+          <el-table-column label="序号" width="60" align="center" prop="SNId" />
+          <el-table-column label="批号" width="150" align="center" prop="BatchCode" />
           <el-table-column label="产品型号" width="100" align="center" prop="ProductCode" />
           <el-table-column label="UDI号" width="150" align="center" prop="UDI" />
           <el-table-column label="工单号" width="150" align="center" prop="WorkCode" />
@@ -114,6 +105,17 @@
               <span>{{ parseTime(scope.row.createdAt) }}</span>
             </template>
           </el-table-column>
+          <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
+          <template slot-scope="scope">
+            <el-button
+                v-permisaction="['admin:sysPost:edit']"
+                size="mini"
+                type="text"
+                icon="el-icon-edit"
+                @click="handleUpdate(scope.row)"
+              >修改</el-button>
+          </template>
+        </el-table-column>
         </el-table>
 
         <pagination
@@ -123,6 +125,25 @@
           :limit.sync="queryParams.pageSize"
           @pagination="getList"
         />
+        <!-- 添加或修改批次对话框 -->
+        <el-dialog :title="title" :visible.sync="open" width="600px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="120px">
+            <el-form-item label="SN状态" prop="status">
+              <el-select v-model="form.status" placeholder="请选择" >
+                  <el-option
+                    v-for="dict in statusOptions"
+                    :key="dict.value"
+                    :label="dict.label"
+                    :value="dict.value"
+                  />
+              </el-select>
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button type="primary" @click="submitForm">确 定</el-button>
+            <el-button @click="cancel">取 消</el-button>
+          </div>
+        </el-dialog>
       </el-card>
     </template>
   </BasicLayout>
@@ -134,7 +155,7 @@ import { formatJson } from '@/utils'
 import moment from 'moment'
 
 export default {
-  name: 'SysPostManage',
+  name: 'SNInfoManage',
   data() {
     return {
       // 遮罩层
@@ -155,8 +176,6 @@ export default {
       open: false,
       // 状态数据字典
       statusOptions: [],
-      // 外协
-      externalOptions: [],
       // 查询参数
       queryParams: {
         pageIndex: 1,
@@ -169,21 +188,19 @@ export default {
       form: {},
       // 表单校验
       rules: {
-        BatchName: [
-          { required: true, message: '批次名称不能为空', trigger: 'blur' }
-        ],
-        ProductCode: [
-          { required: true, message: '产品型号不能为空', trigger: 'blur' }
-        ],
-        BatchNumber: [
-          { required: true, message: '批次数量不能为空', trigger: 'blur' }
-        ]
+
       }
     }
   },
   created() {
+
+    //填充查询条件
+    var query=this.$route.query;
+    let batch_code = query.batch_code;
+    this.queryParams.postCode = batch_code;
+    //alert(batch_code)
     this.getList()
-    this.getDicts('sys_normal_disable').then(response => {
+    this.getDicts('sn_info_status').then(response => {
       this.statusOptions = response.data
     })
   },
@@ -211,15 +228,7 @@ export default {
     },
     // 表单重置
     reset() {
-      this.form = {
-        BatchId: undefined,
-        postCode: undefined,
-        postName: undefined,
-        sort: 0,
-        status: '1',
-        remark: undefined
-      }
-      this.resetForm('form')
+
     },
     /** 搜索按钮操作 */
     handleQuery() {
@@ -230,10 +239,6 @@ export default {
     resetQuery() {
       this.resetForm('queryForm')
       this.handleQuery()
-      var query=this.$route.query;
-      let batch_code = query.batch_code;
-      this.queryParams.postCode = batch_code;
-      //alert(batch_code)
     },
     // 多选框选中数据
     handleSelectionChange(selection) {
@@ -243,23 +248,16 @@ export default {
     },
     /** 新增按钮操作 */
     handleAdd() {
-      this.reset()
-      this.open = true
-      this.title = '添加批次'
+      alert("开发中...")
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
-      this.reset()
-
-//      const postId = row.BatchId || this.ids
-      /*const postId=row.BatchId || this.Ids*/
-      const postId = (row.BatchId && [row.BatchId]) || this.ids
-      getPost(postId).then(response => {
-        this.form = response.data
-        this.form.status = String(this.form.status)
+        this.reset()
+        const postId = (row.SNId && [row.SNId]) || this.ids
+        //this.form.status = String(row.status)
         this.open = true
-        this.title = '修改批次'
-      })
+        this.title = '修改SN'
+        //alert(postId)
     },
     handleDetails(row) {
       var query=this.$route.query;
@@ -268,78 +266,17 @@ export default {
 
     /** 提交按钮 */
     submitForm: function() {
-      this.$refs['form'].validate(valid => {
-        if (valid) {
-          this.form.status = parseInt(this.form.status)
-          if (this.form.BatchId !== undefined) {
-            this.form.ProductMonth=this.form.ProductMonth.slice(0,7)
-            updatePost(this.form, this.form.BatchId).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess(response.msg)
-                this.open = false
-                this.getList()
-              } else {
-                this.msgError(response.msg)
-              }
-            })
-          } else {
-            addPost(this.form).then(response => {
-              if (response.code === 200) {
-                this.msgSuccess(response.msg)
-                this.open = false
-                this.getList()
-              } else {
-                this.msgError(response.msg)
-              }
-            })
-          }
-        }
-      })
+      this.form.status = parseInt(this.form.status)
+      this.form.SNId
+      alert(this.form.status)
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      // const postIds = row.postId || this.ids
-      const Ids = (row.BatchId && [row.BatchId]) || this.ids
-      this.$confirm('是否确认删除批次编号为"' + Ids + '"的数据项?', '警告', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(function() {
-        return delPost({ 'ids': Ids })
-      }).then((response) => {
-        if (response.code === 200) {
-          this.msgSuccess(response.msg)
-          this.open = false
-          this.getList()
-        } else {
-          this.msgError(response.msg)
-        }
-      }).catch(function() {})
+      alert("开发中...")
     },
     /** 导出按钮操作 */
     handleExport() {
-      // const queryParams = this.queryParams
-      this.$confirm('是否确认导出所有批次数据项?', '警告', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        this.downloadLoading = true
-        import('@/vendor/Export2Excel').then(excel => {
-          const tHeader = ['批次ID', '批次编码', '批次名称', '创建时间']
-          const filterVal = ['BatchId', 'BatchCode', 'BatchName', 'createdAt']
-          const list = this.batchList
-          const data = formatJson(filterVal, list)
-          excel.export_json_to_excel({
-            header: tHeader,
-            data,
-            filename: '批次管理',
-            autoWidth: true, // Optional
-            bookType: 'xlsx' // Optional
-          })
-          this.downloadLoading = false
-        })
-      }).catch(function() {})
+      alert("开发中...")
     }
   }
 }
