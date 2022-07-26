@@ -12,10 +12,10 @@
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
-          <el-form-item label="批次名称" prop="postName">
+          <el-form-item label="工单号" prop="workCode">
             <el-input
-              v-model="queryParams.postName"
-              placeholder="请输入批次名称"
+              v-model="queryParams.workCode"
+              placeholder="请输入工单号"
               clearable
               size="small"
               @keyup.enter.native="handleQuery"
@@ -87,14 +87,6 @@
           <el-table-column label="附加" width="60" align="center" prop="BatchExtra" />
           <el-table-column label="产品型号" width="80" align="center" prop="Product.ProductCode" />
           <el-table-column label="产品名称" align="center" prop="Product.ProductName" />
-          <el-table-column label="制作类型" align="center" prop="External" :formatter="externalFormat">
-            <template slot-scope="scope">
-              <el-tag
-                :type="scope.row.External === 1 ? 'danger' : 'success'"
-                disable-transitions
-              >{{ externalFormat(scope.row) }}</el-tag>
-            </template>
-          </el-table-column>
           <el-table-column label="UDI号" align="center" prop="Product.UDI" />
           <el-table-column label="工单号" align="center" prop="WorkCode" />
           <el-table-column label="SN最小值" align="center" prop="SNMin" />
@@ -120,6 +112,14 @@
               >{{ statusFormat(scope.row) }}</el-tag>
             </template>
           </el-table-column>
+          <el-table-column label="制作类型" align="center" prop="External" :formatter="externalFormat">
+          <template slot-scope="scope">
+            <el-tag
+              :type="scope.row.External === 1 ? 'danger' : 'success'"
+              disable-transitions
+            >{{ externalFormat(scope.row) }}</el-tag>
+          </template>
+        </el-table-column>
           <el-table-column label="创建时间" align="center" prop="createdAt" width="180">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.createdAt) }}</span>
@@ -211,7 +211,7 @@
               <el-input  v-model="form.maxSNCode" placeholder="最大SN号" />
             </el-form-item>
             </el-form-item>
-            <el-form-item label="产品名称" prop="ProductName">
+            <el-form-item label="产品名称" prop="ProductId">
               <el-select v-model="form.ProductId" placeholder="请选择"  v-on:input="changeForm()">
                   <el-option
                     v-for="dict in productList"
@@ -291,7 +291,7 @@ import { getToken } from '@/utils/auth'
 import moment from 'moment'
 
 export default {
-  name: 'SNBatchManage',
+  name: 'SysPostManage',
   data() {
     return {
       headers: { 'Authorization': 'Bearer ' + getToken() },
@@ -326,7 +326,7 @@ export default {
         pageIndex: 1,
         pageSize: 10,
         postCode: undefined,
-        postName: undefined,
+        workCode: undefined,
         status: undefined
       },
       sys_app_logoAction: 'http://localhost:8000/api/v1/public/uploadFile',
@@ -342,6 +342,18 @@ export default {
         ProductId: [
           { required: true, message: '产品名称不能为空', trigger: 'blur' }
         ],
+        minSNCode:[
+          { required: true, message: '最小SN号不能为空', trigger: 'blur' }
+        ],
+        MaxSNCode:[
+          { required: true, message: '最大SN号不能为空', trigger: 'blur' }
+        ],
+        batchCodeFormatInfo:[
+          { required: true, message: 'LOT号不能为空', trigger: 'blur' }
+        ],
+        snFormatInfo:[
+          { required: true, message: 'SN格式不能为空', trigger: 'blur' }
+        ],
         WorkCode: [
           { required: true, message: '工单号不能为空', trigger: 'blur' }
         ],
@@ -350,19 +362,7 @@ export default {
         ],
         External: [
           { required: true, message: '制作类型不能为空', trigger: 'blur' }
-        ],
-         snFormatInfo: [
-           { required: true, message: 'SN格式不能为空', trigger: 'blur' }
-         ],
-       batchCodeFormatInfo: [
-         { required: true, message: '批号不能为空', trigger: 'blur' }
-       ],
-         minSNCode: [
-           { required: true, message: '最小SN号不能为空', trigger: 'blur' }
-         ],
-       maxSNCode: [
-         { required: true, message: '最大SN号不能为空', trigger: 'blur' }
-       ]
+        ]
       }
     }
   },
@@ -437,16 +437,11 @@ export default {
         remark: undefined
       }
       this.resetForm('form')
-
-      //默认选中
-      this.form.snFormat=0
-      this.form.batchCodeFormat=0
-      this.form.SNCodeRules=0
-
-      this.changeSnFormat()
-      this.changeBatchCodeFormat()
-      this.changeSNCodeRulesFormat()
-      //this.form.SNCodeRules=0
+      this.is_batch_code_show=false
+      this.is_sn_format_show=false
+      this.is_min_sn_code_show=false
+      this.is_max_sn_code_show=false
+      
     },
     /** 搜索按钮操作 */
     handleQuery() {
@@ -467,6 +462,9 @@ export default {
     /** 新增按钮操作 */
     handleAdd() {
       this.reset()
+      this.form.snFormat=0
+      this.form.batchCodeFormat=0
+      this.form.SNCodeRules=0
 
       this.open = true
       this.title = '添加批次'
@@ -500,6 +498,7 @@ export default {
     },
     changeSnFormat: function() {
         if(this.form.snFormat===1) {
+            //alert("带括号")
             this.is_sn_format_show=true
         } else {
             this.is_sn_format_show=false
@@ -508,6 +507,7 @@ export default {
     },
     changeBatchCodeFormat: function() {
          if(this.form.batchCodeFormat===1) {
+             //alert("带括号")
              this.is_batch_code_show=true
          } else {
              this.is_batch_code_show=false
@@ -587,8 +587,8 @@ export default {
       }).then(() => {
         this.downloadLoading = true
         import('@/vendor/Export2Excel').then(excel => {
-          const tHeader = ['批次ID', '批次编码', '批次名称','批次数量','附加数量','产品型号','UDI号','工单号','SN最大值','SN最小值','生产月份','备注', '状态','创建时间']
-          const filterVal = ['BatchId', 'BatchCode', 'BatchName','BatchNumber','BatchExtra','ProductCode','UDI','WorkCode','SNMax','SNMin', 'ProductMonth','Comment','status','createdAt']
+          const tHeader = ['批次ID', '批次编码', '批次数量','附加数量','产品型号','UDI号','工单号','SN最大值','SN最小值','生产月份','备注', '状态','创建时间']
+          const filterVal = ['BatchId', 'BatchCode', 'BatchNumber','BatchExtra','ProductCode','UDI','WorkCode','SNMax','SNMin', 'ProductMonth','Comment','status','createdAt']
           const list = this.batchList
           const data = formatJson(filterVal, list)
           excel.export_json_to_excel({
