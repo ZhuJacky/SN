@@ -87,6 +87,14 @@
           <el-table-column label="附加" width="60" align="center" prop="BatchExtra" />
           <el-table-column label="产品型号" width="80" align="center" prop="Product.ProductCode" />
           <el-table-column label="产品名称" align="center" prop="Product.ProductName" />
+          <el-table-column label="制作类型" align="center" prop="External" :formatter="externalFormat">
+            <template slot-scope="scope">
+              <el-tag
+                :type="scope.row.External === 1 ? 'danger' : 'success'"
+                disable-transitions
+              >{{ externalFormat(scope.row) }}</el-tag>
+            </template>
+          </el-table-column>
           <el-table-column label="UDI号" align="center" prop="Product.UDI" />
           <el-table-column label="工单号" align="center" prop="WorkCode" />
           <el-table-column label="SN最小值" align="center" prop="SNMin" />
@@ -112,14 +120,6 @@
               >{{ statusFormat(scope.row) }}</el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="制作类型" align="center" prop="External" :formatter="externalFormat">
-          <template slot-scope="scope">
-            <el-tag
-              :type="scope.row.External === 1 ? 'danger' : 'success'"
-              disable-transitions
-            >{{ externalFormat(scope.row) }}</el-tag>
-          </template>
-        </el-table-column>
           <el-table-column label="创建时间" align="center" prop="createdAt" width="180">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.createdAt) }}</span>
@@ -425,7 +425,16 @@ export default {
         remark: undefined
       }
       this.resetForm('form')
-      
+
+      //默认选中
+      this.form.snFormat=0
+      this.form.batchCodeFormat=0
+      this.form.SNCodeRules=0
+
+      this.changeSnFormat()
+      this.changeBatchCodeFormat()
+      this.changeSNCodeRulesFormat()
+      //this.form.SNCodeRules=0
     },
     /** 搜索按钮操作 */
     handleQuery() {
@@ -479,7 +488,6 @@ export default {
     },
     changeSnFormat: function() {
         if(this.form.snFormat===1) {
-            //alert("带括号")
             this.is_sn_format_show=true
         } else {
             this.is_sn_format_show=false
@@ -488,7 +496,6 @@ export default {
     },
     changeBatchCodeFormat: function() {
          if(this.form.batchCodeFormat===1) {
-             //alert("带括号")
              this.is_batch_code_show=true
          } else {
              this.is_batch_code_show=false
