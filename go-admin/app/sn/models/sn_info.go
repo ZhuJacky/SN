@@ -6,15 +6,16 @@ import (
 )
 
 type SNInfo struct {
-	SNId     	int    `gorm:"primaryKey;autoIncrement" json:"SNId"` //SNId
-	SNCode 		string `gorm:"size:128;" json:"SNCode"` //SN码
-	BatchId     int    `gorm:"size:19;" json:"BatchId"` //批次ID
-	BatchName   string `gorm:"size:128;" json:"BatchName"`              //批次名称
+	SNId        int    `gorm:"primaryKey;autoIncrement" json:"SNId"` //SNId
+	SNCode      string `gorm:"size:128;" json:"SNCode"`              //SN码
+	BatchId     int    `gorm:"size:19;" json:"BatchId"`              //批次ID
+	BatchName   string `gorm:"size:128;" json:"BatchName"`           //批次名称
 	BatchCode   string `gorm:"size:128;" json:"BatchCode"`
-	WorkCode    string `gorm:"size:128;" json:"WorkCode"`    //岗位代码
-	ProductCode string `gorm:"size:128;" json:"ProductCode"` //产品型号
-	UDI         string `gorm:"size:128;" json:"UDI"`         //UDI
-	Status  int    `gorm:"size:4;" json:"status"`    //状态
+	WorkCode    string `gorm:"size:128;" json:"WorkCode"`           //岗位代码
+	ProductCode string `gorm:"size:128;" json:"ProductCode"`        //产品型号
+	UDI         string `gorm:"size:128;" json:"UDI"`                //UDI
+	Status      int    `gorm:"size:4;" json:"status"`               //状态
+	ProductId   uint   `gorm:"column(product_id)" json:"ProductId"` //产品ID
 
 	models.ControlBy
 	models.ModelTime

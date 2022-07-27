@@ -160,6 +160,7 @@ func (e *BatchInfo) InsertSNInfo(batch *models.BatchInfo) error {
 			data.ProductCode = batch.ProductCode
 			data.UDI = batch.UDI
 			data.ProductMonth = batch.ProductMonth
+			data.ProductId = batch.ProductId
 			date := data.ProductMonth
 
 			year := date.Year()
