@@ -131,16 +131,9 @@
                   v-permisaction="['admin:sysPost:edit']"
                   size="mini"
                   type="text"
-                  icon="el-icon-view"
-                  @click="handleDetails(scope.row)"
-                >SN列表</el-button>
-              <el-button
-                  v-permisaction="['admin:sysPost:edit']"
-                  size="mini"
-                  type="text"
                   icon="el-icon-edit"
                   @click="handleUpdate(scope.row)"
-                >修改</el-button>
+                >查看</el-button>
               <el-button
                 v-permisaction="['admin:sysPost:remove']"
                 size="mini"
@@ -208,7 +201,7 @@
                 <el-input  v-model="form.minSNCode" placeholder="最小SN号" />
               </el-form-item>
               <el-form-item v-if="is_max_sn_code_show" label="最大SN号" prop="MaxSNCode">
-              <el-input  v-model="form.maxSNCode" placeholder="最大SN号" />
+              <el-input  v-model="form.MaxSNCode" placeholder="最大SN号" />
             </el-form-item>
             </el-form-item>
             <el-form-item label="产品名称" prop="ProductId">
@@ -476,13 +469,17 @@ export default {
       getPost(postId).then(response => {
         this.form = response.data
         this.form.ProductSNImage=row.BatchImgFile
+
         this.form.status = String(this.form.status)
         this.form.snFormat=row.SNFormat
         this.changeSnFormat()
         this.form.snFormatInfo=row.SNFormatInfo
+        this.changeSNCodeRulesFormat()
         this.form.batchCodeFormat=row.BatchCodeFormat
         this.changeBatchCodeFormat()
         this.form.batchCodeFormatInfo=row.BatchCode
+        this.form.minSNCode=row.SNMin
+        this.form.MaxSNCode=row.SNMax
         this.open = true
         this.title = '修改批次'
       })
@@ -524,9 +521,7 @@ export default {
        }
 
     },
-    handleDetails(row) {
-        this.$router.push({path: '/sn/sn-list?batch_code=' + row.BatchCode});
-    },
+
     /** 提交按钮 */
     submitForm: function() {
       this.$refs['form'].validate(valid => {
