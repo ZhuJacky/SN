@@ -23,6 +23,7 @@ $ ./go-admin migrate -c config/settings.dev.yml
 
 
 
+编译前端：npm run build:prod
 
 mysqldump -hlocalhost -uroot --all-databases --triggers --routines --events -p sn > sn.sql
 

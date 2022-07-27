@@ -114,9 +114,10 @@ func (e *BatchInfo) GenerateInsertID(model *models.BatchInfo, s *dto.BatchInfoIn
 
 	//是否手动填写LOT号
 	model.BatchCodeFormat = s.BatchCodeFormat
+	e.Log.Info("aaaaa %v", s.BatchCodeFormatInfo)
 	if model.BatchCodeFormat == 1 {
-		model.BatchCode = s.BatchCodeInfo
-		model.BatchCodeFormatInfo = s.BatchCodeInfo
+		model.BatchCode = s.BatchCodeFormatInfo
+		model.BatchCodeFormatInfo = s.BatchCodeFormatInfo
 	}
 
 	//客户指定SN号
@@ -130,7 +131,7 @@ func (e *BatchInfo) GenerateInsertID(model *models.BatchInfo, s *dto.BatchInfoIn
 	if model.SNFormat == 1 {
 		model.SNMax = model.SNFormatInfo + model.SNMax
 		model.SNMin = model.SNFormatInfo + model.SNMin
-		//model.BatchCode = model.SNFormatInfo + model.BatchCode
+		model.BatchCode = model.SNFormatInfo + model.BatchCode
 	}
 
 	return nil
@@ -267,7 +268,9 @@ func (e *BatchInfo) GenerateUpdateID(model *models.BatchInfo, s *dto.BatchInfoUp
 			return errors.New("不是当月最后一批，只能修改SN格式，批次状态，工单号，图样，备注等信息")
 		}
 	}
-
+	model.BatchName = s.BatchName
+	model.BatchNumber = s.BatchNumber
+	model.BatchExtra = s.BatchExtra
 	e.Orm.Unscoped().Where("batch_code_format=0 AND product_id= ? AND DATE_FORMAT(product_month,'%Y-%m')= ?", s.ProductId, s.ProductMonth).Find(&list)
 	var autoSNSum int = 0
 	var autoBatchCount int = 1
@@ -279,46 +282,54 @@ func (e *BatchInfo) GenerateUpdateID(model *models.BatchInfo, s *dto.BatchInfoUp
 			autoBatchCount++
 		}
 	}
-	year := date.Year()
-	ycode := (year - 33) % 100
-	month := date.Month()
-	mcode := month + 22
-	smin := fmt.Sprintf("%06d", autoSNSum+1)
-	smax := fmt.Sprintf("%06d", autoSNSum+s.BatchNumber+s.BatchExtra)
-	model.SNMax = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smax
-	model.SNMin = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smin
-	model.ProductMonth = date
-	var cstr string = fmt.Sprintf("%03d", autoBatchCount)
-	monthStr := fmt.Sprintf("%02d", int(month))
-	model.BatchCode = strconv.Itoa(year) + monthStr + cstr
-	model.SNFormat = s.SNFormat
-	model.SNFormatInfo = s.SNFormatInfo
+	if isLast {
+		year := date.Year()
+		ycode := (year - 33) % 100
+		month := date.Month()
+		mcode := month + 22
+		smin := fmt.Sprintf("%06d", autoSNSum+1)
+		smax := fmt.Sprintf("%06d", autoSNSum+s.BatchNumber+s.BatchExtra)
+		model.SNMax = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smax
+		model.SNMin = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smin
+		model.ProductMonth = date
+		var cstr string = fmt.Sprintf("%03d", autoBatchCount)
+		monthStr := fmt.Sprintf("%02d", int(month))
+		model.BatchCode = strconv.Itoa(year) + monthStr + cstr
+		model.SNFormat = s.SNFormat
+		model.SNFormatInfo = s.SNFormatInfo
 
-	model.BatchName = s.BatchName
-	model.BatchNumber = s.BatchNumber
-	model.BatchExtra = s.BatchExtra
-	model.ProductId = s.ProductId
-	model.ProductCode = s.ProductCode
-	//是否手动填写LOT号
-	model.BatchCodeFormat = s.BatchCodeFormat
-	if model.BatchCodeFormat == 1 {
-		model.BatchCode = s.BatchCodeInfo
+		model.ProductId = s.ProductId
+		model.ProductCode = s.ProductCode
+		//是否手动填写LOT号
+		model.BatchCodeFormat = s.BatchCodeFormat
+
+		if model.BatchCodeFormat == 1 {
+			model.BatchCode = s.BatchCodeInfo
+			model.BatchCodeFormatInfo = s.BatchCodeInfo
+		}
+
+		//客户指定SN号
+		model.SNCodeRules = s.SNCodeRules
+		if model.SNCodeRules == 1 {
+			model.SNMax = s.MaxSNCode
+			model.SNMin = s.MinSNCode
+		}
+
+		//如果SN格式是带括号的，在SN上增加括号，以及在LOT号上也增加括号
+		if model.SNFormat == 1 {
+			model.SNMax = model.SNFormatInfo + model.SNMax
+			model.SNMin = model.SNFormatInfo + model.SNMin
+			model.BatchCode = model.SNFormatInfo + model.BatchCode
+		}
+	} else {
+		if model.SNFormat == 0 && s.SNFormat == 1 {
+			model.SNFormat = s.SNFormat
+			model.SNFormatInfo = s.SNFormatInfo
+			model.SNMax = model.SNFormatInfo + model.SNMax
+			model.SNMin = model.SNFormatInfo + model.SNMin
+			model.BatchCode = model.SNFormatInfo + model.BatchCode
+		}
 	}
-
-	//客户指定SN号
-	model.SNCodeRules = s.SNCodeRules
-	if model.SNCodeRules == 1 {
-		model.SNMax = s.MaxSNCode
-		model.SNMin = s.MinSNCode
-	}
-
-	//如果SN格式是带括号的，在SN上增加括号，以及在LOT号上也增加括号
-	if model.SNFormat == 1 {
-		model.SNMax = model.SNFormatInfo + model.SNMax
-		model.SNMin = model.SNFormatInfo + model.SNMin
-		model.BatchCode = model.SNFormatInfo + model.BatchCode
-	}
-
 	return nil
 }
 
