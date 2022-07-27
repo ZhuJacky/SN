@@ -1,0 +1,60 @@
+
+安装前准备：
+
+第一步：开启Hyper-V，在“启用或关闭Windows功能”里，钩选Hyper-V，然后确定
+
+第二步：电脑开机时进BIOS开启虚拟化功能，电脑不同，自行开启
+
+
+下载：
+docker for desktop 下载地址
+https://desktop.docker.com/win/main/amd64/Docker%20Desktop%20Installer.exe?utm_source=docker&utm_medium=webreferral&utm_campaign=dd-smartbutton&utm_location=module
+
+
+数据库启动：
+docker run --name mysql -v /mysql:/var/lib/mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=123456 -d mysql:latest
+
+下载：dbeaver-ce-22.1.1-x86_64-setup
+https://download.dbeaver.com/community/22.1.1/dbeaver-ce-22.1.1-x86_64-setup.exe
+
+
+初始化数据库
+$ ./go-admin migrate -c config/settings.dev.yml
+
+
+
+
+mysqldump -hlocalhost -uroot --all-databases --triggers --routines --events -p sn > sn.sql
+
+mysqldump -h10.1.41.98 -uroot --all-databases --triggers --routines --events -p sn >sn.sql
+ 
+2. 启动vue 前端
+cd go-admin-ui
+npm run dev
+
+3. 启动后端
+cd go-admin;
+#安装依赖
+go mod tidy
+#编译
+go build
+#运行
+./go-admin server
+
+
+docker run --name go-admin -p 8000:8000 -v D:/project/SN2/admin:/opt/admin/ -d go-admina
+
+docker build  -t go-admin .
+docker run --name go-admin4 -p 8000:8000 -d go-admin -v D:/project/SN2/SN/go-admin/config/settings.yml:/config/settings.yml
+
+
+<img src="http://127.0.0.1:8000/static/uploadfile/d9391b6e-b8d5-40b9-8ab0-b173bb8d701f.jpg" class="el-upload el-upload--picture-card" style="float: left;">
+<img data-v-6494804b="" src="http://127.0.0.1:8000/static/uploadfile/d36b752c-a7ed-4b4e-9195-b1e674ef97c7.jpg" class="sidebar-logo">
+
+
+http://127.0.0.1:8000/static/uploadfile/d36b752c-a7ed-4b4e-9195-b1e674ef97c7.jpg
+http://127.0.0.1:8000/static/uploadfile/d9391b6e-b8d5-40b9-8ab0-b173bb8d701f.jpg
+
+COPY --from=builder /usr/share/zoneinfo/Asia/Shanghai /etc/localtime
+
+"%v,%v,%v,%v,%v,%v,%v,%v,%v,%v",model.BatchCodeFormat,s.BatchCodeFormat,model.SNCodeRules,s.SNCodeRules,model.ProductId,uint(s.ProductId),model.BatchNumber+model.BatchExtra,s.BatchNumber+s.BatchExtra,date, model.ProductMonth
