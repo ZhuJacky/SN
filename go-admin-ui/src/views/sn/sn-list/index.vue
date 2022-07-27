@@ -267,7 +267,7 @@ export default {
     handleDetails(row) {
       var query=this.$route.query;
       let batch_code = query.batch_code;
-      },
+    },
 
     /** 提交按钮 */
     submitForm: function() {
