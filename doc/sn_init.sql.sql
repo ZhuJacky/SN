@@ -125,3 +125,47 @@ VALUES(39, 1, '自制', '0', 'sn_batch_external', '', '', '', 2, '', '自制', 1
 INSERT INTO sn.sys_dict_data
 (dict_code, dict_sort, dict_label, dict_value, dict_type, css_class, list_class, is_default, status, `default`, remark, create_by, update_by, created_at, updated_at, deleted_at)
 VALUES(40, 1, '外购', '1', 'sn_batch_external', '', '', '', 2, '', '外购', 1, 1, '2021-05-13 19:56:40.845000000', '2021-05-13 19:56:40.845000000', NULL);
+
+
+/* SN详细信息 */
+CREATE TABLE `sn_info` (
+   `sn_id` bigint NOT NULL AUTO_INCREMENT,
+   `sn_code` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+   `batch_id` bigint DEFAULT NULL COMMENT 'batch_id',
+   `batch_name` varchar(128) DEFAULT NULL,
+   `batch_code` varchar(128) DEFAULT NULL,
+   `work_code` varchar(128) DEFAULT NULL,
+   `product_code` varchar(128) DEFAULT NULL,
+   `UDI` varchar(128) DEFAULT NULL,
+   `status` tinyint DEFAULT NULL,
+   `create_by` bigint DEFAULT NULL COMMENT 'create_by',
+   `update_by` bigint DEFAULT NULL COMMENT 'update_by',
+   `created_at` datetime(3) DEFAULT NULL COMMENT 'created_at',
+   `updated_at` datetime(3) DEFAULT NULL COMMENT 'updated_at',
+   `deleted_at` datetime(3) DEFAULT NULL COMMENT 'deleted_at',
+   `product_month` date DEFAULT NULL,
+   `product_id` bigint DEFAULT NULL,
+   PRIMARY KEY (`sn_id`),
+   KEY `idx_batch_info_create_by` (`create_by`),
+   KEY `idx_batch_info_update_by` (`update_by`),
+   KEY `idx_batch_info_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+/* 批次状态 */
+INSERT INTO sn.sys_dict_data (dict_sort,dict_label,dict_value,dict_type,css_class,list_class,is_default,status,`default`,remark,create_by,update_by,created_at,updated_at,deleted_at) VALUES
+      (1,'新建','0','sn_batch_status','','','',2,'','新建批次',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL),
+      (1,'下单','1','sn_batch_status','','','',2,'','下单',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL),
+      (1,'检验','2','sn_batch_status','','','',2,'','检验',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL),
+      (1,'生产','3','sn_batch_status','','','',2,'','生产',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL),
+      (1,'完成','4','sn_batch_status','','','',2,'','完成',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL);
+
+/* SN状态 */
+INSERT INTO sn.sys_dict_data (dict_sort,dict_label,dict_value,dict_type,css_class,list_class,is_default,status,`default`,remark,create_by,update_by,created_at,updated_at,deleted_at) VALUES
+      (1,'新建','0','sn_info_status','','','',2,'','新建SN',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL),
+      (1,'下单','1','sn_info_status','','','',2,'','下单',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL),
+      (1,'生产','2','sn_info_status','','','',2,'','生产',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL),
+      (1,'装箱','3','sn_info_status','','','',2,'','装箱',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL),
+      (1,'检验','4','sn_info_status','','','',2,'','检验',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL),
+      (1,'NG','5','sn_info_status','','','',2,'','NG',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL),
+      (1,'入库','6','sn_info_status','','','',2,'','入库',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL),
+      (1,'出库','7','sn_info_status','','','',2,'','出库',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL);
