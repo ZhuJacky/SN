@@ -298,6 +298,12 @@ func (e *BatchInfo) GenerateUpdateID(model *models.BatchInfo, s *dto.BatchInfoUp
 			model.SNMax = model.SNFormatInfo + model.SNMax
 			model.SNMin = model.SNFormatInfo + model.SNMin
 			model.BatchCode = model.SNFormatInfo + model.BatchCode
+		} else if model.SNFormat == 1 && s.SNFormat == 0 {
+			model.SNFormat = s.SNFormat
+			model.SNFormatInfo = ""
+			model.SNMax = string([]rune(model.SNMax)[len([]rune(model.SNFormatInfo)):len([]rune(model.SNMax))])
+			model.SNMin = string([]rune(model.SNMin)[len([]rune(model.SNFormatInfo)):len([]rune(model.SNMin))])
+			model.BatchCode = string([]rune(model.BatchCode)[len([]rune(model.SNFormatInfo)):len([]rune(model.BatchCode))])
 		}
 	}
 	return nil
