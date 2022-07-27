@@ -127,6 +127,13 @@
           </el-table-column>
           <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
             <template slot-scope="scope">
+             <el-button
+               v-permisaction="['admin:sysPost:edit']"
+               size="mini"
+               type="text"
+               icon="el-icon-view"
+               @click="handleDetails(scope.row)"
+             >SN列表</el-button>
               <el-button
                   v-permisaction="['admin:sysPost:edit']"
                   size="mini"
@@ -241,9 +248,6 @@
             <el-form-item label="多备数量" prop="BatchExtra">
               <el-input-number v-model="form.BatchExtra" controls-position="right" :min="0" />
             </el-form-item>
-            <el-form-item label="生产月份" prop="ProductMonth">
-              <el-date-picker v-model="form.ProductMonth" type="month" placeholder="选择日期" format="yyyy年MM月" value-format="yyyy-MM" controls-position="right" :min="0" />
-            </el-form-item>
             <el-form-item label="批次状态" prop="status">
               <el-select v-model="form.status" placeholder="请选择" >
                   <el-option
@@ -260,6 +264,9 @@
             <img alt v-if="form.ProductSNImage"  :src="form.ProductSNImage" class="el-upload el-upload--picture-card" style="float:left" align="center" width="300px">
               <i class="el-icon-plus avatar-uploader-icon"  v-else></i>
             </el-upload>
+            </el-form-item>
+            <el-form-item label="生产月份" prop="ProductMonth">
+              <el-date-picker v-model="form.ProductMonth" type="month" placeholder="选择日期" format="yyyy年MM月" value-format="yyyy-MM" controls-position="right" :min="0" />
             </el-form-item>
             <el-form-item label="备注" prop="remark">
               <el-input v-model="form.Comment" type="textarea" placeholder="请输入内容" />
@@ -537,6 +544,9 @@ export default {
           }
         }
       })
+    },
+    handleDetails(row) {
+        this.$router.push({path: '/sn/sn-list?batch_code=' + row.BatchCode});
     },
     /** 删除按钮操作 */
     handleDelete(row) {
