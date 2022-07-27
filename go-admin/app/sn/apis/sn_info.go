@@ -1,6 +1,7 @@
 package apis
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
@@ -69,13 +70,12 @@ func (e SNInfo) UpdateStatus(c *gin.Context) {
 	}
 
 	req.SetUpdateBy(user.GetUserId(c))
-	e.Logger.Info(req)
+	e.Logger.Info("UpdateStatus:", req)
 
-	/*
-		err = s.Update(&req)
-		if err != nil {
-			e.Error(500, err, fmt.Sprintf("SN状态更新失败！错误详情：%s", err.Error()))
-			return
-		}*/
+	err = s.UpdateSNInfoStatus(&req)
+	if err != nil {
+		e.Error(500, err, fmt.Sprintf("SN状态更新失败！错误详情：%s", err.Error()))
+		return
+	}
 	e.OK(req.GetId(), "更新成功")
 }

@@ -207,6 +207,26 @@ func (e *BatchInfo) GetSNInfoList(c *dto.SNInfoPageReq, list *[]models.SNInfo, c
 	return nil
 }
 
+// UpdateSNInfoStatus 修改SN状态
+func (e *BatchInfo) UpdateSNInfoStatus(c *dto.SNInfoUpdateReq) error {
+	var err error
+	var model = models.SNInfo{}
+	e.Orm.First(&model, c.GetId())
+	model.Status = c.Status
+	model.SNId = c.SNId
+	e.Log.Info("%v", &model)
+	db := e.Orm.Save(&model)
+
+	if db.Error != nil {
+		e.Log.Errorf("db error:%s", err)
+		return err
+	}
+	if db.RowsAffected == 0 {
+		return errors.New("无权更新该数据")
+	}
+	return nil
+}
+
 func (e *BatchInfo) GenerateUpdateID(model *models.BatchInfo, s *dto.BatchInfoUpdateReq) error {
 	var list []models.BatchInfo
 	date, _ := time.Parse("2006-01-02", s.ProductMonth+"-03")

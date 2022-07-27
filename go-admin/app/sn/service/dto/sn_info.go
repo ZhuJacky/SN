@@ -9,7 +9,8 @@ import (
 // SysPostPageReq 列表或者搜索使用结构体
 type SNInfoPageReq struct {
 	dto.Pagination `search:"-"`
-	BatchId        int `form:"postId" search:"type:exact;column:batch_id;table:sn_info" comment:"id"` // id
+	BatchId        int `form:"postCode" search:"type:exact;column:batch_code;table:sn_info" comment:"id"` // id
+	Status         int `form:"status" search:"type:exact;column:status;table:sn_info" comment:"status"`   // status
 }
 
 func (m *SNInfoPageReq) GetNeedSearch() interface{} {
@@ -18,8 +19,8 @@ func (m *SNInfoPageReq) GetNeedSearch() interface{} {
 
 // SysPostUpdateReq 改使用的结构体
 type SNInfoUpdateReq struct {
-	SNId   string `uri:"id"  comment:"id"`
-	Status string `form:"status"   comment:"状态"`
+	SNId   int `uri:"id"  comment:"id"`
+	Status int `form:"status"   comment:"状态"`
 	common.ControlBy
 }
 

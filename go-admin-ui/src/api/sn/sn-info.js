@@ -9,10 +9,10 @@ export function listPost(query) {
   })
 }
 // 修改SN状态
-export function updatePost(status, id) {
+export function updatePost(data, id) {
   return request({
     url: '/api/v1/sn-info/' + id,
     method: 'put',
-    data: status
+    data: data
   })
 }

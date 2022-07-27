@@ -95,7 +95,7 @@
           <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat">
             <template slot-scope="scope">
               <el-tag
-                :type="scope.row.status === 1 ? 'danger' : 'success'"
+                :type="scope.row.status === 2 ? 'danger' : 'success'"
                 disable-transitions
               >{{ statusFormat(scope.row) }}</el-tag>
             </template>
@@ -258,8 +258,8 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
         this.reset()
-        const postId = (row.SNId && [row.SNId]) || this.ids
-        this.form.SNId = postId
+        //const postId = (row.SNId && [row.SNId]) || this.ids
+        this.form.SNId = row.SNId
         this.open = true
         this.title = '修改SN'
         //alert(postId)
@@ -271,7 +271,8 @@ export default {
 
     /** 提交按钮 */
     submitForm: function() {
-        updatePost(this.form.status, this.form.SNId).then(response => {
+        this.form.status = parseInt(this.form.status)
+        updatePost(this.form, this.form.SNId).then(response => {
             if (response.code === 200) {
                 this.msgSuccess(response.msg)
                 this.open = false
