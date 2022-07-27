@@ -148,39 +148,48 @@ func (e *BatchInfo) Insert(c *dto.BatchInfoInsertReq) error {
 
 //添加SN信息
 func (e *BatchInfo) InsertSNInfo(batch *models.BatchInfo) error {
-	var err error
-	var number int = batch.BatchNumber + batch.BatchExtra
-	for i := 1; i < number; i++ {
-		var data models.SNInfo
-		data.BatchId = batch.BatchId
-		data.BatchName = batch.BatchName
-		data.BatchCode = batch.BatchCode
-		data.WorkCode = batch.WorkCode
-		data.ProductCode = batch.ProductCode
-		data.UDI = batch.UDI
-		data.ProductMonth = batch.ProductMonth
-		date := data.ProductMonth
+	if batch.SNCodeRules == 0 { //自动生成SN号，才需要批量添加SN信息
+		var err error
+		var number int = batch.BatchNumber + batch.BatchExtra
+		for i := 1; i < number+1; i++ {
+			var data models.SNInfo
+			data.BatchId = batch.BatchId
+			data.BatchName = batch.BatchName
+			data.BatchCode = batch.BatchCode
+			data.WorkCode = batch.WorkCode
+			data.ProductCode = batch.ProductCode
+			data.UDI = batch.UDI
+			data.ProductMonth = batch.ProductMonth
+			date := data.ProductMonth
 
-		year := date.Year()
-		ycode := (year - 33) % 100
-		month := date.Month()
-		mcode := month + 22
-		sn := fmt.Sprintf("%06d", i)
-		data.SNCode = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + data.ProductCode + sn
-		External := batch.External
-		if External == 1 {
-			data.SNCode = "(01)" + data.SNCode
-		}
+			year := date.Year()
+			ycode := (year - 33) % 100
+			month := date.Month()
+			mcode := month + 22
+			sn := fmt.Sprintf("%06d", i)
+			data.SNCode = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + data.ProductCode + sn
 
-		data.Status = batch.Status
+			/*
+				External := batch.External
+				if External == 1 {
+					data.SNCode = "(01)" + data.SNCode
+				}*/
 
-		data.CreateBy = batch.CreateBy
-		data.UpdateBy = batch.UpdateBy
+			//如果SN格式是带括号的，在SN上增加括号
+			if batch.SNFormat == 1 {
+				data.SNCode = batch.SNFormatInfo + data.SNCode
+			}
 
-		err = e.Orm.Create(&data).Error
-		if err != nil {
-			e.Log.Errorf("db error:%s", err)
-			return err
+			data.Status = batch.Status
+
+			data.CreateBy = batch.CreateBy
+			data.UpdateBy = batch.UpdateBy
+
+			err = e.Orm.Create(&data).Error
+			if err != nil {
+				e.Log.Errorf("db error:%s", err)
+				return err
+			}
 		}
 	}
 
