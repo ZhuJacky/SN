@@ -245,10 +245,10 @@ func (e *BatchInfo) GenerateUpdateID(model *models.BatchInfo, s *dto.BatchInfoUp
 	var autoSNSum int = 0
 	var autoBatchCount int = 1
 	for _, batch := range list {
-		if batch.SNCodeRules == 0 {
+		if batch.SNCodeRules == 0 && batch.BatchId < model.BatchId {
 			autoSNSum = autoSNSum + batch.BatchNumber + batch.BatchExtra
 		}
-		if batch.BatchCodeFormat == 0 {
+		if batch.BatchCodeFormat == 0 && batch.BatchId < model.BatchId {
 			autoBatchCount++
 		}
 	}

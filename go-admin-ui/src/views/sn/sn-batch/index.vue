@@ -282,7 +282,6 @@ import { listProduct } from '@/api/sn/sn-product'
 import { formatJson } from '@/utils'
 import { getToken } from '@/utils/auth'
 import moment from 'moment'
-
 export default {
   name: 'SysPostManage',
   data() {
@@ -313,7 +312,6 @@ export default {
       statusOptions: [],
       // 外协
       externalOptions: [],
-
       // 查询参数
       queryParams: {
         pageIndex: 1,
@@ -359,7 +357,6 @@ export default {
       }
     }
   },
-
   created() {
     this.getProductList()
     this.getList()
@@ -371,17 +368,13 @@ export default {
     })
   },
   methods: {
-
-
     uploadSuccess(response, file, fileList) {
       this.$forceUpdate()
       this.form.ProductSNImage = process.env.VUE_APP_BASE_API + response.data.full_path
-
       this.$forceUpdate()
       console.log(this.form.ProductSNImage)
       console.log(response.data.full_path)
     },
-
     sys_app_logoBeforeUpload(file) {
       const isRightSize = file.size / 1024 / 1024 < 2
       if (!isRightSize) {
@@ -398,7 +391,6 @@ export default {
         this.loading = false
       })
     },
-
     getProductList() {
       listProduct(this.queryParams).then(response => {
         this.productList = response.data.list
@@ -458,7 +450,6 @@ export default {
       this.form.snFormat=0
       this.form.batchCodeFormat=0
       this.form.SNCodeRules=0
-
       this.open = true
       this.title = '添加批次'
     },
@@ -469,7 +460,6 @@ export default {
       getPost(postId).then(response => {
         this.form = response.data
         this.form.ProductSNImage=row.BatchImgFile
-
         this.form.status = String(this.form.status)
         this.form.snFormat=row.SNFormat
         this.changeSnFormat()
@@ -500,7 +490,6 @@ export default {
         } else {
             this.is_sn_format_show=false
         }
-
     },
     changeBatchCodeFormat: function() {
          if(this.form.batchCodeFormat===1) {
@@ -509,7 +498,6 @@ export default {
          } else {
              this.is_batch_code_show=false
          }
-
      },
      changeSNCodeRulesFormat: function() {
        if(this.form.SNCodeRules===1) {
@@ -519,9 +507,7 @@ export default {
            this.is_min_sn_code_show=false
            this.is_max_sn_code_show=false
        }
-
     },
-
     /** 提交按钮 */
     submitForm: function() {
       this.$refs['form'].validate(valid => {
