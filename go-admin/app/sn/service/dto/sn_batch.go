@@ -47,19 +47,19 @@ type BatchInfoInsertReq struct {
 	WorkCode    string `form:"WorkCode" comment:"工单号"`
 	UDI         string `form:"UDI" comment:"UDI号"`
 
-	Status          int    `form:"status"   comment:"状态"`
-	Comment         string `form:"Comment"   comment:"备注"`
-	ProductMonth    string `form:"ProductMonth"   comment:"生产月份"`
-	ProductId       uint   `form:"ProductId"  comment:"产品ID"`
-	External        int    `form:"External" comment:"制作类型"`
-	SNFormat        int    `form:"SNFormat" comment:"SN格式"`
-	SNFormatInfo    string `form:"SNFormatInfo" comment:"SN格式信息"`
-	BatchCodeFormat int    `form:"batchCodeFormat" comment:"批号格式"`
-	BatchCodeInfo   string `form:"batchCodeFormatInfo" comment:"批号信息"`
-	SNCodeRules     int    `form:"SNCodeRules" comment:"SN生成规则"`
-	ProductSNImage  string `form:"ProductSNImage" comment:"批次照片"`
-	MinSNCode       string `form:"minSNCode" comment:"最小SN号"`
-	MaxSNCode       string `form:"MaxSNCode" comment:"最大SN号"`
+	Status              int    `form:"status"   comment:"状态"`
+	Comment             string `form:"Comment"   comment:"备注"`
+	ProductMonth        string `form:"ProductMonth"   comment:"生产月份"`
+	ProductId           uint   `form:"ProductId"  comment:"产品ID"`
+	External            int    `form:"External" comment:"制作类型"`
+	SNFormat            int    `form:"SNFormat" comment:"SN格式"`
+	SNFormatInfo        string `form:"SNFormatInfo" comment:"SN格式信息"`
+	BatchCodeFormat     int    `form:"batchCodeFormat" comment:"批号格式"`
+	BatchCodeFormatInfo string `form:"batchCodeFormatInfo" comment:"批号信息"`
+	SNCodeRules         int    `form:"SNCodeRules" comment:"SN生成规则"`
+	ProductSNImage      string `form:"ProductSNImage" comment:"批次照片"`
+	MinSNCode           string `form:"minSNCode" comment:"最小SN号"`
+	MaxSNCode           string `form:"MaxSNCode" comment:"最大SN号"`
 
 	common.ControlBy
 }
@@ -129,7 +129,7 @@ type BatchInfoUpdateReq struct {
 	ProductMonth    string `form:"ProductMonth"   comment:"生产月份"`
 	SNFormat        int    `form:"SNFormat" comment:"SN格式"`
 	SNFormatInfo    string `form:"SNFormatInfo" comment:"SN格式信息"`
-	BatchCodeFormat int    `form:"BatchCodeFormat" comment:"批号格式"`
+	BatchCodeFormat int    `form:"batchCodeFormat" comment:"批号格式"`
 	BatchCodeInfo   string `form:"batchCodeFormatInfo" comment:"批号信息"`
 	SNCodeRules     int    `form:"SNCodeRules" comment:"SN生成规则"`
 	ProductSNImage  string `form:"ProductSNImage" comment:"批次照片"`
