@@ -169,3 +169,7 @@ INSERT INTO sn.sys_dict_data (dict_sort,dict_label,dict_value,dict_type,css_clas
       (1,'NG','5','sn_info_status','','','',2,'','NG',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL),
       (1,'入库','6','sn_info_status','','','',2,'','入库',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL),
       (1,'出库','7','sn_info_status','','','',2,'','出库',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL);
+
+DELETE FROM sys_dict_data where dict_type='sn_batch_status';
+DELETE FROM sys_dict_data where dict_type='sn_info_status';
+
