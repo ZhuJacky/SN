@@ -18,5 +18,6 @@ func registerSNInfoRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlew
 	r := v1.Group("/sn-info")
 	{
 		r.GET("", api.GetSNInfoList)
+		r.PUT("/:id", api.UpdateStatus)
 	}
 }

@@ -150,7 +150,7 @@
 </template>
 
 <script>
-import { listPost, getPost, delPost, addPost, updatePost } from '@/api/sn/sn-info'
+import { listPost, updatePost } from '@/api/sn/sn-info'
 import { formatJson } from '@/utils'
 import moment from 'moment'
 
@@ -185,7 +185,8 @@ export default {
         status: undefined
       },
       // 表单参数
-      form: {},
+      form: {
+      },
       // 表单校验
       rules: {
 
@@ -228,7 +229,11 @@ export default {
     },
     // 表单重置
     reset() {
-
+        this.form = {
+            SNId: undefined,
+            status: '1'
+          }
+          this.resetForm('form')
     },
     /** 搜索按钮操作 */
     handleQuery() {
@@ -254,7 +259,7 @@ export default {
     handleUpdate(row) {
         this.reset()
         const postId = (row.SNId && [row.SNId]) || this.ids
-        //this.form.status = String(row.status)
+        this.form.SNId = postId
         this.open = true
         this.title = '修改SN'
         //alert(postId)
@@ -266,9 +271,16 @@ export default {
 
     /** 提交按钮 */
     submitForm: function() {
-      this.form.status = parseInt(this.form.status)
-      this.form.SNId
-      alert(this.form.status)
+        updatePost(this.form.status, this.form.SNId).then(response => {
+            if (response.code === 200) {
+                this.msgSuccess(response.msg)
+                this.open = false
+                this.getList()
+            } else {
+                this.msgError(response.msg)
+            }
+        })
+
     },
     /** 删除按钮操作 */
     handleDelete(row) {

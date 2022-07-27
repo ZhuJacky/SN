@@ -4,6 +4,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 	"github.com/go-admin-team/go-admin-core/sdk/api"
+	"github.com/go-admin-team/go-admin-core/sdk/pkg/jwtauth/user"
 	_ "github.com/go-admin-team/go-admin-core/sdk/pkg/response"
 
 	"go-admin/app/sn/models"
@@ -44,7 +45,6 @@ func (e SNInfo) GetSNInfoList(c *gin.Context) {
 	list := make([]models.SNInfo, 0)
 	var count int64
 
-
 	err = s.GetSNInfoList(&req, &list, &count)
 	if err != nil {
 		e.Error(500, err, "查询失败")
@@ -54,3 +54,28 @@ func (e SNInfo) GetSNInfoList(c *gin.Context) {
 	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 }
 
+func (e SNInfo) UpdateStatus(c *gin.Context) {
+	s := service.BatchInfo{}
+	req := dto.SNInfoUpdateReq{}
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(&req, binding.JSON, nil).
+		MakeService(&s.Service).
+		Errors
+	if err != nil {
+		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
+		return
+	}
+
+	req.SetUpdateBy(user.GetUserId(c))
+	e.Logger.Info(req)
+
+	/*
+		err = s.Update(&req)
+		if err != nil {
+			e.Error(500, err, fmt.Sprintf("SN状态更新失败！错误详情：%s", err.Error()))
+			return
+		}*/
+	e.OK(req.GetId(), "更新成功")
+}
