@@ -79,23 +79,28 @@ func (e *BatchInfo) GenerateInsertID(model *models.BatchInfo, s *dto.BatchInfoIn
 	var list []models.BatchInfo
 	date, _ := time.Parse("2006-01-02", s.ProductMonth+"-03")
 	//手动填写的LOT号，不需要占用自动生成批号的批次
-	e.Orm.Unscoped().Where("batch_code_format=0 AND product_id= ? AND DATE_FORMAT(product_month,'%Y-%m')= ? AND sn_format=?", s.ProductId, s.ProductMonth, 0).Find(&list)
+	e.Orm.Unscoped().Where("product_id= ? AND DATE_FORMAT(product_month,'%Y-%m')= ?", s.ProductId, s.ProductMonth).Find(&list)
 	model.ProductMonth = date
-	var sum int = 0
+	var autoSNSum int = 0
+	var autoBatchCount int = 1
 	for _, batch := range list {
-		sum = sum + batch.BatchNumber + batch.BatchExtra
+		if batch.SNCodeRules == 0 {
+			autoSNSum = autoSNSum + batch.BatchNumber + batch.BatchExtra
+		}
+		if batch.BatchCodeFormat == 0 {
+			autoBatchCount++
+		}
 	}
 	year := date.Year()
 	ycode := (year - 33) % 100
 	month := date.Month()
 	mcode := month + 22
-	smin := fmt.Sprintf("%06d", sum+1)
-	smax := fmt.Sprintf("%06d", sum+s.BatchNumber+s.BatchExtra)
+	smin := fmt.Sprintf("%06d", autoSNSum+1)
+	smax := fmt.Sprintf("%06d", autoSNSum+s.BatchNumber+s.BatchExtra)
 	model.SNMax = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smax
 	model.SNMin = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smin
 
-	count := len(list)
-	var cstr string = fmt.Sprintf("%03d", count+1)
+	var cstr string = fmt.Sprintf("%03d", autoBatchCount)
 	monthStr := fmt.Sprintf("%02d", int(month))
 	model.BatchCode = strconv.Itoa(year) + monthStr + cstr
 	model.External = s.External
@@ -111,6 +116,7 @@ func (e *BatchInfo) GenerateInsertID(model *models.BatchInfo, s *dto.BatchInfoIn
 	model.BatchCodeFormat = s.BatchCodeFormat
 	if model.BatchCodeFormat == 1 {
 		model.BatchCode = s.BatchCodeInfo
+		model.BatchCodeFormatInfo = s.BatchCodeInfo
 	}
 
 	//客户指定SN号
@@ -124,7 +130,7 @@ func (e *BatchInfo) GenerateInsertID(model *models.BatchInfo, s *dto.BatchInfoIn
 	if model.SNFormat == 1 {
 		model.SNMax = model.SNFormatInfo + model.SNMax
 		model.SNMin = model.SNFormatInfo + model.SNMin
-		model.BatchCode = model.SNFormatInfo + model.BatchCode
+		//model.BatchCode = model.SNFormatInfo + model.BatchCode
 	}
 
 	return nil
@@ -209,9 +215,9 @@ func (e *BatchInfo) GetSNInfoList(c *dto.SNInfoPageReq, list *[]models.SNInfo, c
 
 func (e *BatchInfo) GenerateUpdateID(model *models.BatchInfo, s *dto.BatchInfoUpdateReq) error {
 	var list []models.BatchInfo
-	date, _ := time.Parse("2006-01-02", s.ProductMonth+"-03")
-	e.Orm.Unscoped().Where("product_id= ? AND DATE_FORMAT(product_month,'%Y-%m')= ?", s.ProductId, s.ProductMonth).Find(&list)
-	model.ProductMonth = date
+	//	e.Orm.Unscoped().Where("product_id= ? AND DATE_FORMAT(product_month,'%Y-%m-&d ')= ?", s.ProductId, model.ProductMonth).Find(&list)
+	e.Orm.Unscoped().Where("product_id= ? AND product_month= ?", model.ProductId, model.ProductMonth).Find(&list)
+
 	var sum int = 0
 	var isLast bool = true
 	var count int = 1
@@ -224,41 +230,45 @@ func (e *BatchInfo) GenerateUpdateID(model *models.BatchInfo, s *dto.BatchInfoUp
 			isLast = false
 		}
 	}
+	date, _ := time.Parse("2006-01-02", s.ProductMonth+"-03")
 	if !isLast {
-		// if s.BatchNumber+s.BatchExtra != model.BatchNumber+model.BatchExtra {
-		// 	return errors.New("不是当月最后一批，不要改变数量，以免影响其他批次")
-		// }
-		return errors.New("不是当月最后一批，不要修改")
+		if model.BatchCodeFormat != s.BatchCodeFormat || model.SNCodeRules != s.SNCodeRules || model.ProductId != s.ProductId || model.BatchNumber+model.BatchExtra != s.BatchNumber+s.BatchExtra || date.Year() != model.ProductMonth.Year() || date.Month() != model.ProductMonth.Month() {
+			e.Log.Info("%v,%v,%v,%v,%v,%v,%v,%v,%v,%v", model.BatchCodeFormat, s.BatchCodeFormat, model.SNCodeRules, s.SNCodeRules, model.ProductId, uint(s.ProductId), model.BatchNumber+model.BatchExtra, s.BatchNumber+s.BatchExtra, date, model.ProductMonth)
+			return errors.New("不是当月最后一批，只能修改SN格式，批次状态，工单号，图样，备注等信息")
+		}
 	}
-	var list1 []models.BatchInfo
-	e.Orm.Unscoped().Where("batch_code_format=0 AND product_id= ? AND DATE_FORMAT(product_month,'%Y-%m')= ? AND sn_format=?", s.ProductId, s.ProductMonth, 0).Find(&list1)
 
-	var sum1 int = 0
-	for _, batch := range list1 {
-		sum1 = sum1 + batch.BatchNumber + batch.BatchExtra
+	e.Orm.Unscoped().Where("batch_code_format=0 AND product_id= ? AND DATE_FORMAT(product_month,'%Y-%m')= ?", s.ProductId, s.ProductMonth).Find(&list)
+	var autoSNSum int = 0
+	var autoBatchCount int = 1
+	for _, batch := range list {
+		if batch.SNCodeRules == 0 {
+			autoSNSum = autoSNSum + batch.BatchNumber + batch.BatchExtra
+		}
+		if batch.BatchCodeFormat == 0 {
+			autoBatchCount++
+		}
 	}
 	year := date.Year()
 	ycode := (year - 33) % 100
 	month := date.Month()
 	mcode := month + 22
-	smin := fmt.Sprintf("%06d", sum1+1)
-	smax := fmt.Sprintf("%06d", sum1+s.BatchNumber+s.BatchExtra)
+	smin := fmt.Sprintf("%06d", autoSNSum+1)
+	smax := fmt.Sprintf("%06d", autoSNSum+s.BatchNumber+s.BatchExtra)
 	model.SNMax = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smax
 	model.SNMin = strconv.Itoa(ycode) + strconv.Itoa(int(mcode)) + s.ProductCode + smin
-
-	count1 := len(list1)
-	var cstr string = fmt.Sprintf("%03d", count1+1)
+	model.ProductMonth = date
+	var cstr string = fmt.Sprintf("%03d", autoBatchCount)
 	monthStr := fmt.Sprintf("%02d", int(month))
 	model.BatchCode = strconv.Itoa(year) + monthStr + cstr
-	model.External = s.External
 	model.SNFormat = s.SNFormat
 	model.SNFormatInfo = s.SNFormatInfo
-	/*
-		if model.External == 1 {
-			model.SNMax = "(01)" + model.SNMax
-			model.SNMin = "(01)" + model.SNMin
-		}*/
 
+	model.BatchName = s.BatchName
+	model.BatchNumber = s.BatchNumber
+	model.BatchExtra = s.BatchExtra
+	model.ProductId = s.ProductId
+	model.ProductCode = s.ProductCode
 	//是否手动填写LOT号
 	model.BatchCodeFormat = s.BatchCodeFormat
 	if model.BatchCodeFormat == 1 {
@@ -294,7 +304,6 @@ func (e *BatchInfo) Update(c *dto.BatchInfoUpdateReq) error {
 	c.Generate(&model)
 	e.Log.Info("%v", &model)
 	db := e.Orm.Save(&model)
-
 	if db.Error != nil {
 		e.Log.Errorf("db error:%s", err)
 		return err

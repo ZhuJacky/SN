@@ -4,7 +4,6 @@ import (
 	"go-admin/app/sn/models"
 	"go-admin/common/dto"
 	common "go-admin/common/models"
-	"time"
 )
 
 type ProductJoin struct {
@@ -51,12 +50,12 @@ type BatchInfoInsertReq struct {
 	Status          int    `form:"status"   comment:"状态"`
 	Comment         string `form:"Comment"   comment:"备注"`
 	ProductMonth    string `form:"ProductMonth"   comment:"生产月份"`
-	ProductId       int    `form:"ProductId"  comment:"产品ID"`
+	ProductId       uint   `form:"ProductId"  comment:"产品ID"`
 	External        int    `form:"External" comment:"制作类型"`
 	SNFormat        int    `form:"SNFormat" comment:"SN格式"`
 	SNFormatInfo    string `form:"SNFormatInfo" comment:"SN格式信息"`
-	BatchCodeFormat int    `form:"BatchCodeFormat" comment:"批号格式"`
-	BatchCodeInfo   string `form:"batchCodeInfo" comment:"批号信息"`
+	BatchCodeFormat int    `form:"batchCodeFormat" comment:"批号格式"`
+	BatchCodeInfo   string `form:"batchCodeFormatInfo" comment:"批号信息"`
 	SNCodeRules     int    `form:"SNCodeRules" comment:"SN生成规则"`
 	ProductSNImage  string `form:"ProductSNImage" comment:"批次照片"`
 	MinSNCode       string `form:"minSNCode" comment:"最小SN号"`
@@ -78,6 +77,7 @@ func (s *BatchInfoInsertReq) Generate(model *models.BatchInfo) {
 	model.BatchName = s.BatchName
 	model.BatchNumber = s.BatchNumber
 	model.BatchExtra = s.BatchExtra
+	model.ProductId = s.ProductId
 	model.ProductCode = s.ProductCode
 	model.UDI = s.UDI
 	model.WorkCode = s.WorkCode
@@ -125,12 +125,12 @@ type BatchInfoUpdateReq struct {
 	External        int    `form:"External" comment:"制作类型"`
 	Status          int    `form:"status"   comment:"状态"`
 	Comment         string `form:"Comment"   comment:"备注"`
-	ProductId       int    `form:"ProductId"  comment:"产品ID"`
+	ProductId       uint   `form:"ProductId"  comment:"产品ID"`
 	ProductMonth    string `form:"ProductMonth"   comment:"生产月份"`
 	SNFormat        int    `form:"SNFormat" comment:"SN格式"`
 	SNFormatInfo    string `form:"SNFormatInfo" comment:"SN格式信息"`
 	BatchCodeFormat int    `form:"BatchCodeFormat" comment:"批号格式"`
-	BatchCodeInfo   string `form:"batchCodeInfo" comment:"批号信息"`
+	BatchCodeInfo   string `form:"batchCodeFormatInfo" comment:"批号信息"`
 	SNCodeRules     int    `form:"SNCodeRules" comment:"SN生成规则"`
 	ProductSNImage  string `form:"ProductSNImage" comment:"批次照片"`
 	MinSNCode       string `form:"minSNCode" comment:"最小SN号"`
@@ -139,19 +139,13 @@ type BatchInfoUpdateReq struct {
 }
 
 func (s *BatchInfoUpdateReq) Generate(model *models.BatchInfo) {
-	model.BatchName = s.BatchName
-	model.BatchNumber = s.BatchNumber
-	model.BatchExtra = s.BatchExtra
-	model.ProductCode = s.ProductCode
-	model.UDI = s.UDI
+
 	model.WorkCode = s.WorkCode
 	model.Status = s.Status
 	model.Comment = s.Comment
-	dateString := s.ProductMonth + "-03"
-	//date, _ := time.Parse("2022-01-03", s.ProductMonth+"-03")
-	date, _ := time.Parse("2006-01-02", dateString)
-	model.ProductMonth = date
+
 	model.External = s.External
+	model.BatchImgFile = s.ProductSNImage
 
 	if s.ControlBy.UpdateBy != 0 {
 		model.UpdateBy = s.UpdateBy
