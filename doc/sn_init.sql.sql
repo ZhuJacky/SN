@@ -173,3 +173,7 @@ INSERT INTO sn.sys_dict_data (dict_sort,dict_label,dict_value,dict_type,css_clas
 DELETE FROM sys_dict_data where dict_type='sn_batch_status';
 DELETE FROM sys_dict_data where dict_type='sn_info_status';
 
+
+/*test*/
+
+
