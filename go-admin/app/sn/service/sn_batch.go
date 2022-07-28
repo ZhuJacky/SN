@@ -271,7 +271,7 @@ func (e *BatchInfo) GenerateUpdateID(model *models.BatchInfo, s *dto.BatchInfoUp
 	model.BatchName = s.BatchName
 	model.BatchNumber = s.BatchNumber
 	model.BatchExtra = s.BatchExtra
-	e.Orm.Unscoped().Where("batch_code_format=0 AND product_id= ? AND DATE_FORMAT(product_month,'%Y-%m')= ?", s.ProductId, s.ProductMonth).Find(&list)
+	e.Orm.Unscoped().Where("product_id= ? AND DATE_FORMAT(product_month,'%Y-%m')= ?", s.ProductId, s.ProductMonth).Find(&list)
 	var autoSNSum int = 0
 	var autoBatchCount int = 1
 	for _, batch := range list {
