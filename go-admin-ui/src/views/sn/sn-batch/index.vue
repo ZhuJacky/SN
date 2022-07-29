@@ -267,7 +267,7 @@
             </el-upload>
             </el-form-item>
             <el-form-item label="生产月份" prop="ProductMonth">
-              <el-date-picker readonly="noEdit" v-model="form.ProductMonth" type="month" placeholder="选择日期" format="yyyy年MM月" value-format="yyyy-MM" controls-position="right" :min="0" />
+              <el-date-picker disabled="noEdit" v-model="form.ProductMonth" type="month" placeholder="选择日期" format="yyyy年MM月" value-format="yyyy-MM" controls-position="right" :min="0" />
             </el-form-item>
             <el-form-item label="备注" prop="remark">
               <el-input v-model="form.Comment" type="textarea" placeholder="请输入内容" />
