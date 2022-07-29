@@ -15,6 +15,7 @@
           <el-form-item label="工单号" prop="workCode">
             <el-input
               v-model="queryParams.workCode"
+              
               placeholder="请输入工单号"
               clearable
               size="small"
@@ -164,7 +165,7 @@
         <el-dialog :title="title" :visible.sync="open" width="600px">
           <el-form ref="form" :model="form" :rules="rules" label-width="120px">
             <el-form-item label="SN格式" prop="snFormat">
-              <el-radio-group v-model="form.snFormat" v-on:input="changeSnFormat()">
+              <el-radio-group disabled="noEdit" v-model="form.snFormat" v-on:input="changeSnFormat()">
                 <el-radio
                   :key="0"
                   :label="0"
@@ -179,7 +180,7 @@
               </el-form-item>
             </el-form-item>
             <el-form-item label="批号(LOT号)格式" prop="batchCodeFormat">
-              <el-radio-group v-model="form.batchCodeFormat" v-on:input="changeBatchCodeFormat()">
+              <el-radio-group disabled="noEdit" v-model="form.batchCodeFormat" v-on:input="changeBatchCodeFormat()">
                 <el-radio
                   :key="0"
                   :label="0"
@@ -194,7 +195,7 @@
               </el-form-item>
             </el-form-item>
             <el-form-item label="SN生成规则" prop="SNCodeRules">
-              <el-radio-group v-model="form.SNCodeRules" v-on:input="changeSNCodeRulesFormat()">
+              <el-radio-group disabled="noEdit" v-model="form.SNCodeRules" v-on:input="changeSNCodeRulesFormat()">
                 <el-radio
                   :key="0"
                   :label="0"
@@ -212,7 +213,7 @@
             </el-form-item>
             </el-form-item>
             <el-form-item label="产品名称" prop="ProductId">
-              <el-select v-model="form.ProductId" placeholder="请选择"  v-on:input="changeForm()">
+              <el-select disabled="noEdit" v-model="form.ProductId" placeholder="请选择"  v-on:input="changeForm()">
                   <el-option
                     v-for="dict in productList"
                     :key="dict.ProductName"
@@ -222,34 +223,34 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="产品型号" prop="ProductCode">
-              <el-input v-model="form.ProductCode" placeholder="机器型号" />
+              <el-input disabled="noEdit" v-model="form.ProductCode" placeholder="机器型号" />
             </el-form-item>
             <el-form-item label="UDI号" prop="UDI">
-              <el-input v-model="form.UDI" placeholder="UDI号" />
+              <el-input disabled="noEdit" v-model="form.UDI" placeholder="UDI号" />
             </el-form-item>
             <el-form-item label="工单号" prop="WorkCode">
-              <el-input v-model="form.WorkCode" placeholder="工单号" />
+              <el-input disabled="noEdit" v-model="form.WorkCode" placeholder="工单号" />
             </el-form-item>
             <el-form-item label="制作类型" prop="External">
-              <el-radio-group v-model="form.External">
-                <el-radio
+              <el-radio-group disabled="noEdit"  v-model="form.External">
+                <el-radio 
                   :key="0"
                   :label="0"
                 >自制</el-radio>
-                <el-radio
+                <el-radio readonly="noEdit"
                   :key="1"
                   :label="1"
                 >外购</el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item label="批次数量" prop="BatchNumber">
-              <el-input-number v-model="form.BatchNumber" controls-position="right" :min="0" />
+              <el-input-number disabled="noEdit" readonly="noEdit" v-model="form.BatchNumber" controls-position="right" :min="0" />
             </el-form-item>
             <el-form-item label="多备数量" prop="BatchExtra">
-              <el-input-number v-model="form.BatchExtra" controls-position="right" :min="0" />
+              <el-input-number disabled="noEdit" readonly="noEdit" v-model="form.BatchExtra" controls-position="right" :min="0" />
             </el-form-item>
             <el-form-item label="批次状态" prop="status">
-              <el-select v-model="form.status" placeholder="请选择" >
+              <el-select readonly="noEdit" v-model="form.status" placeholder="请选择" >
                   <el-option
                     v-for="dict in statusOptions"
                     :key="dict.value"
@@ -266,7 +267,7 @@
             </el-upload>
             </el-form-item>
             <el-form-item label="生产月份" prop="ProductMonth">
-              <el-date-picker v-model="form.ProductMonth" type="month" placeholder="选择日期" format="yyyy年MM月" value-format="yyyy-MM" controls-position="right" :min="0" />
+              <el-date-picker readonly="noEdit" v-model="form.ProductMonth" type="month" placeholder="选择日期" format="yyyy年MM月" value-format="yyyy-MM" controls-position="right" :min="0" />
             </el-form-item>
             <el-form-item label="备注" prop="remark">
               <el-input v-model="form.Comment" type="textarea" placeholder="请输入内容" />
@@ -315,6 +316,7 @@ export default {
       title: '',
       // 是否显示弹出层
       open: false,
+      noEdit:false,
       // 状态数据字典
       statusOptions: [],
       // 外协
@@ -479,6 +481,7 @@ export default {
         this.form.MaxSNCode=row.SNMax
         this.open = true
         this.title = '修改批次'
+        this.noEdit=true
       })
     },
     changeForm: function() {
