@@ -19,15 +19,15 @@
 -- Table structure for table `batch_info`
 --
 
-DROP TABLE IF EXISTS `batch_info`;
+DROP TABLE IF EXISTS `sn_batch_info`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `batch_info` (
+CREATE TABLE `sn_batch_info` (
   `batch_id` bigint NOT NULL AUTO_INCREMENT,
   `batch_name` varchar(128) DEFAULT NULL,
   `batch_code` varchar(128) DEFAULT NULL,
-  `batch_number` tinyint DEFAULT NULL,
-  `batch_extra` tinyint DEFAULT NULL,
+  `batch_number` int DEFAULT NULL,
+  `batch_extra` int DEFAULT NULL,
   `work_code` varchar(128) DEFAULT NULL,
   `product_code` varchar(128) DEFAULT NULL,
   `UDI` varchar(128) DEFAULT NULL,
@@ -41,22 +41,70 @@ CREATE TABLE `batch_info` (
   `updated_at` datetime(3) DEFAULT NULL COMMENT '最后更新时间',
   `deleted_at` datetime(3) DEFAULT NULL COMMENT '删除时间',
   `product_month` date DEFAULT NULL,
+  `image_file` varchar(255) DEFAULT NULL,
+  `external` tinyint(1) DEFAULT NULL,
+  `product_id` bigint DEFAULT NULL,
+  `sn_code_rules` int DEFAULT NULL,
+  `batch_img_file` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `sn_format` int DEFAULT NULL,
+  `sn_format_info` varchar(255) DEFAULT NULL,
+  `batch_code_format` int DEFAULT NULL,
+  `batch_code_format_info` varchar(100) DEFAULT NULL,
   PRIMARY KEY (`batch_id`),
   KEY `idx_batch_info_create_by` (`create_by`),
   KEY `idx_batch_info_update_by` (`update_by`),
   KEY `idx_batch_info_deleted_at` (`deleted_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
---
--- Dumping data for table `batch_info`
---
 
-LOCK TABLES `batch_info` WRITE;
-/*!40000 ALTER TABLE `batch_info` DISABLE KEYS */;
-INSERT INTO `batch_info` VALUES (1,'测温仪批量生产','202206002',100,10,'work-002-001','PRD001-002','UDI20078','(021)-8769PRD001-00202110','(021)-8769PRD001-00202001',2,'保质保量完成',1,1,'2022-05-25 00:00:00.000','2022-05-21 00:00:00.000',NULL,'2022-06-01'),(4,'1','1',0,0,'','','','','',1,'',0,0,'2022-07-05 19:41:21.765','2022-07-05 19:41:21.765',NULL,'2022-07-05'),(5,'ba1','mach1',0,0,'','','','','',1,'112',0,0,'2022-07-05 20:28:20.613','2022-07-05 20:28:20.613',NULL,'2022-07-05');
-/*!40000 ALTER TABLE `batch_info` ENABLE KEYS */;
-UNLOCK TABLES;
+
+
+DROP TABLE IF EXISTS `sn_info`;
+CREATE TABLE `sn_info` (
+   `sn_id` bigint NOT NULL AUTO_INCREMENT,
+   `sn_code` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+   `batch_id` bigint DEFAULT NULL COMMENT 'batch_id',
+   `batch_name` varchar(128) DEFAULT NULL,
+   `batch_code` varchar(128) DEFAULT NULL,
+   `work_code` varchar(128) DEFAULT NULL,
+   `product_code` varchar(128) DEFAULT NULL,
+   `UDI` varchar(128) DEFAULT NULL,
+   `status` tinyint DEFAULT NULL,
+   `create_by` bigint DEFAULT NULL COMMENT 'create_by',
+   `update_by` bigint DEFAULT NULL COMMENT 'update_by',
+   `created_at` datetime(3) DEFAULT NULL COMMENT 'created_at',
+   `updated_at` datetime(3) DEFAULT NULL COMMENT 'updated_at',
+   `deleted_at` datetime(3) DEFAULT NULL COMMENT 'deleted_at',
+   `product_month` date DEFAULT NULL,
+   `product_id` bigint DEFAULT NULL,
+   PRIMARY KEY (`sn_id`),
+   KEY `idx_batch_info_create_by` (`create_by`),
+   KEY `idx_batch_info_update_by` (`update_by`),
+   KEY `idx_batch_info_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+DROP TABLE IF EXISTS `sn_product_info`;
+CREATE TABLE `sn_product_info` (
+  `product_id` bigint NOT NULL AUTO_INCREMENT,
+  `product_name` varchar(128) DEFAULT NULL,
+  `product_code` varchar(128) DEFAULT NULL,
+  `UDI` varchar(128) DEFAULT NULL,
+  `status` tinyint DEFAULT NULL,
+  `comment` varchar(255) DEFAULT NULL,
+  `create_by` bigint DEFAULT NULL COMMENT '创建者',
+  `update_by` bigint DEFAULT NULL COMMENT '更新者',
+  `created_at` datetime(3) DEFAULT NULL COMMENT '创建时间',
+  `updated_at` datetime(3) DEFAULT NULL COMMENT '最后更新时间',
+  `deleted_at` datetime(3) DEFAULT NULL COMMENT '删除时间',
+  `image_file` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL COMMENT '产品图片',
+  PRIMARY KEY (`product_id`),
+  KEY `idx_batch_info_create_by` (`create_by`),
+  KEY `idx_batch_info_update_by` (`update_by`),
+  KEY `idx_batch_info_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=38 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 --
 -- Table structure for table `sys_api`
