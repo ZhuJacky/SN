@@ -76,8 +76,13 @@ func MonthFilter(db *gorm.DB, month string) *gorm.DB {
 }
 
 func (e *BatchInfo) GenerateInsertID(model *models.BatchInfo, s *dto.BatchInfoInsertReq) error {
+
 	var list []models.BatchInfo
 	date, _ := time.Parse("2006-01-02", s.ProductMonth+"-03")
+	e.Orm.Where("work_code= ?", s.WorkCode).Find(&list)
+	if len(list) > 0 {
+		return errors.New("工单号已经被占用")
+	}
 	//手动填写的LOT号，不需要占用自动生成批号的批次
 	e.Orm.Unscoped().Where("product_id= ? AND DATE_FORMAT(product_month,'%Y-%m')= ?", s.ProductId, s.ProductMonth).Find(&list)
 	model.ProductMonth = date
@@ -141,7 +146,10 @@ func (e *BatchInfo) GenerateInsertID(model *models.BatchInfo, s *dto.BatchInfoIn
 func (e *BatchInfo) Insert(c *dto.BatchInfoInsertReq) error {
 	var err error
 	var data models.BatchInfo
-	_ = e.GenerateInsertID(&data, c)
+	err1 := e.GenerateInsertID(&data, c)
+	if err1 != nil {
+		return err1
+	}
 	c.Generate(&data)
 	err = e.Orm.Create(&data).Error
 	if err != nil {
