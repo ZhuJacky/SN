@@ -173,7 +173,7 @@ INSERT INTO sn.sys_dict_data (dict_sort,dict_label,dict_value,dict_type,css_clas
 DELETE FROM sys_dict_data where dict_type='sn_batch_status';
 DELETE FROM sys_dict_data where dict_type='sn_info_status';
 
-
+/*初始化产品列表*/
 INSERT INTO sn_product_info (product_code,product_name) VALUES ('500A','血氧仪');
 INSERT INTO sn_product_info (product_code,product_name) VALUES ('500B','血氧仪');
 INSERT INTO sn_product_info (product_code,product_name) VALUES ('500C','血氧仪');
