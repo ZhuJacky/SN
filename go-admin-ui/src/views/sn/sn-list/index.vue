@@ -3,10 +3,10 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="120px">
-          <el-form-item label="批号(LOT号)" prop="postCode">
+          <el-form-item label="批号ID" prop="postCode">
             <el-input
               v-model="queryParams.postCode"
-              placeholder="请输入批号"
+              placeholder="请输入批号ID"
               clearable
               size="small"
               @keyup.enter.native="handleQuery"
@@ -83,7 +83,6 @@
           <el-table-column label="序号" width="60" align="center" prop="SNId" />
           <el-table-column label="批号" width="150" align="center" prop="BatchCode" />
           <el-table-column label="产品型号" width="100" align="center" prop="ProductCode" />
-          <el-table-column label="UDI号" width="150" align="center" prop="UDI" />
           <el-table-column label="工单号" width="150" align="center" prop="WorkCode" />
           <el-table-column label="SN编码" width="180" align="center" prop="SNCode" />
           <el-table-column label="生产月份" align="center" prop="ProductMonth" :formatter="dateFormat">
@@ -197,9 +196,8 @@ export default {
 
     //填充查询条件
     var query=this.$route.query;
-    let batch_code = query.batch_code;
-    this.queryParams.postCode = batch_code;
-    //alert(batch_code)
+    let batch_id = query.batch_id;
+    this.queryParams.postCode = batch_id;
     this.getList()
     this.getDicts('sn_info_status').then(response => {
       this.statusOptions = response.data

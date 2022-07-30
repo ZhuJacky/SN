@@ -223,7 +223,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="产品型号" prop="ProductId">
-              <el-select  :disabled="noEdit" v-model="form.ProductId" placeholder="请选择">
+              <el-select  :disabled="noEdit" v-model="form.ProductId" placeholder="请选择" v-on:input="changeProductCodeForm()">
                   <el-option
                     v-for="dict in productCodeList"
                     :key="dict.ProductCode"
@@ -437,6 +437,7 @@ export default {
         BatchId: undefined,
         postCode: undefined,
         postName: undefined,
+        ProductCode: undefined,
         sort: 0,
         status: '1',
         remark: undefined
@@ -509,6 +510,14 @@ export default {
         }
       }
     },*/
+    changeProductCodeForm:function() {
+      for(let i=0; i<this.productCodeList.length; i++) {
+        if(this.productList[i].ProductId === this.form.ProductId) {
+          this.form.ProductCode=this.productList[i].ProductCode
+
+        }
+      }
+    },
     changeForm: function() {
 
       listProduct(this.form.ProductName).then(response => {
@@ -570,7 +579,8 @@ export default {
       })
     },
     handleDetails(row) {
-        this.$router.push({path: '/sn/sn-list?batch_code=' + row.BatchCode});
+        //alert(row.Product.ProductCode)
+        this.$router.push({path: '/sn/sn-list?batch_id=' + row.BatchId});
     },
     /** 删除按钮操作 */
     handleDelete(row) {
