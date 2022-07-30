@@ -352,10 +352,10 @@ func (e *BatchInfo) Update(c *dto.BatchInfoUpdateReq) error {
 	var err error
 	var model = models.BatchInfo{}
 	e.Orm.First(&model, c.GetId())
-	err = e.GenerateUpdateID(&model, c)
-	if err != nil {
-		return err
-	}
+	//err = e.GenerateUpdateID(&model, c)
+	//if err != nil {
+	//	return err
+	//}
 	c.Generate(&model)
 	e.Log.Info("%v", &model)
 	db := e.Orm.Save(&model)
