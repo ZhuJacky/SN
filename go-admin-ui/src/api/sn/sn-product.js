@@ -5,6 +5,6 @@ export function listProduct(query) {
   return request({
     url: '/api/v1/sn-product',
     method: 'get',
-    params: {pageIndex:1,pageSize:100}
+    params: {pageIndex:1,pageSize:500,ProductName:query}
   })
 }

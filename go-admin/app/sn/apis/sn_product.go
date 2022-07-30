@@ -47,12 +47,42 @@ func (e ProductInfo) GetPage(c *gin.Context) {
 	var count int64
 
 	err = s.GetPage(&req, &list, &count)
+
 	if err != nil {
 		e.Error(500, err, "查询失败")
 		return
 	}
 
-	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
+    fmt.Println("req=", req)
+
+    var pName = req.ProductName
+
+    if len(pName) < 1 {
+    //因为产品名可能会相同，所以需要按照产品名过滤列表
+        list1 := make([]models.ProductInfo, 0)
+        var proMap map[string]int
+        proMap = make(map[string]int)
+    	for i, product := range list {
+            var productName string = product.ProductName
+            fmt.Println(i, "productName=", productName)
+            value, ok := proMap[productName]
+            if ok {
+                proMap[productName] = value +1
+                //fmt.Println("ok=", ok, "value=" ,value)
+            } else {
+                list1 = append(list1, product)
+                proMap[productName] = 1
+            }
+        }
+
+        fmt.Println("proMap=", proMap)
+
+    	e.PageOK(list1, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
+    } else {
+        e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
+    }
+
+
 }
 
 // Get

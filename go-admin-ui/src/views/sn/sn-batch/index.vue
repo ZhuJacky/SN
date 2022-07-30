@@ -15,7 +15,7 @@
           <el-form-item label="工单号" prop="workCode">
             <el-input
               v-model="queryParams.workCode"
-              
+
               placeholder="请输入工单号"
               clearable
               size="small"
@@ -88,7 +88,7 @@
           <el-table-column label="附加" width="60" align="center" prop="BatchExtra" />
           <el-table-column label="产品型号" width="80" align="center" prop="Product.ProductCode" />
           <el-table-column label="产品名称" align="center" prop="Product.ProductName" />
-          <el-table-column label="UDI号" align="center" prop="Product.UDI" />
+          <el-table-column label="UDI号" align="center" prop="UDI" />
           <el-table-column label="工单号" align="center" prop="WorkCode" />
           <el-table-column label="SN最小值" align="center" prop="SNMin" />
           <el-table-column label="SN最大值" align="center" prop="SNMax" />
@@ -141,7 +141,7 @@
                   type="text"
                   icon="el-icon-edit"
                   @click="handleUpdate(scope.row)"
-                >查看</el-button>
+                >修改</el-button>
               <el-button
                 v-permisaction="['admin:sysPost:remove']"
                 size="mini"
@@ -196,7 +196,7 @@
             </el-form-item>
             <el-form-item label="SN生成规则" prop="SNCodeRules">
               <el-radio-group :disabled="noEdit" v-model="form.SNCodeRules" v-on:input="changeSNCodeRulesFormat()">
-                <el-radio 
+                <el-radio
                   :key="0"
                   :label="0"
                 >自动生成</el-radio>
@@ -212,18 +212,25 @@
               <el-input :disabled="noEdit"  v-model="form.MaxSNCode" placeholder="最大SN号" />
             </el-form-item>
             </el-form-item>
-            <el-form-item label="产品名称" prop="ProductId">
-              <el-select  :disabled="noEdit" v-model="form.ProductId" placeholder="请选择"  v-on:input="changeForm()">
+            <el-form-item label="产品名称" prop="ProductName">
+              <el-select  :disabled="noEdit" v-model="form.ProductName" placeholder="请选择"  v-on:input="changeForm()">
                   <el-option
                     v-for="dict in productList"
                     :key="dict.ProductName"
                     :label="dict.ProductName"
-                    :value="dict.ProductId"
+                    :value="dict.ProductName"
                   />
                 </el-select>
             </el-form-item>
-            <el-form-item label="产品型号" prop="ProductCode">
-              <el-input :disabled="noEdit" v-model="form.ProductCode" placeholder="机器型号" />
+            <el-form-item label="产品型号" prop="ProductId">
+              <el-select  :disabled="noEdit" v-model="form.ProductId" placeholder="请选择">
+                  <el-option
+                    v-for="dict in productCodeList"
+                    :key="dict.ProductCode"
+                    :label="dict.ProductCode"
+                    :value="dict.ProductId"
+                  />
+                </el-select>
             </el-form-item>
             <el-form-item label="UDI号" prop="UDI">
               <el-input :disabled="noEdit" v-model="form.UDI" placeholder="UDI号" />
@@ -233,11 +240,11 @@
             </el-form-item>
             <el-form-item label="制作类型" prop="External">
               <el-radio-group  v-model="form.External">
-                <el-radio 
+                <el-radio
                   :key="0"
                   :label="0"
                 >自制</el-radio>
-                <el-radio 
+                <el-radio
                   :key="1"
                   :label="1"
                 >外购</el-radio>
@@ -272,7 +279,7 @@
             <el-form-item label="备注" prop="remark">
               <el-input v-model="form.Comment" type="textarea" placeholder="请输入内容" />
             </el-form-item>
-  
+
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -312,6 +319,7 @@ export default {
       // 岗位表格数据
       batchList: [],
       productList: [],
+      productCodeList: [],
       // 弹出层标题
       title: '',
       // 是否显示弹出层
@@ -333,7 +341,7 @@ export default {
       sys_app_logofileList: [],
       // 表单参数
       form: {},
-      
+
       // 表单校验
       rules: {
         BatchName: [
@@ -341,6 +349,9 @@ export default {
         ],
         ProductId: [
           { required: true, message: '产品名称不能为空', trigger: 'blur' }
+        ],
+        UDI: [
+          { required: true, message: 'UDI不能为空', trigger: 'blur' }
         ],
         minSNCode:[
           { required: true, message: '最小SN号不能为空', trigger: 'blur' }
@@ -401,7 +412,7 @@ export default {
       })
     },
     getProductList() {
-      listProduct(this.queryParams).then(response => {
+      listProduct().then(response => {
         this.productList = response.data.list
       })
     },
@@ -435,7 +446,7 @@ export default {
       this.is_sn_format_show=false
       this.is_min_sn_code_show=false
       this.is_max_sn_code_show=false
-      
+
     },
     /** 搜索按钮操作 */
     handleQuery() {
@@ -463,6 +474,7 @@ export default {
       this.open = true
       this.title = '添加批次'
       this.noEdit = false
+      this.productCodeList = []//重新初始化下来列表
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -481,23 +493,31 @@ export default {
         this.form.batchCodeFormatInfo=row.BatchCode
         this.form.minSNCode=row.SNMin
         this.form.MaxSNCode=row.SNMax
+        this.form.ProductName=row.Product.ProductName
         this.open = true
         this.title = '修改批次'
         this.noEdit=true
       })
     },
+    /*
     changeForm: function() {
       for(let i=0; i<this.productList.length; i++) {
         if(this.productList[i].ProductId === this.form.ProductId) {
-          this.form.UDI=this.productList[i].UDI
+          //this.form.UDI=this.productList[i].UDI
           this.form.ProductCode=this.productList[i].ProductCode
-          
+
         }
       }
+    },*/
+    changeForm: function() {
+
+      listProduct(this.form.ProductName).then(response => {
+        this.productCodeList = response.data.list
+        //this.form.ProductId="" //产品重新做了选择，需要重置该表单
+      })
     },
     changeSnFormat: function() {
         if(this.form.snFormat===1) {
-            //alert("带括号")
             this.is_sn_format_show=true
         } else {
             this.is_sn_format_show=false
@@ -505,7 +525,6 @@ export default {
     },
     changeBatchCodeFormat: function() {
          if(this.form.batchCodeFormat===1) {
-             //alert("带括号")
              this.is_batch_code_show=true
          } else {
              this.is_batch_code_show=false
