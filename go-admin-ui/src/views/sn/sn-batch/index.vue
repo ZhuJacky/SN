@@ -223,7 +223,7 @@
                 </el-select>
             </el-form-item>
             <el-form-item label="产品型号" prop="ProductId">
-              <el-select  :disabled="noEdit" v-model="form.ProductId" placeholder="请选择" v-on:input="changeProductCodeForm()">
+              <el-select  :disabled="noEdit" v-model="form.ProductId" placeholder="请选择">
                   <el-option
                     v-for="dict in productCodeList"
                     :key="dict.ProductCode"
@@ -475,7 +475,7 @@ export default {
       this.open = true
       this.title = '添加批次'
       this.noEdit = false
-      this.productCodeList = []//重新初始化下来列表
+      this.productCodeList = []//重新初始化下拉列表
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
@@ -510,14 +510,6 @@ export default {
         }
       }
     },*/
-    changeProductCodeForm:function() {
-      for(let i=0; i<this.productCodeList.length; i++) {
-        if(this.productList[i].ProductId === this.form.ProductId) {
-          this.form.ProductCode=this.productList[i].ProductCode
-
-        }
-      }
-    },
     changeForm: function() {
 
       listProduct(this.form.ProductName).then(response => {
@@ -550,6 +542,14 @@ export default {
     },
     /** 提交按钮 */
     submitForm: function() {
+
+      //提交之前，给ProductCode赋值
+      for(let i=0; i<this.productCodeList.length; i++) {
+        if(this.productCodeList[i].ProductId === this.form.ProductId) {
+          this.form.ProductCode=this.productCodeList[i].ProductCode
+        }
+      }
+
       this.$refs['form'].validate(valid => {
         if (valid) {
           this.form.status = parseInt(this.form.status)
