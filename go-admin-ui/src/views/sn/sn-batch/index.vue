@@ -163,7 +163,7 @@
 
         <!-- 添加或修改批次对话框 -->
         <el-dialog :title="title" :visible.sync="open" width="600px">
-          <el-form ref="form" :model="form" :rules="rules" label-width="120px">
+          <el-form ref="form" :model="form" :rules="rules" label-width="140px">
             <el-form-item  label="SN格式" prop="snFormat">
               <el-radio-group :disabled="noEdit" v-model="form.snFormat" v-on:input="changeSnFormat()">
                 <el-radio
@@ -179,7 +179,7 @@
                 <el-input :disabled="noEdit" v-model="form.snFormatInfo" placeholder="(01)" />
               </el-form-item>
             </el-form-item>
-            <el-form-item label="批号(LOT号)格式" prop="batchCodeFormat">
+            <el-form-item label="批号(LOT)生成方式" prop="batchCodeFormat">
               <el-radio-group :disabled="noEdit" v-model="form.batchCodeFormat" v-on:input="changeBatchCodeFormat()">
                 <el-radio
                   :key="0"
@@ -194,7 +194,7 @@
                 <el-input :disabled="noEdit"  v-model="form.batchCodeFormatInfo" placeholder="批号" />
               </el-form-item>
             </el-form-item>
-            <el-form-item label="SN生成规则" prop="SNCodeRules">
+            <el-form-item label="SN生成方式" prop="SNCodeRules">
               <el-radio-group :disabled="noEdit" v-model="form.SNCodeRules" v-on:input="changeSNCodeRulesFormat()">
                 <el-radio
                   :key="0"
