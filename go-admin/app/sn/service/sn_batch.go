@@ -111,6 +111,7 @@ func (e *BatchInfo) GenerateInsertID(model *models.BatchInfo, s *dto.BatchInfoIn
 	model.External = s.External
 	model.SNFormat = s.SNFormat
 	model.SNFormatInfo = s.SNFormatInfo
+	model.AutoSNSum = autoSNSum
 	/*
 		if model.External == 1 {
 			model.SNMax = "(01)" + model.SNMax
@@ -165,8 +166,9 @@ func (e *BatchInfo) Insert(c *dto.BatchInfoInsertReq) error {
 func (e *BatchInfo) InsertSNInfo(batch *models.BatchInfo) error {
 	if batch.SNCodeRules == 0 { //自动生成SN号，才需要批量添加SN信息
 		var err error
-		var number int = batch.BatchNumber + batch.BatchExtra
-		for i := 1; i < number+1; i++ {
+		var autoSNSum = batch.AutoSNSum + 1
+		var number int = autoSNSum + batch.BatchNumber + batch.BatchExtra
+		for i := autoSNSum; i < number; i++ {
 			var data models.SNInfo
 			data.BatchId = batch.BatchId
 			data.BatchName = batch.BatchName

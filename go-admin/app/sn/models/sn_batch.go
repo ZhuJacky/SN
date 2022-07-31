@@ -28,6 +28,7 @@ type BatchInfo struct {
 	SNCodeRules         int    `gorm:"size:4;" json:"SNCodeRules"`           //SN生成规则
 	BatchImgFile        string `gorm:"size:255;" json:"BatchImgFile"`        //
 	External            int    `gorm:"size:4;" json:"External"`              //制作类型
+	AutoSNSum            int    `gorm:"size:4;" json:"autoSNSum"`              //SN启始号
 	models.ControlBy
 	models.ModelTime
 
