@@ -3,7 +3,7 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="120px">
-          <el-form-item label="批号(LOT号)" prop="postCode">
+          <el-form-item label="批号(LOT)" prop="postCode">
             <el-input
               v-model="queryParams.postCode"
               placeholder="请输入批次编码"
@@ -83,7 +83,7 @@
         <el-table v-loading="loading" :data="batchList" border @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="40" align="center" />
           <el-table-column label="序号" width="60" align="center" prop="BatchId" />
-          <el-table-column label="批号(LOT号)" width="100" align="center" prop="BatchCode" />
+          <el-table-column label="批号(LOT)" width="120" align="center" prop="BatchCode" />
           <el-table-column label="数量" width="60" align="center" prop="BatchNumber" />
           <el-table-column label="附加" width="60" align="center" prop="BatchExtra" />
           <el-table-column label="产品型号" width="80" align="center" prop="Product.ProductCode" />
@@ -121,7 +121,7 @@
             >{{ externalFormat(scope.row) }}</el-tag>
           </template>
         </el-table-column>
-          <el-table-column label="创建时间" align="center" prop="createdAt" width="180">
+          <el-table-column label="创建时间" align="center" prop="createdAt" width="155">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.createdAt) }}</span>
             </template>
@@ -164,7 +164,7 @@
         <!-- 添加或修改批次对话框 -->
         <el-dialog :title="title" :visible.sync="open" width="600px">
           <el-form ref="form" :model="form" :rules="rules" label-width="140px">
-            <el-form-item  label="SN格式" prop="snFormat">
+            <el-form-item  label="格式" prop="snFormat">
               <el-radio-group :disabled="noEdit" v-model="form.snFormat" v-on:input="changeSnFormat()">
                 <el-radio
                   :key="0"
@@ -175,7 +175,13 @@
                   :label="1"
                 >带括号</el-radio>
               </el-radio-group>
-              <el-form-item v-if="is_sn_format_show" label="SN格式" prop="snFormatInfo">
+              <el-form-item v-if="is_sn_format_show" label="UDI码格式" prop="udiFormatInfo">
+                <el-input :disabled="noEdit" v-model="form.udiFormatInfo" placeholder="(01)" />
+              </el-form-item>
+              <el-form-item v-if="is_sn_format_show" label="LOT号格式" prop="lotFormatInfo">
+                <el-input :disabled="noEdit" v-model="form.lotFormatInfo" placeholder="(01)" />
+              </el-form-item>
+              <el-form-item v-if="is_sn_format_show" label="SN号格式" prop="snFormatInfo">
                 <el-input :disabled="noEdit" v-model="form.snFormatInfo" placeholder="(01)" />
               </el-form-item>
             </el-form-item>
@@ -190,7 +196,7 @@
                   :label="1"
                 >手动填写</el-radio>
               </el-radio-group>
-              <el-form-item v-if="is_batch_code_show" label="批号(LOT号)" prop="batchCodeFormatInfo">
+              <el-form-item v-if="is_batch_code_show" label="批号(LOT)" prop="batchCodeFormatInfo">
                 <el-input :disabled="noEdit"  v-model="form.batchCodeFormatInfo" placeholder="批号" />
               </el-form-item>
             </el-form-item>
@@ -362,6 +368,12 @@ export default {
         batchCodeFormatInfo:[
           { required: true, message: 'LOT号不能为空', trigger: 'blur' }
         ],
+        udiFormatInfo:[
+          { required: true, message: 'UDI码不能为空', trigger: 'blur' }
+        ],
+        lotFormatInfo:[
+          { required: true, message: 'LOT号不能为空', trigger: 'blur' }
+        ],
         snFormatInfo:[
           { required: true, message: 'SN格式不能为空', trigger: 'blur' }
         ],
@@ -488,6 +500,8 @@ export default {
         this.form.snFormat=row.SNFormat
         this.changeSnFormat()
         this.form.snFormatInfo=row.SNFormatInfo
+        this.form.udiFormatInfo=row.UDIFormatInfo
+        this.form.lotFormatInfo=row.LOTFormatInfo
         this.changeSNCodeRulesFormat()
         this.form.batchCodeFormat=row.BatchCodeFormat
         this.changeBatchCodeFormat()

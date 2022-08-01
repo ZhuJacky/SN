@@ -54,6 +54,8 @@ type BatchInfoInsertReq struct {
 	External            int    `form:"External" comment:"制作类型"`
 	SNFormat            int    `form:"SNFormat" comment:"SN格式"`
 	SNFormatInfo        string `form:"SNFormatInfo" comment:"SN格式信息"`
+	UDIFormatInfo       string `form:"UDIFormatInfo" comment:"UDI码格式"`
+	LOTFormatInfo       string `form:"LOTFormatInfo" comment:"LOT号格式"`
 	BatchCodeFormat     int    `form:"batchCodeFormat" comment:"批号格式"`
 	BatchCodeFormatInfo string `form:"batchCodeFormatInfo" comment:"批号信息"`
 	SNCodeRules         int    `form:"SNCodeRules" comment:"SN生成规则"`
@@ -79,7 +81,7 @@ func (s *BatchInfoInsertReq) Generate(model *models.BatchInfo) {
 	model.BatchExtra = s.BatchExtra
 	model.ProductId = s.ProductId
 	model.ProductCode = s.ProductCode
-	model.UDI = s.UDI
+	//model.UDI = s.UDI
 	model.WorkCode = s.WorkCode
 	model.Status = s.Status
 	model.Comment = s.Comment

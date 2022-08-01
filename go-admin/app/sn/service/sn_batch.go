@@ -84,15 +84,15 @@ func (e *BatchInfo) GenerateInsertID(model *models.BatchInfo, s *dto.BatchInfoIn
 		return errors.New("工单号已经被占用")
 	}
 	//手动填写的LOT号，不需要占用自动生成批号的批次
-	e.Orm.Unscoped().Where("product_id= ? AND DATE_FORMAT(product_month,'%Y-%m')= ?", s.ProductId, s.ProductMonth).Find(&list)
+	e.Orm.Unscoped().Where("DATE_FORMAT(product_month,'%Y-%m')= ?", s.ProductMonth).Find(&list)
 	model.ProductMonth = date
 	var autoSNSum int = 0
 	var autoBatchCount int = 1
 	for _, batch := range list {
 		if batch.SNCodeRules == 0 {
-			autoSNSum = autoSNSum + batch.BatchNumber + batch.BatchExtra
+			autoSNSum = autoSNSum + batch.BatchNumber + batch.BatchExtra //当月的流水号不同的产品，直接累加。
 		}
-		if batch.BatchCodeFormat == 0 {
+		if batch.BatchCodeFormat == 0 && batch.ProductId == s.ProductId { //批次号，同一个产品需要累加
 			autoBatchCount++
 		}
 	}
@@ -111,7 +111,10 @@ func (e *BatchInfo) GenerateInsertID(model *models.BatchInfo, s *dto.BatchInfoIn
 	model.External = s.External
 	model.SNFormat = s.SNFormat
 	model.SNFormatInfo = s.SNFormatInfo
+	model.LOTFormatInfo = s.LOTFormatInfo
+	model.UDIFormatInfo = s.UDIFormatInfo
 	model.AutoSNSum = autoSNSum
+	model.UDI = s.UDI
 	/*
 		if model.External == 1 {
 			model.SNMax = "(01)" + model.SNMax
@@ -133,11 +136,15 @@ func (e *BatchInfo) GenerateInsertID(model *models.BatchInfo, s *dto.BatchInfoIn
 		model.SNMin = s.MinSNCode
 	}
 
+	e.Log.Info("01", model.UDI, "-", model.UDIFormatInfo)
 	//如果SN格式是带括号的，在SN上增加括号，以及在LOT号上也增加括号
 	if model.SNFormat == 1 {
 		model.SNMax = model.SNFormatInfo + model.SNMax
 		model.SNMin = model.SNFormatInfo + model.SNMin
-		model.BatchCode = model.SNFormatInfo + model.BatchCode
+		model.BatchCode = model.LOTFormatInfo + model.BatchCode
+		model.UDI = model.UDIFormatInfo + model.UDI
+
+		e.Log.Info("02", model.UDI)
 	}
 
 	return nil
@@ -151,7 +158,9 @@ func (e *BatchInfo) Insert(c *dto.BatchInfoInsertReq) error {
 	if err1 != nil {
 		return err1
 	}
+	e.Log.Info("1 models.BatchInfo= ", &data)
 	c.Generate(&data)
+	e.Log.Info("2 models.BatchInfo= ", &data)
 	err = e.Orm.Create(&data).Error
 	if err != nil {
 		e.Log.Errorf("db error:%s", err)

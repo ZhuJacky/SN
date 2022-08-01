@@ -18,17 +18,19 @@ type BatchInfo struct {
 	SNMax string `gorm:"column(SNMax);size:128;" json:"SNMax"`
 	SNMin string `gorm:"column(SNMin);size:128;" json:"SNMin"`
 
-	Status       int    `gorm:"size:4;" json:"status"`         //状态
-	Comment      string `gorm:"size:255;" json:"Comment"`      //描述备注
-	SNFormat     int    `gorm:"size:4;" json:"SNFormat"`       //SN格式
-	SNFormatInfo string `gorm:"size:255;" json:"SNFormatInfo"` //SN格式信息
+	Status        int    `gorm:"size:4;" json:"status"`         //状态
+	Comment       string `gorm:"size:255;" json:"Comment"`      //描述备注
+	SNFormat      int    `gorm:"size:4;" json:"SNFormat"`       //SN格式
+	SNFormatInfo  string `gorm:"size:255;" json:"SNFormatInfo"` //SN格式信息
+	UDIFormatInfo string `gorm:"size:255;" json:"UDIFormatInfo"`
+	LOTFormatInfo string `gorm:"size:255;" json:"LOTFormatInfo"`
 
 	BatchCodeFormat     int    `gorm:"size:4;" json:"BatchCodeFormat"`       //批号格式
 	BatchCodeFormatInfo string `gorm:"size:255;" json:"BatchCodeFormatInfo"` //SN格式信息
 	SNCodeRules         int    `gorm:"size:4;" json:"SNCodeRules"`           //SN生成规则
 	BatchImgFile        string `gorm:"size:255;" json:"BatchImgFile"`        //
 	External            int    `gorm:"size:4;" json:"External"`              //制作类型
-	AutoSNSum            int    `gorm:"size:4;" json:"autoSNSum"`              //SN启始号
+	AutoSNSum           int    `gorm:"size:4;" json:"autoSNSum"`             //SN启始号
 	models.ControlBy
 	models.ModelTime
 
