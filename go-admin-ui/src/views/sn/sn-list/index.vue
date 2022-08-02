@@ -3,10 +3,19 @@
     <template #wrapper>
       <el-card class="box-card">
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="120px">
-          <el-form-item label="批号ID" prop="postCode">
+          <el-form-item label="批号(LOT)" prop="batchCode">
             <el-input
-              v-model="queryParams.postCode"
-              placeholder="请输入批号ID"
+              v-model="queryParams.batchCode"
+              placeholder="请输入批号"
+              clearable
+              size="small"
+              @keyup.enter.native="handleQuery"
+            />
+          </el-form-item>
+          <el-form-item label="产品型号" prop="productCode">
+            <el-input
+              v-model="queryParams.productCode"
+              placeholder="请输入产品型号"
               clearable
               size="small"
               @keyup.enter.native="handleQuery"
@@ -81,17 +90,18 @@
         <el-table v-loading="loading" :data="batchList" border @selection-change="handleSelectionChange">
           <el-table-column type="selection" width="55" align="center" />
           <el-table-column label="序号" width="60" align="center" prop="SNId" />
-          <el-table-column label="批号" width="150" align="center" prop="BatchCode" />
-          <el-table-column label="产品型号" width="100" align="center" prop="ProductCode" />
+          <el-table-column label="批号" width="140" align="center" prop="BatchCode" />
+          <el-table-column label="产品型号" width="80" align="center" prop="ProductCode" />
+          <el-table-column label="UDI号" align="center" prop="UDI" />
           <el-table-column label="工单号" width="150" align="center" prop="WorkCode" />
-          <el-table-column label="SN编码" width="180" align="center" prop="SNCode" />
-          <el-table-column label="生产月份" align="center" prop="ProductMonth" :formatter="dateFormat">
+          <el-table-column label="SN编码" width="200" align="center" prop="SNCode" />
+          <el-table-column label="生产月份" width="100" align="center" prop="ProductMonth" :formatter="dateFormat">
             <template slot-scope="scope">
               <el-tag>{{ dateFormat(scope.row) }}</el-tag>
             </template>
           </el-table-column>
 
-          <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat">
+          <el-table-column label="状态" width="80" align="center" prop="status" :formatter="statusFormat">
             <template slot-scope="scope">
               <el-tag
                 :type="scope.row.status === 5 ? 'danger' : 'success'"
@@ -99,7 +109,7 @@
               >{{ statusFormat(scope.row) }}</el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="创建时间" align="center" prop="createdAt" width="180">
+          <el-table-column label="创建时间" align="center" prop="createdAt" width="155">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.createdAt) }}</span>
             </template>
@@ -196,8 +206,10 @@ export default {
 
     //填充查询条件
     var query=this.$route.query;
-    let batch_id = query.batch_id;
-    this.queryParams.postCode = batch_id;
+    let batch_code = query.batch_code;
+    let product_code = query.product_code;
+    this.queryParams.batchCode = batch_code;
+    this.queryParams.productCode = product_code;
     this.getList()
     this.getDicts('sn_info_status').then(response => {
       this.statusOptions = response.data
