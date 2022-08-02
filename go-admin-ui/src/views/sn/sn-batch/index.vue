@@ -280,7 +280,7 @@
             <el-form-item label="图样pdf" prop="ProductSNImage">
             <el-upload class="avatar-uploader" accept=".pdf"
                 ref="ProductSNImage" :headers="headers" :file-list="sys_app_logofileList" :action="sys_app_logoAction" style="float:left" :before-upload="sys_app_logoBeforeUpload" list-type="picture-card" :show-file-list="false"  :on-success="uploadSuccess">
-              <pdf :src="form.ProductSNImage" style="border: 1px solid red; display: inline-block" ></pdf>            
+              <pdf v-if="form.ProductSNImage" :src="form.ProductSNImage" style="border: 1px solid red; display: inline-block" ></pdf>            
               <i class="el-icon-plus avatar-uploader-icon" ></i>
             </el-upload>
             </el-form-item>
