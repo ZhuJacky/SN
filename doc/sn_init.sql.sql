@@ -27,6 +27,8 @@ CREATE TABLE `sn_batch_info` (
   `sn_code_rules` int DEFAULT NULL,
   `batch_img_file` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
   `sn_format` int DEFAULT NULL,
+  `udi_format_info` varchar(255) DEFAULT NULL,
+  `lot_format_info` varchar(255) DEFAULT NULL,
   `sn_format_info` varchar(255) DEFAULT NULL,
   `batch_code_format` int DEFAULT NULL,
   `batch_code_format_info` varchar(100) DEFAULT NULL,
@@ -36,6 +38,7 @@ CREATE TABLE `sn_batch_info` (
   KEY `idx_batch_info_update_by` (`update_by`),
   KEY `idx_batch_info_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
 
 -- sn.sn_product_info definition
 

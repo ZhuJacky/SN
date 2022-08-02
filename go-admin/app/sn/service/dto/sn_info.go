@@ -9,8 +9,9 @@ import (
 // SysPostPageReq 列表或者搜索使用结构体
 type SNInfoPageReq struct {
 	dto.Pagination `search:"-"`
-	BatchId      string `form:"postCode" search:"type:exact;column:batch_id;table:sn_info" comment:"id"` // id
-	Status       int    `form:"status" search:"type:exact;column:status;table:sn_info" comment:"status"`   // status
+	BatchCode      string `form:"batchCode" search:"type:exact;column:batch_code;table:sn_info" comment:"batch_code"`       // batch_code
+	ProductCode    string `form:"productCode" search:"type:exact;column:product_code;table:sn_info" comment:"product_code"` // product_code
+	Status         int    `form:"status" search:"type:exact;column:status;table:sn_info" comment:"status"`                  // status
 }
 
 func (m *SNInfoPageReq) GetNeedSearch() interface{} {
