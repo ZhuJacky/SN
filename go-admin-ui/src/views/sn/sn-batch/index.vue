@@ -97,13 +97,18 @@
               <el-tag>{{ dateFormat(scope.row) }}</el-tag>
             </template>
           </el-table-column>
-          <el-table-column prop="BatchImgFile" label="图样" align="center" width="100px">
-          <i class="el-icon-plus" />
-                  <template slot-scope="scope">
-            <el-image v-if="scope.row.Product" :src="scope.row.BatchImgFile" :preview-src-list="[scope.row.BatchImgFile]"></el-image>
-          </template>
-          </el-upload>
-          </el-form-item>
+          <el-table-column prop="BatchImgFile" label="图样pdf" align="center" width="100px">
+            <template slot-scope="scope">
+            <a :href="scope.row.BatchImgFile" target="_blank">查看</a> 
+            <!-- <el-image v-if="scope.row.Product" :src="scope.row.BatchImgFile" :preview-src-list="[scope.row.BatchImgFile]"></el-image> -->
+            <!-- <button @click="openpdf">打开pdf</button>-->
+            <vueshowpdf  @closepdf="closepdf" v-model="isshowpdf" :pdfurl="scope.row.BatchImgFile"
+                @pdferr="pdferr"
+                :maxscale='4'
+                :minscale='1'
+                :scale='1.0'></vueshowpdf>
+            <pdf :src="scope.row.BatchImgFile" style="border: 1px solid red"> </pdf>
+            </template> 
           </el-table-column>
           <el-table-column label="状态" align="center" prop="status" :formatter="statusFormat">
             <template slot-scope="scope">
@@ -272,11 +277,11 @@
                   />
               </el-select>
             </el-form-item>
-            <el-form-item label="图样" prop="ProductSNImage">
-            <el-upload class="avatar-uploader" accept="image/jpeg,image/git,image/png"
-            ref="ProductSNImage" :headers="headers" :file-list="sys_app_logofileList" :action="sys_app_logoAction" style="float:left" :before-upload="sys_app_logoBeforeUpload" list-type="picture-card" :show-file-list="false"  :on-success="uploadSuccess">
-            <img alt v-if="form.ProductSNImage"  :src="form.ProductSNImage" class="el-upload el-upload--picture-card" style="float:left" align="center" width="300px">
-              <i class="el-icon-plus avatar-uploader-icon"  v-else></i>
+            <el-form-item label="图样pdf" prop="ProductSNImage">
+            <el-upload class="avatar-uploader" accept=".pdf"
+                ref="ProductSNImage" :headers="headers" :file-list="sys_app_logofileList" :action="sys_app_logoAction" style="float:left" :before-upload="sys_app_logoBeforeUpload" list-type="picture-card" :show-file-list="false"  :on-success="uploadSuccess">
+              <pdf :src="form.ProductSNImage" style="border: 1px solid red; display: inline-block" ></pdf>            
+              <i class="el-icon-plus avatar-uploader-icon" ></i>
             </el-upload>
             </el-form-item>
             <el-form-item label="生产月份" prop="ProductMonth">
@@ -303,11 +308,18 @@ import { listProduct } from '@/api/sn/sn-product'
 import { formatJson } from '@/utils'
 import { getToken } from '@/utils/auth'
 import moment from 'moment'
+import pdf from 'vue-pdf'
+import vueshowpdf from 'vueshowpdf'
+function openNewWin(url)
+{
+	window.open(url);
+}
 export default {
+  components:{vueshowpdf,pdf},
   name: 'SysPostManage',
   data() {
     return {
-      headers: { 'Authorization': 'Bearer ' + getToken() },
+      headers: { 'Authorization': 'Bearer ' + getToken()},
       // 遮罩层
       loading: true,
       // 选中数组
@@ -320,6 +332,7 @@ export default {
       is_sn_format_show:false,
       is_min_sn_code_show:false,
       is_max_sn_code_show:false,
+      isshowpdf: false,
       // 总条数
       total: 0,
       // 岗位表格数据
@@ -400,6 +413,15 @@ export default {
     })
   },
   methods: {
+    closepdf() {
+      this.isshowpdf = false
+    },
+    pdferr(errurl) {
+      console.log(errurl)
+    },
+    openpdf() {
+      this.isshowpdf = true
+    },
     uploadSuccess(response, file, fileList) {
       this.$forceUpdate()
       this.form.ProductSNImage = process.env.VUE_APP_BASE_API + response.data.full_path
@@ -644,3 +666,12 @@ export default {
   }
 }
 </script>
+
+<style scoped>
+.container {
+  font-family: PingFang SC;
+  width: 100%;
+  height: 500px;
+}
+</style>
+
