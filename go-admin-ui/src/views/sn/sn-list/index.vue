@@ -40,35 +40,6 @@
         <el-row :gutter="10" class="mb8">
           <el-col :span="1.5">
             <el-button
-              v-permisaction="['admin:sysPost:add']"
-              type="primary"
-              icon="el-icon-plus"
-              size="mini"
-              @click="handleAdd"
-            >新增</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysPost:edit']"
-              type="success"
-              icon="el-icon-edit"
-              size="mini"
-              :disabled="single"
-              @click="handleUpdate"
-            >修改</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
-              v-permisaction="['admin:sysPost:remove']"
-              type="danger"
-              icon="el-icon-delete"
-              size="mini"
-              :disabled="multiple"
-              @click="handleDelete"
-            >删除</el-button>
-          </el-col>
-          <el-col :span="1.5">
-            <el-button
               v-permisaction="['admin:sysPost:export']"
               type="warning"
               icon="el-icon-download"
@@ -76,19 +47,9 @@
               @click="handleExport"
             >导出</el-button>
           </el-col>
-          <el-col :span="1.5">
-              <el-button
-                v-permisaction="['admin:sysPost:export']"
-                type="warning"
-                icon="el-icon-view"
-                size="mini"
-                @click="handleDetails"
-              >详情</el-button>
-            </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="batchList" border @selection-change="handleSelectionChange">
-          <el-table-column type="selection" width="55" align="center" />
+        <el-table v-loading="loading" :data="batchList" border >
           <el-table-column label="序号" width="60" align="center" prop="SNId" />
           <el-table-column label="批号" width="140" align="center" prop="BatchCode" />
           <el-table-column label="产品型号" width="80" align="center" prop="ProductCode" />
@@ -255,16 +216,6 @@ export default {
       this.resetForm('queryForm')
       this.handleQuery()
     },
-    // 多选框选中数据
-    handleSelectionChange(selection) {
-      this.ids = selection.map(item => item.BatchId)
-      this.single = selection.length !== 1
-      this.multiple = !selection.length
-    },
-    /** 新增按钮操作 */
-    handleAdd() {
-      alert("开发中...")
-    },
     /** 修改按钮操作 */
     handleUpdate(row) {
         this.reset()
@@ -292,10 +243,6 @@ export default {
             }
         })
 
-    },
-    /** 删除按钮操作 */
-    handleDelete(row) {
-      alert("开发中...")
     },
     /** 导出按钮操作 */
     handleExport() {
