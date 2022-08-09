@@ -246,7 +246,7 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      alert("开发中...")
+      alert("开发中.")
     }
   }
 }
