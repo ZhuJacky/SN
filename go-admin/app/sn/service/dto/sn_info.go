@@ -25,8 +25,19 @@ type SNInfoUpdateReq struct {
 	common.ControlBy
 }
 
+type SNInfoPackBoxReq struct {
+	snCode     string `uri:"snCode"  comment:"sn_code"`
+	Status     int    `form:"status"   comment:"状态"`
+	ScanSource string `form:"scanSource"   comment:"扫码枪来源"`
+	common.ControlBy
+}
+
 func (s *SNInfoUpdateReq) GetId() interface{} {
 	return s.SNId
+}
+
+func (s *SNInfoPackBoxReq) GetSNCode() interface{} {
+	return s.snCode
 }
 
 // SysPostGetReq 获取单个的结构体

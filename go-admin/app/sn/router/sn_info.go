@@ -19,5 +19,6 @@ func registerSNInfoRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddlew
 	{
 		r.GET("", api.GetSNInfoList)
 		r.PUT("/:id", api.UpdateStatus)
+		r.POST("/packbox", api.PackBox)
 	}
 }

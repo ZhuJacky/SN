@@ -263,6 +263,71 @@ func (e *BatchInfo) UpdateSNInfoStatus(c *dto.SNInfoUpdateReq) error {
 	return nil
 }
 
+/*
+* SN装箱操作，同一个扫码枪来源的情况下
+* 	1 第一次扫，生成一个箱号，并把当前SN加入箱子
+	2 每扫一个SN码，加入箱子
+	3 扫够指定个数，自动打包成一个箱子
+*/
+func (e *BatchInfo) SNPackBox(c *dto.SNInfoPackBoxReq) error {
+	var err error
+	var model = models.SNInfo{}
+	e.Orm.First(&model, c.GetSNCode())
+	model.Status = c.Status
+	e.Log.Info("SNInfo: ", &model)
+
+	//将SN状态改成装箱状态
+	db := e.Orm.Save(&model)
+
+	if db.Error != nil {
+		e.Log.Errorf("db error:%s", err)
+		return err
+	}
+
+	e.SetSNBox(c, model)
+
+	if db.RowsAffected == 0 {
+		return errors.New("无权更新该数据")
+	}
+	return nil
+}
+
+func (e *BatchInfo) SetSNBox(c *dto.SNInfoPackBoxReq, snInfo models.SNInfo) error {
+	var err error
+	var box = models.SNBoxInfo{}
+	e.Log.Info("SNInfo:", &snInfo)
+
+	var list []models.SNBoxInfo
+	e.Orm.Where("scan_source= ?", c.ScanSource).Order("box_id desc").Limit(1).Offset(0).Find(&list)
+	if len(list) > 0 {
+		e.Log.Info("SNBoxInfo list:", &list)
+	} else {
+		//如果查询不到当前扫码枪的装箱信息
+		/*
+			1 创建一个箱号
+			2 关联当前sn到箱号
+		*/
+
+		box.BatchId = snInfo.BatchId
+		box.BatchCode = snInfo.BatchCode
+		box.WorkCode = snInfo.WorkCode
+		box.ProductCode = snInfo.ProductCode
+		box.ScanSource = c.ScanSource
+		box.UDI = snInfo.UDI
+		box.Status = 0
+		box.BoxSum = 10
+		err = e.Orm.Create(&box).Error
+		if err != nil {
+			e.Log.Errorf("db error:%s", err)
+			return err
+		}
+
+		e.Log.Info("SNBoxInfo box:", &box)
+	}
+
+	return nil
+}
+
 func (e *BatchInfo) GenerateUpdateID(model *models.BatchInfo, s *dto.BatchInfoUpdateReq) error {
 	var list []models.BatchInfo
 	//	e.Orm.Unscoped().Where("product_id= ? AND DATE_FORMAT(product_month,'%Y-%m-&d ')= ?", s.ProductId, model.ProductMonth).Find(&list)
