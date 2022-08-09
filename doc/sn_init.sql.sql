@@ -198,3 +198,45 @@ INSERT INTO sn_product_info (product_code,product_name) VALUES ('300F','超声�
 INSERT INTO sn_product_info (product_code,product_name) VALUES ('300P','超声胎儿监护仪');
 
 
+
+DROP TABLE IF EXISTS sn_box_info;
+CREATE TABLE `sn_box_info` (
+  `box_id` bigint NOT NULL AUTO_INCREMENT,
+  `batch_id` bigint DEFAULT NULL COMMENT 'batch_id',
+  `batch_code` varchar(128) DEFAULT NULL,
+  `work_code` varchar(128) DEFAULT NULL,
+  `product_code` varchar(128) DEFAULT NULL,
+  `UDI` varchar(128) DEFAULT NULL,
+  `status` tinyint DEFAULT NULL,
+  `scan_source` varchar(128) DEFAULT NULL,
+  `box_sum` int DEFAULT 10,
+  `create_by` bigint DEFAULT NULL COMMENT 'create_by',
+  `update_by` bigint DEFAULT NULL COMMENT 'update_by',
+  `created_at` datetime(3) DEFAULT NULL COMMENT 'created_at',
+  `updated_at` datetime(3) DEFAULT NULL COMMENT 'updated_at',
+  `deleted_at` datetime(3) DEFAULT NULL COMMENT 'deleted_at',
+  PRIMARY KEY (`box_id`),
+  KEY `idx_batch_info_create_by` (`create_by`),
+  KEY `idx_batch_info_update_by` (`update_by`),
+  KEY `idx_batch_info_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=10000 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+DROP TABLE IF EXISTS sn_box_relation;
+CREATE TABLE `sn_box_relation` (
+  `box_relation_id` bigint NOT NULL AUTO_INCREMENT,
+  `box_id` bigint DEFAULT NULL COMMENT 'box_id',
+  `sn_code` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `scan_source` varchar(128) DEFAULT NULL,
+  `create_by` bigint DEFAULT NULL COMMENT 'create_by',
+  `update_by` bigint DEFAULT NULL COMMENT 'update_by',
+  `created_at` datetime(3) DEFAULT NULL COMMENT 'created_at',
+  `updated_at` datetime(3) DEFAULT NULL COMMENT 'updated_at',
+  `deleted_at` datetime(3) DEFAULT NULL COMMENT 'deleted_at',
+  PRIMARY KEY (`box_relation_id`),
+  KEY `sn_code` (`sn_code`),
+  KEY `idx_batch_info_create_by` (`create_by`),
+  KEY `idx_batch_info_update_by` (`update_by`),
+  KEY `idx_batch_info_deleted_at` (`deleted_at`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
