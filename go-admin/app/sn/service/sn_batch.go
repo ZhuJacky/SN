@@ -272,7 +272,11 @@ func (e *BatchInfo) UpdateSNInfoStatus(c *dto.SNInfoUpdateReq) error {
 func (e *BatchInfo) SNPackBox(c *dto.SNInfoPackBoxReq) error {
 	var err error
 	var model = models.SNInfo{}
-	e.Orm.First(&model, c.GetSNCode())
+
+	var whereStr string
+	whereStr = "sn_code='" + c.SNCode + "'"
+
+	e.Orm.First(&model, whereStr)
 	model.Status = c.Status
 	e.Log.Info("SNInfo: ", &model)
 
