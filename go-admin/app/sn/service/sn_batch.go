@@ -297,17 +297,48 @@ func (e *BatchInfo) SetSNBox(c *dto.SNInfoPackBoxReq, snInfo models.SNInfo) erro
 	var box = models.SNBoxInfo{}
 	e.Log.Info("SNInfo:", &snInfo)
 
-	var list []models.SNBoxInfo
-	e.Orm.Where("scan_source= ?", c.ScanSource).Order("box_id desc").Limit(1).Offset(0).Find(&list)
-	if len(list) > 0 {
-		e.Log.Info("SNBoxInfo list:", &list)
+	var createBox bool = false
+	var listBox []models.SNBoxInfo
+	e.Orm.Where("scan_source= ?", c.ScanSource).Order("box_id desc").Limit(1).Offset(0).Find(&listBox)
+	if len(listBox) > 0 {
+		e.Log.Info("SNBoxInfo list:", &listBox)
+		var boxInfo = listBox[0]
+		e.Log.Info("SNBoxInfo boxInfo:", &boxInfo)
+
+		bSum := boxInfo.BoxSum //获取箱子数量
+		boxId := boxInfo.BoxId
+
+		e.Log.Info("SNBoxInfo boxId: ", boxId, ", bSum:", bSum)
+
+		var listBoxRelation []models.SNBoxRelation
+		e.Orm.Where("box_id= ?", boxId).Find(&listBoxRelation)
+		if len(listBoxRelation) == bSum { //表示箱子刚好装满了,需要重新创建一个箱子，并继续装箱
+			createBox = true
+			e.Log.Info("listBoxRelation boxId: ", boxId, ", bSum:", bSum, ", len:", len(listBoxRelation))
+		} else {
+			box.BoxId = boxInfo.BoxId
+			box.BatchId = boxInfo.BatchId
+			box.BatchCode = boxInfo.BatchCode
+			box.WorkCode = boxInfo.WorkCode
+			box.ProductCode = boxInfo.ProductCode
+			box.ScanSource = boxInfo.ScanSource
+			box.UDI = boxInfo.UDI
+			box.Status = boxInfo.Status
+			box.BoxSum = boxInfo.BoxSum
+
+		}
+
 	} else {
 		//如果查询不到当前扫码枪的装箱信息
 		/*
 			1 创建一个箱号
 			2 关联当前sn到箱号
 		*/
+		createBox = true
 
+	}
+
+	if createBox {
 		box.BatchId = snInfo.BatchId
 		box.BatchCode = snInfo.BatchCode
 		box.WorkCode = snInfo.WorkCode
@@ -318,11 +349,21 @@ func (e *BatchInfo) SetSNBox(c *dto.SNInfoPackBoxReq, snInfo models.SNInfo) erro
 		box.BoxSum = 10
 		err = e.Orm.Create(&box).Error
 		if err != nil {
-			e.Log.Errorf("db error:%s", err)
+			e.Log.Errorf("SNBoxInfo create db error:%s", err)
 			return err
 		}
 
-		e.Log.Info("SNBoxInfo box:", &box)
+		e.Log.Info("SNBoxInfo createBox: ", createBox, ", box:", &box)
+	}
+
+	var boxRelation = models.SNBoxRelation{}
+	boxRelation.BoxId = box.BoxId
+	boxRelation.SNCode = snInfo.SNCode
+	boxRelation.ScanSource = box.ScanSource
+	err = e.Orm.Create(&boxRelation).Error
+	if err != nil {
+		e.Log.Errorf("SNBoxRelation create db error:%s", err)
+		return err
 	}
 
 	return nil
