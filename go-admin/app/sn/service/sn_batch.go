@@ -342,7 +342,7 @@ func (e *BatchInfo) SetSNBox(c *dto.SNInfoPackBoxReq, snInfo models.SNInfo) erro
 
 	}
 
-	if createBox { //创建一个箱子，并返回给前端参数，打印装箱码
+	if createBox { //创建一个箱子，并返回给前端参数，打印装箱码。
 		box.BatchId = snInfo.BatchId
 		box.BatchCode = snInfo.BatchCode
 		box.WorkCode = snInfo.WorkCode
