@@ -507,3 +507,42 @@ func (e *BatchInfo) Remove(d *dto.BatchInfoDeleteReq) error {
 	}
 	return nil
 }
+
+// GetPage 获取装箱列表信息
+func (e *BatchInfo) GetBoxInfoList(c *dto.BoxInfoPageReq, list *[]models.SNBoxInfo, count *int64) error {
+	var err error
+	var data models.SNBoxInfo
+
+	err = e.Orm.Model(&data).
+		Scopes(
+			cDto.MakeCondition(c.GetNeedSearch()),
+			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
+		).
+		Find(list).Limit(-1).Offset(-1).
+		Count(count).Error
+
+	if err != nil {
+		e.Log.Errorf("db error:%s \r", err)
+		return err
+	}
+	return nil
+}
+
+func (e *BatchInfo) UpdateBoxSum(c *dto.BoxInfoUpdateReq) error {
+	var err error
+	var model = models.SNBoxInfo{}
+	e.Orm.First(&model, c.GetId())
+	model.BoxSum = c.BoxSum
+	model.BoxId = c.BoxId
+	e.Log.Info("%v", &model)
+	db := e.Orm.Save(&model)
+
+	if db.Error != nil {
+		e.Log.Errorf("db error:%s", err)
+		return err
+	}
+	if db.RowsAffected == 0 {
+		return errors.New("无权更新该数据")
+	}
+	return nil
+}
