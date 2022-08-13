@@ -194,7 +194,7 @@ export default {
 
     //执行装箱操作
     doBox() {
-      this.$router.push({path: '/sn/sn-list?batch_code=' + row.BatchCode + "&product_code=" + row.Product.ProductCode});
+      this.$router.push({path: '/sn/box-relation-list'});
     }
   }
 }
