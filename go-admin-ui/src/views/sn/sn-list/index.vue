@@ -42,10 +42,10 @@
             <el-button
               v-permisaction="['admin:sysPost:export']"
               type="warning"
-              icon="el-icon-download"
+              icon="el-icon-microphone"
               size="mini"
-              @click="handleExport"
-            >导出</el-button>
+              @click="warningAudio"
+            ></el-button>
           </el-col>
         </el-row>
 
@@ -244,8 +244,8 @@ export default {
         })
 
     },
-    /** 导出按钮操作 */
-    handleExport() {
+    /** 触发告警声音 */
+    warningAudio() {
       this.audio = new Audio()
       this.audio.src  = "http://127.0.0.1:8000/static/audios/do_wrong.mp3"
       this.audio.play()
