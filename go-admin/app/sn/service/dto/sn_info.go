@@ -32,11 +32,22 @@ type SNInfoPackBoxReq struct {
 	common.ControlBy
 }
 
+type SNInfoBoxReq struct {
+	SNCode     string `uri:"id"  comment:"sn_code"`
+	Status     int    `form:"status"   comment:"状态"`
+	ScanSource string `form:"scanSource"   comment:"扫码枪来源"`
+	common.ControlBy
+}
+
 func (s *SNInfoUpdateReq) GetId() interface{} {
 	return s.SNId
 }
 
 func (s *SNInfoPackBoxReq) GetSNCode() interface{} {
+	return s.SNCode
+}
+
+func (s *SNInfoBoxReq) GetSNCode() interface{} {
 	return s.SNCode
 }
 

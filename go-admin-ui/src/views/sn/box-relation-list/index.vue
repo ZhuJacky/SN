@@ -36,9 +36,18 @@
               @click="warningAudio"
             ></el-button>
           </el-col>
+          <el-col :span="1.5">
+            <el-button
+              v-permisaction="['admin:sysPost:export']"
+              type="warning"
+              icon="el-icon-microphone"
+              size="mini"
+              @click="addBox"
+            >测试扫码功能</el-button>
+          </el-col>
         </el-row>
 
-        <el-table v-loading="loading" :data="boxList" border >
+        <el-table v-loading="loading" :data="boxRelationList" border >
           <el-table-column label="序号" width="120" align="center" prop="BoxRelationId" />
           <el-table-column label="箱号" width="120" align="center" prop="BoxId" />
           <el-table-column label="SN号" align="center" prop="SNCode" />
@@ -63,7 +72,7 @@
 </template>
 
 <script>
-import { listPost } from '@/api/sn/box-relation-info'
+import { listPost,packBox } from '@/api/sn/box-relation-info'
 import { formatJson } from '@/utils'
 import moment from 'moment'
 
@@ -82,7 +91,7 @@ export default {
       // 总条数
       total: 0,
       // 岗位表格数据
-      batchList: [],
+      boxRelationList: [],
       // 弹出层标题
       title: '',
       // 是否显示弹出层
@@ -92,10 +101,15 @@ export default {
       // 查询参数
       queryParams: {
         pageIndex: 1,
-        pageSize: 10,
+        pageSize: 100,
         postCode: undefined,
         postName: undefined,
         status: undefined
+      },
+      boxData: {
+        snCode: undefined,
+        status: 3,
+        scanSource: '666'
       },
       // 表单参数
       form: {
@@ -108,6 +122,40 @@ export default {
   },
   created() {
     this.getList()
+
+    window.document.onkeypress = (e) => {
+      if (window.event) { // IE
+        this.nextCode = e.keyCode
+      } else if (e.which) { // Netscape/Firefox/Opera
+        this.nextCode = e.which
+      }
+ 
+      if (e.which === 13) { // 键盘回车事件
+        if (this.code.length < 3) return // 扫码枪的速度很快，手动输入的时间不会让code的长度大于2，所以这里不会对扫码枪有效
+        console.log('扫码结束。')
+        console.log('条形码：', this.code)
+        this.parseQRCode(this.code) // 获取到扫码枪输入的内容，做别的操作
+        this.lastCode = ''
+        this.lastTime = ''
+        return
+      }
+ 
+      this.nextTime = new Date().getTime()
+      if (!this.lastTime && !this.lastCode) {
+        this.code = '' // 清空上次的条形码
+        this.code += e.key
+        console.log('扫码开始---', this.code)
+      }
+      if (this.lastCode && this.lastTime && this.nextTime - this.lastTime > 500) { // 当扫码前有keypress事件时,防止首字缺失
+        this.code = e.key
+        console.log('防止首字缺失。。。', this.code)
+      } else if (this.lastCode && this.lastTime) {
+        this.code += e.key
+        console.log('扫码中。。。', this.code)
+      }
+      this.lastCode = this.nextCode
+      this.lastTime = this.nextTime
+    }
   },
   methods: {
 
@@ -115,7 +163,7 @@ export default {
     getList() {
       this.loading = true
       listPost(this.queryParams).then(response => {
-        this.boxList = response.data.list
+        this.boxRelationList = response.data.list
         this.total = response.data.count
         this.loading = false
       })
@@ -128,9 +176,52 @@ export default {
     
     /** 当SN码有异常时，触发告警声音 */
     warningAudio() {
+
+      //alert(1)
       this.audio = new Audio()
-      this.audio.src  = "http://159.75.213.231:8000/static/audios/do_wrong.mp3"
+      this.audio.src  = "http://127.0.0.1:8000/static/audios/do_wrong.mp3"
       this.audio.play()
+    },
+    parseQRCode(code) {
+      if (code.length === 13) {
+        // 处理自己的逻辑
+        alert('条码合法：' + code)
+        this.$emit('barCode', code) //通知父组件
+      } else if (code.length === 23) {
+        console.log('B类条码:' + code)
+      } else if (code.length === 0) {
+        console.log('请输入条码！')
+      } else {
+        this.addBox(code)
+        //alert('条码不合法：' + code)
+      }
+      this.codeValue = code
+      // 发送网络请求
+    },
+    addBox(code) { //开始装箱
+      
+      //alert('开始装箱：' + code)
+
+      this.boxData.snCode = '010695174052138310202208007218930500E056013'
+      //alert(this.boxData.snCode)
+  
+      packBox(this.boxData, this.boxData.snCode).then(response => {
+          if (response.code === 200) {
+              //this.msgSuccess(response.msg)
+              //this.open = false
+              
+
+              let Status = response.data.Status
+              if(Status==3) {
+                this.warningAudio()
+              } else {
+                this.getList()
+              }
+
+          } else {
+              this.msgError(response.msg)
+          }
+      })
     }
   }
 }

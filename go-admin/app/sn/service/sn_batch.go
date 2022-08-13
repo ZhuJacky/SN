@@ -269,7 +269,7 @@ func (e *BatchInfo) UpdateSNInfoStatus(c *dto.SNInfoUpdateReq) error {
 	2 每扫一个SN码，加入箱子
 	3 扫够指定个数，自动打包成一个箱子
 */
-func (e *BatchInfo) SNPackBox(c *dto.SNInfoPackBoxReq) error {
+func (e *BatchInfo) SNPackBox(c *dto.SNInfoBoxReq) error {
 	var err error
 	var model = models.SNInfo{}
 
@@ -296,7 +296,7 @@ func (e *BatchInfo) SNPackBox(c *dto.SNInfoPackBoxReq) error {
 	return nil
 }
 
-func (e *BatchInfo) SetSNBox(c *dto.SNInfoPackBoxReq, snInfo models.SNInfo) error {
+func (e *BatchInfo) SetSNBox(c *dto.SNInfoBoxReq, snInfo models.SNInfo) error {
 	var err error
 	var box = models.SNBoxInfo{}
 	e.Log.Info("SNInfo:", &snInfo)
@@ -543,6 +543,26 @@ func (e *BatchInfo) UpdateBoxSum(c *dto.BoxInfoUpdateReq) error {
 	}
 	if db.RowsAffected == 0 {
 		return errors.New("无权更新该数据")
+	}
+	return nil
+}
+
+// GetPage 获取装箱列表信息
+func (e *BatchInfo) GetRelationBoxInfoList(c *dto.BoxRelationInfoPageReq, list *[]models.SNBoxRelation, count *int64) error {
+	var err error
+	var data models.SNBoxRelation
+
+	err = e.Orm.Model(&data).
+		Scopes(
+			cDto.MakeCondition(c.GetNeedSearch()),
+			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
+		).Order("box_relation_id desc").
+		Find(list).Limit(-1).Offset(-1).
+		Count(count).Error
+
+	if err != nil {
+		e.Log.Errorf("db error:%s \r", err)
+		return err
 	}
 	return nil
 }

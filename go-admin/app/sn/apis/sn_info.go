@@ -81,6 +81,7 @@ func (e SNInfo) UpdateStatus(c *gin.Context) {
 	e.OK(req.GetId(), "更新成功")
 }
 
+/*
 func (e SNInfo) PackBox(c *gin.Context) {
 	s := service.BatchInfo{}
 	req := dto.SNInfoPackBoxReq{}
@@ -104,4 +105,4 @@ func (e SNInfo) PackBox(c *gin.Context) {
 		return
 	}
 	e.OK(req.GetSNCode(), "更新成功")
-}
+}*/

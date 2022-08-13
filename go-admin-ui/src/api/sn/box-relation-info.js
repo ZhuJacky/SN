@@ -8,3 +8,14 @@ export function listPost(query) {
     params: query
   })
 }
+
+//执行装箱操作
+export function packBox(data, id) {
+
+  //alert(id)
+  return request({
+    url: '/api/v1/box-relation-info/' + id,
+    method: 'put',
+    data: data
+  })
+}
