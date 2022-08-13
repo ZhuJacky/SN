@@ -246,7 +246,9 @@ export default {
     },
     /** 导出按钮操作 */
     handleExport() {
-      alert("开发中.")
+      this.audio = new Audio()
+      this.audio.src  = "http://127.0.0.1:8000/static/audios/do_wrong.mp3"
+      this.audio.play()
     }
   }
 }
