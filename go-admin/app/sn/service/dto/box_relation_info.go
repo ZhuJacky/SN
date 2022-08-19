@@ -12,3 +12,8 @@ type BoxRelationInfoPageReq struct {
 func (m *BoxRelationInfoPageReq) GetNeedSearch() interface{} {
 	return *m
 }
+
+type BoxRelationInfoResultObj struct {
+	Status int `comment:"状态"`
+	BoxId  int `comment:"箱号"`
+}

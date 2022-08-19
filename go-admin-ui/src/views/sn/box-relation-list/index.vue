@@ -12,15 +12,6 @@
               @keyup.enter.native="handleQuery"
             />
           </el-form-item>
-          <el-form-item label="装箱数量" prop="BoxSum">
-            <el-input
-              v-model="queryParams.BoxSum"
-              placeholder=""
-              clearable
-              size="small"
-              @keyup.enter.native="handleQuery"
-            />
-          </el-form-item>
           <el-form-item>
             <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
           </el-form-item>
@@ -176,17 +167,16 @@ export default {
     
     /** 当SN码有异常时，触发告警声音 */
     warningAudio() {
-
-      //alert(1)
-      this.audio = new Audio()
-      this.audio.src  = "http://127.0.0.1:8000/static/audios/do_wrong.mp3"
-      this.audio.play()
+      //this.audio = new Audio()
+      //this.audio.src  = "http://127.0.0.1:8000/static/audios/do_wrong.mp3"
+      //this.audio.play()
     },
     parseQRCode(code) {
       if (code.length === 13) {
         // 处理自己的逻辑
-        alert('条码合法：' + code)
+        //alert('条码合法：' + code)
         this.$emit('barCode', code) //通知父组件
+         this.addBox(code)
       } else if (code.length === 23) {
         console.log('B类条码:' + code)
       } else if (code.length === 0) {
@@ -202,19 +192,23 @@ export default {
       
       //alert('开始装箱：' + code)
 
-      this.boxData.snCode = '010695174052138310202208007218930500E056013'
+      code = '(21)8930FR202000009'
       //alert(this.boxData.snCode)
   
-      packBox(this.boxData, this.boxData.snCode).then(response => {
-          if (response.code === 200) {
-              //this.msgSuccess(response.msg)
-              //this.open = false
-              
-
+      packBox(this.boxData, code).then(response => {
+          if (response.code === 200) {              
               let Status = response.data.Status
-              if(Status==3) {
+              if(Status==1) {
                 this.warningAudio()
-              } else {
+                this.msgError(response.msg)
+              } else if(Status==2) {
+                this.warningAudio()
+                this.msgError(response.msg)
+              } else if(Status==3) {
+                this.warningAudio()
+                this.msgError(response.msg)
+              } else if(Status==0) { //装箱成功
+                this.queryParams.BoxId = response.data.BoxId;//填充查询条件
                 this.getList()
               }
 

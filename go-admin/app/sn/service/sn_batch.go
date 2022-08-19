@@ -517,7 +517,7 @@ func (e *BatchInfo) GetBoxInfoList(c *dto.BoxInfoPageReq, list *[]models.SNBoxIn
 		Scopes(
 			cDto.MakeCondition(c.GetNeedSearch()),
 			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
-		).
+		).Order("box_id desc").
 		Find(list).Limit(-1).Offset(-1).
 		Count(count).Error
 
