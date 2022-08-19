@@ -1,6 +1,7 @@
 package dto
 
 import (
+	"go-admin/app/sn/models"
 	"go-admin/common/dto"
 )
 
@@ -14,6 +15,7 @@ func (m *BoxRelationInfoPageReq) GetNeedSearch() interface{} {
 }
 
 type BoxRelationInfoResultObj struct {
-	Status int `comment:"状态"`
-	BoxId  int `comment:"箱号"`
+	Status        int                    `comment:"状态"`
+	BoxId         int                    `comment:"箱号"`
+	BoxSNCodeList []models.SNBoxRelation `comment:"详细SN列表信息"`
 }

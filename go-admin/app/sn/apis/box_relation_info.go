@@ -105,5 +105,17 @@ func (e BoxRelationInfo) AddBox(c *gin.Context) {
 	resultObj.Status = 0 //装箱成功
 	resultObj.BoxId = snBoxRelation.BoxId
 
+	e.Logger.Info("-----------------------")
+
+	bSum := 10
+	var listBoxRelation []models.SNBoxRelation
+	e.Orm.Where("box_id= ?", snBoxRelation.BoxId).Find(&listBoxRelation)
+
+	e.Logger.Info("-----------------AddBox listBoxRelation boxId: ", snBoxRelation.BoxId, ", bSum:", bSum, ", len:", len(listBoxRelation))
+	if len(listBoxRelation) == bSum { //表示箱子刚好装满
+		resultObj.Status = 4 //装满一箱
+		resultObj.BoxSNCodeList = listBoxRelation
+	}
+
 	e.OK(resultObj, "更新成功")
 }

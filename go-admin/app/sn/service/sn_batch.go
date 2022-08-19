@@ -303,7 +303,7 @@ func (e *BatchInfo) SetSNBox(c *dto.SNInfoBoxReq, snInfo models.SNInfo) error {
 
 	var createBox bool = false
 	var listBox []models.SNBoxInfo
-	e.Orm.Where("scan_source= ?", c.ScanSource).Order("box_id desc").Limit(1).Offset(0).Find(&listBox)
+	e.Orm.Where("scan_source= ? and product_code=?", c.ScanSource, snInfo.ProductCode).Order("box_id desc").Limit(1).Offset(0).Find(&listBox)
 	if len(listBox) > 0 {
 		e.Log.Info("SNBoxInfo list:", &listBox)
 		var boxInfo = listBox[0]
@@ -364,6 +364,9 @@ func (e *BatchInfo) SetSNBox(c *dto.SNInfoBoxReq, snInfo models.SNInfo) error {
 	boxRelation.BoxId = box.BoxId
 	boxRelation.SNCode = snInfo.SNCode
 	boxRelation.ScanSource = box.ScanSource
+	boxRelation.BatchCode = box.BatchCode
+	boxRelation.ProductCode = box.ProductCode
+	boxRelation.BoxSum = box.BoxSum
 	err = e.Orm.Create(&boxRelation).Error
 	if err != nil {
 		e.Log.Errorf("SNBoxRelation create db error:%s", err)

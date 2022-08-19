@@ -42,6 +42,7 @@
           <el-table-column label="序号" width="120" align="center" prop="BoxRelationId" />
           <el-table-column label="箱号" width="120" align="center" prop="BoxId" />
           <el-table-column label="SN号" align="center" prop="SNCode" />
+          <el-table-column label="装箱数量" align="center" prop="BoxSum" />
           <el-table-column label="扫码枪IP" width="120" align="center" prop="ScanSource" />
           <el-table-column label="创建时间" align="center" prop="createdAt" width="155">
             <template slot-scope="scope">
@@ -192,7 +193,7 @@ export default {
       
       //alert('开始装箱：' + code)
 
-      code = '(21)8930FR202000009'
+      code = '8930500A000024'
       //alert(this.boxData.snCode)
   
       packBox(this.boxData, code).then(response => {
@@ -208,6 +209,9 @@ export default {
                 this.warningAudio()
                 this.msgError(response.msg)
               } else if(Status==0) { //装箱成功
+                this.queryParams.BoxId = response.data.BoxId;//填充查询条件
+                this.getList()
+              } else if(Status==4) { //装满一箱，调用打印机执行打印动作
                 this.queryParams.BoxId = response.data.BoxId;//填充查询条件
                 this.getList()
               }
