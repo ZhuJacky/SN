@@ -166,7 +166,7 @@ export default {
       this.getList()
     },
     
-    /** 当SN码有异常时，触发告警声音 */
+    /** 当SN码有异常时，触发告警声音 001 */
     warningAudio() {
       this.audio = new Audio()
       this.audio.src  = "http://159.75.213.231:8000/static/audios/do_wrong.mp3"
