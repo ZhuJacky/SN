@@ -64,7 +64,12 @@ func (e BoxRelationInfo) AddBox(c *gin.Context) {
 		return
 	}
 
-	req.ScanSource = c.ClientIP() //扫码枪来源通过IP来识别
+	ip1 := c.Request.Header.Get("X-Forward-For")
+	ip2 := c.Request.Header.Get("X-Real-IP")
+	ip3 := c.Request.Header.Get("REMOTE-HOST")
+	e.Logger.Info("ip1:", ip1, " ip2=", ip2, " ip3=", ip3)
+
+	req.ScanSource = ip2 //扫码枪来源通过IP来识别
 
 	resultObj := dto.BoxRelationInfoResultObj{}
 
