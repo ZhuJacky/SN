@@ -193,7 +193,7 @@ export default {
       
       //alert('开始装箱：' + code)
 
-      code = '8930500A000024'
+      //code = '8930500A000024'
       //alert(this.boxData.snCode)
   
       packBox(this.boxData, code).then(response => {
