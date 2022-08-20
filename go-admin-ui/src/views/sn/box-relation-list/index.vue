@@ -168,9 +168,9 @@ export default {
     
     /** 当SN码有异常时，触发告警声音 */
     warningAudio() {
-      //this.audio = new Audio()
-      //this.audio.src  = "http://127.0.0.1:8000/static/audios/do_wrong.mp3"
-      //this.audio.play()
+      this.audio = new Audio()
+      this.audio.src  = "http://159.75.213.231:8000/static/audios/do_wrong.mp3"
+      this.audio.play()
     },
     parseQRCode(code) {
       if (code.length === 13) {
