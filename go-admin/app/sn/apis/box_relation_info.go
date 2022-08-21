@@ -117,6 +117,9 @@ func (e BoxRelationInfo) AddBox(c *gin.Context) {
 	e.Orm.Where("box_id= ?", snBoxRelation.BoxId).Find(&listBoxRelation)
 
 	e.Logger.Info("-----------------AddBox listBoxRelation boxId: ", snBoxRelation.BoxId, ", bSum:", bSum, ", len:", len(listBoxRelation))
+
+	resultObj.BoxSNCodeList = listBoxRelation
+
 	if len(listBoxRelation) == bSum { //表示箱子刚好装满
 		resultObj.Status = 4 //装满一箱
 		resultObj.BoxSNCodeList = listBoxRelation

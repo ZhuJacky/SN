@@ -103,6 +103,7 @@ export default {
         status: 3,
         scanSource: '666'
       },
+      printItem:{},
       // 表单参数
       form: {
       },
@@ -193,7 +194,7 @@ export default {
       
       //alert('开始装箱：' + code)
 
-      //code = '8930500A000024'
+      code = '8930500A000013'
       //alert(this.boxData.snCode)
   
       packBox(this.boxData, code).then(response => {
@@ -211,10 +212,15 @@ export default {
               } else if(Status==0) { //装箱成功
                 this.queryParams.BoxId = response.data.BoxId;//填充查询条件
                 this.getList()
+
+                this.printItem=response.data
+                this.doPrint()
+
               } else if(Status==4) { //装满一箱，调用打印机执行打印动作
                 this.queryParams.BoxId = response.data.BoxId;//填充查询条件
                 this.getList()
-                
+                this.printItem=response.data
+                this.doPrint()
 
               }
 
@@ -222,7 +228,28 @@ export default {
               this.msgError(response.msg)
           }
       })
-    }
+    },
+    doPrint() {
+      var printIframe = this.$refs.printIframe;
+      var strFormHtml = this.$refs.printDiv.innerHTML;
+      strFormHtml='<div data-v-54ecf1d8="" data-v-43eac8e8="" style=""><img data-v-54ecf1d8="" data-v-43eac8e8="" style="width: auto; height: 150px;"></div><div data-v-54ecf1d8="" data-v-43eac8e8="" style="font-size: 10px; margin-top: 10px;"> 箱号：'+this.printItem.BoxId+'</div><div data-v-54ecf1d8="" data-v-43eac8e8="" style="font-size: 10px; margin-top: 3px;"> 批次编号：'+this.printItem.BoxId+'</div><div data-v-54ecf1d8="" data-v-43eac8e8="" style="font-size: 10px; margin-top: 3px;"> 工单编号：'+this.printItem.BoxId+'</div>'
+      
+
+      console.log(strFormHtml);
+          const LODOP = getLodop()
+          if (LODOP) {
+            LODOP.SET_LICENSES("","EE0887D00FCC7D29375A695F728489A6","C94CEE276DB2187AE6B65D56B3FC2848","")
+                          LODOP.PRINT_INIT('')  //初始化
+                          LODOP.SET_PRINT_PAGESIZE(3, 290, 0, 'abc')  // 设置横向(四个参数：打印方向及纸张类型（0(或其它)：打印方向由操作者自行选择或按打印机缺省设置；1：纵向打印,固定纸张；2：横向打印，固定纸张；3：纵向打印，宽度固定，高度按打印内容的高度自适应。），纸张宽(mm)，纸张高(mm),纸张名(必须纸张宽等于零时本参数才有效。))
+                          LODOP.ADD_PRINT_HTM('1%', '1%', '98%', '98%', strFormHtml)        // 设置打印内容
+                          // LODOP.ADD_PRINT_TEXT('1%', '1%', '98%', '98%', strFormHtml)    // 设置打印内容
+//                                LODOP.ADD_PRINT_BARCODE( 85, 55, 230, 60, '128Auto', item.code);   // 条码（六个参数：Top,Left,Width,Height,BarCodeType,BarCodeValue）
+                          LODOP.ADD_PRINT_BARCODE( 120, 5, 260, 60, 'QRCode', this.printItem.BoxId);   // 条码（六个参数：Top,Left,Width,Height,BarCodeType,BarCodeValue）
+                          // LODOP.SET_PREVIEW_WINDOW(2, 0, 0, 800, 600, '')  // 设置预览窗口模式和大小
+                          LODOP.PREVIEW()  // 预览。（这里可以进行预览，注意这里打开时记得把下面的print先注释。）另外，这里的预览只显示单个商品 打印出来的效果即该预览效果。
+                          //LODOP.PRINT();　　// 打印a
+          }
+        },
   }
 }
 </script>
