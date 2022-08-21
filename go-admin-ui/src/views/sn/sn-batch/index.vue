@@ -356,7 +356,7 @@ export default {
         workCode: undefined,
         status: undefined
       },
-      sys_app_logoAction: 'http://localhost:8000/api/v1/public/uploadFile',
+      sys_app_logoAction: 'http://159.75.213.231/api/v1/public/uploadFile',
       sys_app_logofileList: [],
       // 表单参数
       form: {},
