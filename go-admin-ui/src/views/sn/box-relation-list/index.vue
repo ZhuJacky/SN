@@ -214,6 +214,8 @@ export default {
               } else if(Status==4) { //装满一箱，调用打印机执行打印动作
                 this.queryParams.BoxId = response.data.BoxId;//填充查询条件
                 this.getList()
+                
+
               }
 
           } else {

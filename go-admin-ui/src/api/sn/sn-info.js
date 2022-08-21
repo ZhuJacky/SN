@@ -1,5 +1,13 @@
 import request from '@/utils/request'
 
+// 查询岗位详细
+export function getPost(postId) {
+  return request({
+    url: '/api/v1/sn-info/' + postId,
+    method: 'get'
+  })
+}
+
 // 查询SN列表
 export function listPost(query) {
   return request({

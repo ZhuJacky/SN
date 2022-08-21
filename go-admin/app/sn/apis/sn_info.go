@@ -31,7 +31,7 @@ type SNInfo struct {
 // @Security Bearer
 func (e SNInfo) GetSNInfoList(c *gin.Context) {
 
-	s := service.BatchInfo{}
+	s := service.SNInfo{}
 	req := dto.SNInfoPageReq{}
 	err := e.MakeContext(c).
 		MakeOrm().
@@ -56,8 +56,40 @@ func (e SNInfo) GetSNInfoList(c *gin.Context) {
 	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
 }
 
+// Get
+// @Summary 获取岗位信息
+// @Description 获取JSON
+// @Tags 岗位
+// @Param id path int true "编码"
+// @Success 200 {object} response.Response "{"code": 200, "data": [...]}"
+// @Router /api/v1/post/{postId} [get]
+// @Security Bearer
+func (e SNInfo) Get(c *gin.Context) {
+	s := service.SNInfo{}
+	req := dto.SNInfoGetReq{}
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(&req, nil).
+		MakeService(&s.Service).
+		Errors
+	if err != nil {
+		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
+		return
+	}
+	var object models.SNInfo
+
+	err = s.Get(&req, &object)
+	if err != nil {
+		e.Error(500, err, fmt.Sprintf("SN信息获取失败！错误详情：%s", err.Error()))
+		return
+	}
+
+	e.OK(object, "查询成功")
+}
+
 func (e SNInfo) UpdateStatus(c *gin.Context) {
-	s := service.BatchInfo{}
+	s := service.SNInfo{}
 	req := dto.SNInfoUpdateReq{}
 	err := e.MakeContext(c).
 		MakeOrm().

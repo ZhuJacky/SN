@@ -11,6 +11,7 @@ type SNInfoPageReq struct {
 	dto.Pagination `search:"-"`
 	BatchCode      string `form:"batchCode" search:"type:exact;column:batch_code;table:sn_info" comment:"batch_code"`       // batch_code
 	ProductCode    string `form:"productCode" search:"type:exact;column:product_code;table:sn_info" comment:"product_code"` // product_code
+	SNCode         string `form:"snCode" search:"type:exact;column:sn_code;table:sn_info" comment:"sn_code"`                // product_code
 	Status         int    `form:"status" search:"type:exact;column:status;table:sn_info" comment:"status"`                  // status
 }
 
