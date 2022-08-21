@@ -130,11 +130,6 @@ export default {
             }
         })
 
-    },
-
-    //执行装箱操作
-    doBox() {
-      this.$router.push({path: '/sn/box-relation-list'});
     }
   }
 }
