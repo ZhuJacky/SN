@@ -80,3 +80,73 @@ func (e BoxInfo) UpdateBoxSum(c *gin.Context) {
 	}
 	e.OK(req.GetId(), "更新成功")
 }
+
+func (e BoxInfo) GetExWarehouseBoxList(c *gin.Context) {
+
+	s := service.BatchInfo{}
+	req := dto.BoxInfoPageReq{}
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(&req, binding.Form).
+		MakeService(&s.Service).
+		Errors
+	if err != nil {
+		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
+		return
+	}
+
+	list := make([]models.SNBoxInfo, 0)
+	var count int64
+	req.Status = 2 //只是查询出库列表
+
+	err = s.GetBoxInfoList(&req, &list, &count)
+	if err != nil {
+		e.Error(500, err, "查询失败")
+		return
+	}
+
+	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
+}
+
+func (e BoxInfo) UpdateExWarehouseBoxStatus(c *gin.Context) {
+	s := service.BatchInfo{}
+	req := dto.BoxInfoUpdateStatusReq{}
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(&req, binding.JSON, nil).
+		MakeService(&s.Service).
+		Errors
+	if err != nil {
+		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
+		return
+	}
+	req.SetUpdateBy(user.GetUserId(c))
+	e.Logger.Info("UpdateExWarehouseBoxStatus:", req)
+
+	//如果箱号码，不在列表中，报错
+	var boxList []models.SNBoxInfo
+	e.Orm.Where("box_id= ?", req.BoxId).Find(&boxList)
+
+	e.Logger.Info("UpdateExWarehouseBoxStatus boxList: ", &boxList)
+
+	resultObj := dto.BoxInfoResultObj{}
+
+	if len(boxList) < 1 {
+		resultObj.BoxId = req.BoxId
+		resultObj.Status = -1
+		e.OK(resultObj, "箱号无效，不存在箱号信息")
+		return
+	}
+
+	err = s.UpdateBoxStatus(&req)
+	if err != nil {
+		e.Error(500, err, fmt.Sprintf("出库失败！错误详情：%s", err.Error()))
+		return
+	}
+
+	resultObj.BoxId = req.BoxId
+	resultObj.Status = 0
+	e.OK(resultObj, "更新成功")
+}

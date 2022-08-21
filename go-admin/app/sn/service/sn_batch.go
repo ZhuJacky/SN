@@ -520,7 +520,7 @@ func (e *BatchInfo) GetBoxInfoList(c *dto.BoxInfoPageReq, list *[]models.SNBoxIn
 		Scopes(
 			cDto.MakeCondition(c.GetNeedSearch()),
 			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
-		).Order("box_id desc").
+		).Order("updated_at desc").
 		Find(list).Limit(-1).Offset(-1).
 		Count(count).Error
 
@@ -536,6 +536,25 @@ func (e *BatchInfo) UpdateBoxSum(c *dto.BoxInfoUpdateReq) error {
 	var model = models.SNBoxInfo{}
 	e.Orm.First(&model, c.GetId())
 	model.BoxSum = c.BoxSum
+	model.BoxId = c.BoxId
+	e.Log.Info("%v", &model)
+	db := e.Orm.Save(&model)
+
+	if db.Error != nil {
+		e.Log.Errorf("db error:%s", err)
+		return err
+	}
+	if db.RowsAffected == 0 {
+		return errors.New("无权更新该数据")
+	}
+	return nil
+}
+
+func (e *BatchInfo) UpdateBoxStatus(c *dto.BoxInfoUpdateStatusReq) error {
+	var err error
+	var model = models.SNBoxInfo{}
+	e.Orm.First(&model, c.GetId())
+	model.Status = c.Status
 	model.BoxId = c.BoxId
 	e.Log.Info("%v", &model)
 	db := e.Orm.Save(&model)

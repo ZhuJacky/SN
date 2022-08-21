@@ -106,13 +106,15 @@ func (e BoxRelationInfo) AddBox(c *gin.Context) {
 	var snBoxRelation = models.SNBoxRelation{}
 	var whereStr string
 	whereStr = "sn_code='" + req.SNCode + "'"
-	e.Orm.First(&snBoxRelation, whereStr)
-	resultObj.Status = 0 //装箱成功
+	e.Orm.First(&snBoxRelation, whereStr) //装箱成功，需要查询当前装箱信息，并填充返回值
+	resultObj.Status = 0                  //装箱成功
 	resultObj.BoxId = snBoxRelation.BoxId
 
-	e.Logger.Info("-----------------------")
+	var boxModel = models.SNBoxInfo{}
+	e.Orm.First(&boxModel, snBoxRelation.BoxId)
 
-	bSum := 10
+	bSum := boxModel.BoxSum //查询装箱数量
+
 	var listBoxRelation []models.SNBoxRelation
 	e.Orm.Where("box_id= ?", snBoxRelation.BoxId).Find(&listBoxRelation)
 

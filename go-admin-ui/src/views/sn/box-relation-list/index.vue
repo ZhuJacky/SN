@@ -59,6 +59,16 @@
           @pagination="getList"
         />
       </el-card>
+
+
+        <div ref="printDiv" style="display:none;" >
+                <div style="font-size:10px;margin-top:7px;">
+                    箱号：{{printItem.BoxId}}
+                </div>
+                <div style="font-size:10px;margin-top:7px;word-wrap:break-word">
+                    SN列表：{{printItem.SNCodeList}}
+                </div>
+       </div>
     </template>
   </BasicLayout>
 </template>
@@ -67,7 +77,7 @@
 import { listPost,packBox } from '@/api/sn/box-relation-info'
 import { formatJson } from '@/utils'
 import moment from 'moment'
-
+import getLodop from '@/utils/LodopFuncs'
 export default {
   name: 'BoxRelationInfoManage',
   data() {
@@ -103,7 +113,13 @@ export default {
         status: 3,
         scanSource: '666'
       },
-      printItem:{},
+      printItem:[
+  
+      ],
+              goodCodeList:[  
+　　　　 　　{uid: 1, brandName: '苹果',goodName: 'iphone13 Pro', code: '11112222333',price: 900, unit:'个', skuName: '8+526G', num: 1},
+            {uid: 2, brandName: '阿里',goodName: 'iphone13 Pro', code: '11112222333',price: 900, unit:'个', skuName: '8+526G', num: 1},
+        ],
       // 表单参数
       form: {
       },
@@ -194,7 +210,7 @@ export default {
       
       //alert('开始装箱：' + code)
 
-      code = '8930500A000013'
+      //code = '8930500A000007'
       //alert(this.boxData.snCode)
   
       packBox(this.boxData, code).then(response => {
@@ -213,15 +229,23 @@ export default {
                 this.queryParams.BoxId = response.data.BoxId;//填充查询条件
                 this.getList()
 
-                this.printItem=response.data
-                this.doPrint()
 
               } else if(Status==4) { //装满一箱，调用打印机执行打印动作
                 this.queryParams.BoxId = response.data.BoxId;//填充查询条件
                 this.getList()
-                this.printItem=response.data
-                this.doPrint()
-
+                 for (var i=0;i<response.data.BoxSNCodeList.length;i++)
+                { 
+                 
+                  this.printItem.BoxId=response.data.BoxSNCodeList[i].BoxId
+                  if(i===0){
+                  this.printItem.SNCodeList=response.data.BoxSNCodeList[i].SNCode  
+                  }
+                  else{
+                  this.printItem.SNCodeList=this.printItem.SNCodeList+' '+response.data.BoxSNCodeList[i].SNCode
+                  }
+                }
+                
+                this.doPrint()                
               }
 
           } else {
@@ -230,9 +254,9 @@ export default {
       })
     },
     doPrint() {
-      var printIframe = this.$refs.printIframe;
-      var strFormHtml = this.$refs.printDiv.innerHTML;
-      strFormHtml='<div data-v-54ecf1d8="" data-v-43eac8e8="" style=""><img data-v-54ecf1d8="" data-v-43eac8e8="" style="width: auto; height: 150px;"></div><div data-v-54ecf1d8="" data-v-43eac8e8="" style="font-size: 10px; margin-top: 10px;"> 箱号：'+this.printItem.BoxId+'</div><div data-v-54ecf1d8="" data-v-43eac8e8="" style="font-size: 10px; margin-top: 3px;"> 批次编号：'+this.printItem.BoxId+'</div><div data-v-54ecf1d8="" data-v-43eac8e8="" style="font-size: 10px; margin-top: 3px;"> 工单编号：'+this.printItem.BoxId+'</div>'
+      var html = this.$refs.printDiv.innerHTML;
+      console.log(html);
+      var strFormHtml='<div data-v-a624bd14="" data-v-43eac8e8="" style="font-size: 10px; margin-top: 7px;"> 箱号：'+this.printItem.BoxId+' </div><div data-v-a624bd14="" data-v-43eac8e8="" style="width:30px;font-size: 10px; margin-top: 7px; overflow-wrap: break-word;"> SN列表：'+this.printItem.SNCodeList+' </div>'
       
 
       console.log(strFormHtml);
@@ -246,10 +270,13 @@ export default {
 //                                LODOP.ADD_PRINT_BARCODE( 85, 55, 230, 60, '128Auto', item.code);   // 条码（六个参数：Top,Left,Width,Height,BarCodeType,BarCodeValue）
                           LODOP.ADD_PRINT_BARCODE( 120, 5, 260, 60, 'QRCode', this.printItem.BoxId);   // 条码（六个参数：Top,Left,Width,Height,BarCodeType,BarCodeValue）
                           // LODOP.SET_PREVIEW_WINDOW(2, 0, 0, 800, 600, '')  // 设置预览窗口模式和大小
-                          LODOP.PREVIEW()  // 预览。（这里可以进行预览，注意这里打开时记得把下面的print先注释。）另外，这里的预览只显示单个商品 打印出来的效果即该预览效果。
-                          //LODOP.PRINT();　　// 打印a
+                          //LODOP.PREVIEW()  // 预览。（这里可以进行预览，注意这里打开时记得把下面的print先注释。）另外，这里的预览只显示单个商品 打印出来的效果即该预览效果。
+                          LODOP.PRINT();　　// 打印a
           }
         },
   }
 }
 </script>
+<style lang='scss' scoped>
+    .dayinID{width: 237px;height: 155px;border: 1px solid #000;margin-top: 10px;}
+</style>
