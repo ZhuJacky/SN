@@ -252,3 +252,5 @@ INSERT INTO sn.sys_dict_data (dict_sort,dict_label,dict_value,dict_type,css_clas
 INSERT INTO sn.sys_dict_data (dict_sort,dict_label,dict_value,dict_type,css_class,list_class,is_default,status,`default`,remark,create_by,update_by,created_at,updated_at,deleted_at) VALUES
     (1,'自制','0','sn_batch_external','','','',0,'','自制',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL),
     (1,'外购','1','sn_batch_external','','','',0,'','外购',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL);
+
+
