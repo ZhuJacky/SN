@@ -1,5 +1,4 @@
 
-
 DROP TABLE IF EXISTS sn_batch_info;
 
 CREATE TABLE `sn_batch_info` (
@@ -38,7 +37,6 @@ CREATE TABLE `sn_batch_info` (
   KEY `idx_batch_info_update_by` (`update_by`),
   KEY `idx_batch_info_deleted_at` (`deleted_at`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-
 
 -- sn.sn_product_info definition
 
