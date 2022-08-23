@@ -150,3 +150,31 @@ func (e BoxInfo) UpdateExWarehouseBoxStatus(c *gin.Context) {
 	resultObj.Status = 0
 	e.OK(resultObj, "更新成功")
 }
+
+func (e BoxInfo) GetEnWarehouseBoxList(c *gin.Context) {
+
+	s := service.BatchInfo{}
+	req := dto.BoxInfoPageReq{}
+	err := e.MakeContext(c).
+		MakeOrm().
+		Bind(&req, binding.Form).
+		MakeService(&s.Service).
+		Errors
+	if err != nil {
+		e.Logger.Error(err)
+		e.Error(500, err, err.Error())
+		return
+	}
+
+	list := make([]models.SNBoxInfo, 0)
+	var count int64
+	req.Status = 1 //只是查询入库列表
+
+	err = s.GetBoxInfoList(&req, &list, &count)
+	if err != nil {
+		e.Error(500, err, "查询失败")
+		return
+	}
+
+	e.PageOK(list, int(count), req.GetPageIndex(), req.GetPageSize(), "查询成功")
+}

@@ -244,11 +244,11 @@ CREATE TABLE `sn_box_relation` (
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
 
-
-
-
-
 INSERT INTO sn.sys_dict_data (dict_sort,dict_label,dict_value,dict_type,css_class,list_class,is_default,status,`default`,remark,create_by,update_by,created_at,updated_at,deleted_at) VALUES
   (1,'装箱','0','box_info_status','','','',2,'','装箱',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL),
   (1,'入库','1','box_info_status','','','',2,'','入库',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL),
   (1,'出库','2','box_info_status','','','',2,'','出库',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL);
+
+INSERT INTO sn.sys_dict_data (dict_sort,dict_label,dict_value,dict_type,css_class,list_class,is_default,status,`default`,remark,create_by,update_by,created_at,updated_at,deleted_at) VALUES
+    (1,'自制','0','sn_batch_external','','','',0,'','自制',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL),
+    (1,'外购','1','sn_batch_external','','','',0,'','外购',1,1,'2021-05-13 19:56:40.845000000','2021-05-13 19:56:40.845000000',NULL);

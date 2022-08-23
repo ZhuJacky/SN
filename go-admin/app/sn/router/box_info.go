@@ -25,5 +25,6 @@ func registerBoxInfoRouter(v1 *gin.RouterGroup, authMiddleware *jwt.GinJWTMiddle
 	{
 		r2.POST("/do-ex-warehouse", api.UpdateExWarehouseBoxStatus)
 		r2.GET("/ex-warehouse-box", api.GetExWarehouseBoxList)
+		r2.GET("/en-warehouse-box", api.GetEnWarehouseBoxList)
 	}
 }

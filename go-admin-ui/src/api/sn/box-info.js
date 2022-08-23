@@ -34,3 +34,15 @@ export function doExWarehouseBox(data, id) {
     data: data
   })
 }
+
+
+
+// 查询入库箱号列表
+export function listEnWarehouseBox(query) {
+  return request({
+    url: '/api/v1/ex-warehouse/en-warehouse-box',
+    method: 'get',
+    params: query
+  })
+}
+

@@ -55,7 +55,15 @@
           <el-table-column label="UDI号" align="center" prop="UDI" />
           <el-table-column label="工单号" width="150" align="center" prop="WorkCode" />
           <el-table-column label="装箱数量" width="150" align="center" prop="BoxSum" />
-          <el-table-column label="创建时间" align="center" prop="createdAt" width="155">
+          <el-table-column label="状态" width="80" align="center" prop="Status" :formatter="statusFormat">
+            <template slot-scope="scope">
+              <el-tag
+                :type="scope.row.Status === 0 ? 'danger' : 'success'"
+                disable-transitions
+              >{{ statusFormat(scope.row) }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="装箱时间" align="center" prop="createdAt" width="155">
             <template slot-scope="scope">
               <span>{{ parseTime(scope.row.createdAt) }}</span>
             </template>
@@ -143,6 +151,9 @@ export default {
   },
   created() {
     this.getList()
+    this.getDicts('box_info_status').then(response => {
+      this.statusOptions = response.data
+    })
   },
   methods: {
 
@@ -155,6 +166,11 @@ export default {
         this.loading = false
       })
     },
+
+    // 箱子状态翻译
+    statusFormat(row) {
+      return this.selectDictLabel(this.statusOptions, row.Status)
+    }, 
     
     // 取消按钮
     cancel() {
