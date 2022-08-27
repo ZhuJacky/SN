@@ -2,12 +2,38 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
-        <input  v-model="codeValue" placeholder="请输入条形码"/>
-          <el-form-item>
-            <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
+        <el-form ref="printConf" :model="printConf" :inline="true" label-width="120px">
+            <el-form-item label="是否打印UDI" prop="HasUDI">
+              <el-radio-group  v-model="printConf.HasUDI">
+                <el-radio
+                  :key="0"
+                  :label="0"
+                >否</el-radio>
+                <el-radio
+                  :key="1"
+                  :label="1"
+                >是</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item label="打印数量" prop="Number">
+              <el-input-number :disabled="noEdit" readonly="noEdit" v-model="printConf.Number" controls-position="right" :min="0" />
+            </el-form-item>
+            <el-form-item label="列数" prop="ColNum">
+            <el-select v-model="printConf.ColNum" placeholder="打印列数" clearable size="small">
+              <el-option
+                v-for="dict in ColList"
+                :key="dict.value"
+                :label="dict.label"
+                :value="dict.value"
+              />
+            </el-select>
           </el-form-item>
-        
+
+        </el-form>
         <el-row :gutter="10" class="mb8">
+          <el-col :span="1.5">
+            <input  v-model="codeValue" placeholder="请输入条形码"/>
+          </el-col>
           <el-col :span="1.5">
             <el-button
               v-permisaction="['admin:sysPost:export']"
@@ -65,12 +91,16 @@
   </BasicLayout>
 </template>
 
+
+
 <script>
-//import { listPost,packBox } from '@/api/sn/box-relation-info'
-import { listPost, getPost, updatePost } from '@/api/sn/sn-info'
+import { listPost, getPost, updatePost,print } from '@/api/sn/sn-info'
 import { formatJson } from '@/utils'
 import moment from 'moment'
-import getLodop from '@/utils/LodopFuncs'
+import {clean,printparamsJsonArray,PTK_OpenUSBPort, PTK_CloseUSBPort, PTK_ClearBuffer,PTK_SetDarkness,PTK_SetPrintSpeed,PTK_SetDirection,PTK_SetLabelHeight,PTK_SetLabelWidth,PTK_DrawText_TrueType,PTK_PrintLabel,PTK_DrawBar2D_DATAMATRIX} from '@/utils/POSTEK'
+import bwipjs from 'bwip-js'
+import request from '@/utils/request'
+
 export default {
   name: 'BoxRelationInfoManage',
   inject:['reload'], 
@@ -80,6 +110,8 @@ export default {
       goodCodeList:[
         　　　　 　　{uid: 1, brandName: '苹果',goodName: 'iphone13 Pro', code: '11112222333',price: 900, unit:'个', skuName: '8+526G', num: 1},
         ],
+
+    ColList:[{value:1,label:'第一列'},{value:2,label:'第二列'},{value:3,label:'第三列'}],
         isReloadData: true,
       // 遮罩层
       loading: true,
@@ -114,6 +146,7 @@ export default {
       // 表单参数
       form: {
       },
+      printConf:{HasUDI:1,Number:1,ColNum:1},
       // 表单校验
       rules: {
 
@@ -180,54 +213,62 @@ export default {
             });
             return canvas.toDataURL("image/png");
         },
-       toClick() {        // 商品条码
-                const LODOP = getLodop()
-                if (LODOP) {
-                    this.goodCodeList.forEach( (item,index) => {　　// 这里为打印的商品条码
-                            // 反之，则以商品的数量作为打印份数依据。（注：这里是该商品条码打印的份数）
-                            for( let i=0; i<item.num; i++) {
-                                var strBodyStyle = '<style>'
-                                strBodyStyle += '.dayinID { width: 200px;height: 155px;border: 1px solid #000;margin-top: 0px;}'
-                                strBodyStyle += '.row5,.row1 { width: 100%;height: 20px;line-height: 20px;color: #000;text-align: center;font-weight: 700;font-size: 0.8rem;}'
-                                // strBodyStyle += '.row1>span { width: 50%;height: 100%;text-align: center;line-height: 30px;color: #000;float: left;}'
-                                strBodyStyle += '.row2 { width: 100%;height: 25px;text-align: center;color: #000;font-weight: 700;font-size: 1.2rem;line-height: 25px;}'
-                                strBodyStyle += '.row3 { width: 100%;height: 20px;line-height: 20px;text-align: center;font-size: 0.8rem;}'
-                                strBodyStyle += '.row4 { width: 100%;height: 60px;}'
-                                strBodyStyle += '.tiaoma-space{width: 100%;height: 10px;margin-top: 20px;}'
-                                strBodyStyle += '</style>' // 设置打印样式
-                                var strFormHtml = strBodyStyle + '<body>' + document.getElementById('dayinID_'+index).innerHTML + '</body>'   // 获取打印内容
-                           LODOP.SET_LICENSES("","EE0887D00FCC7D29375A695F728489A6","C94CEE276DB2187AE6B65D56B3FC2848","")
-                                LODOP.PRINT_INIT('')  //初始化
-                                LODOP.SET_PRINT_PAGESIZE(3, 790, 0, '')  // 设置横向(四个参数：打印方向及纸张类型（0(或其它)：打印方向由操作者自行选择或按打印机缺省设置；1：纵向打印,固定纸张；2：横向打印，固定纸张；3：纵向打印，宽度固定，高度按打印内容的高度自适应。），纸张宽(mm)，纸张高(mm),纸张名(必须纸张宽等于零时本参数才有效。))
-                           
-                                LODOP.ADD_PRINT_HTM('1%', '1%', '98%', '98%', strFormHtml)        // 设置打印内容
-                                // LODOP.ADD_PRINT_TEXT('1%', '1%', '98%', '98%', strFormHtml)    // 设置打印内容
-//                                LODOP.ADD_PRINT_BARCODE( 85, 55, 230, 60, '128Auto', item.code);   // 条码（六个参数：Top,Left,Width,Height,BarCodeType,BarCodeValue）
-                                LODOP.ADD_PRINT_BARCODE( 85, 155, 230, 60, 'QRCode', item.code);   // 条码（六个参数：Top,Left,Width,Height,BarCodeType,BarCodeValue）
-                                // LODOP.SET_PREVIEW_WINDOW(2, 0, 0, 800, 600, '')  // 设置预览窗口模式和大小
-                                LODOP.PREVIEW()  // 预览。（这里可以进行预览，注意这里打开时记得把下面的print先注释。）另外，这里的预览只显示单个商品 打印出来的效果即该预览效果。
-                                //LODOP.PRINT();　　// 打印a
-                            }
-                    });
-                }
-            },
-doPrint(printItem) {
-            var strFormHtml='<div data-v-54ecf1d8="" data-v-43eac8e8="" style=""><img data-v-54ecf1d8="" data-v-43eac8e8="" style="width: auto; height: 50px;"></div><div data-v-54ecf1d8="" data-v-43eac8e8="" style="font-size: 10px; margin-top: 10px;"> 产品序号：'+printItem.SNCode+'</div><div data-v-54ecf1d8="" data-v-43eac8e8="" style="font-size: 10px; margin-top: 3px;"> 批次编号：'+printItem.BatchCode+'</div><div data-v-54ecf1d8="" data-v-43eac8e8="" style="font-size: 10px; margin-top: 3px;"> 工单编号：'+printItem.WorkCode+'</div>'
-            console.log(strFormHtml);
-                const LODOP = getLodop()
-                if (LODOP) {
-                  LODOP.SET_LICENSES("","EE0887D00FCC7D29375A695F728489A6","C94CEE276DB2187AE6B65D56B3FC2848","")
-                                LODOP.PRINT_INIT('')  //初始化
-                                LODOP.SET_PRINT_PAGESIZE(3, 290, 20, 'abc')  // 设置横向(四个参数：打印方向及纸张类型（0(或其它)：打印方向由操作者自行选择或按打印机缺省设置；1：纵向打印,固定纸张；2：横向打印，固定纸张；3：纵向打印，宽度固定，高度按打印内容的高度自适应。），纸张宽(mm)，纸张高(mm),纸张名(必须纸张宽等于零时本参数才有效。))
-                                LODOP.ADD_PRINT_HTM('1%', '1%', '98%', '98%', strFormHtml)        // 设置打印内容
-                                // LODOP.ADD_PRINT_TEXT('1%', '1%', '98%', '98%', strFormHtml)    // 设置打印内容
-//                                LODOP.ADD_PRINT_BARCODE( 85, 55, 230, 60, '128Auto', item.code);   // 条码（六个参数：Top,Left,Width,Height,BarCodeType,BarCodeValue）
-                                LODOP.ADD_PRINT_BARCODE( 10, 5, 260, 60, 'QRCode', printItem.SNCode)   // 条码（六个参数：Top,Left,Width,Height,BarCodeType,BarCodeValue）
-                                // LODOP.SET_PREVIEW_WINDOW(2, 0, 0, 800, 600, '')  // 设置预览窗口模式和大小
-                                //LODOP.PREVIEW()  // 预览。（这里可以进行预览，注意这里打开时记得把下面的print先注释。）另外，这里的预览只显示单个商品 打印出来的效果即该预览效果。
-                                LODOP.PRINT();　　// 打印
-                }
-        },
+    doPrint(printItem) {
+//        alert(this.printConf.HasUDI+'aaa'+this.printConf.ColNum)
+      	PTK_OpenUSBPort(255)//打开打印机USB端口
+	      this.PrintContent(printItem)         //打印内容
+		    PTK_CloseUSBPort()  //关闭USB端口
+		    this.printing()          //请求数据并打印
+    },
+    PrintContent(printItem){
+	 var mm=12;
+		 var column=3; //标签有多少列
+		 var printNum=this.printConf.Number; //打印份数
+		 var width=34*mm;//单列标签的宽度 （每张小标签的宽度）
+		 PTK_ClearBuffer();     //*清空缓存
+		 PTK_SetDarkness(20);   //设置打印黑度 取值范围 0-20
+		 PTK_SetPrintSpeed(8);  //设置打印速度
+		 PTK_SetDirection('B'); //设置打印方向
+		 PTK_SetLabelHeight(27*mm,24,24,false); //*设置标签高度、间隙及偏移
+		 PTK_SetLabelWidth(104*mm);//*设置标签宽度(底纸的宽度)，一定要准确，否则会导致打印内容位置不准确
+  
+    for (var i = 1; i < printNum+1; i++) {
+			var row=i; //计算荡当前处于第几行
+			var col=this.printConf.ColNum;
+			var row_cr=col==0?row:row+1;  //如果取余得到的行号 为0则为
+			var col_cr=col==0?column:col; //当前处于的列数
+		  //PTK_DrawBar2D_QREx((col_cr-1)*width+10,10,0,5,1,0,8,"ss","博思得科技发展有限公司");//打印一个QR码（二维码） 				可根据版本号来固定二维码大小（注意：数据量超过版本所能容纳的量则打印失败） 版本号为0则根据内容自动生成二维码（大小固定）
+      PTK_DrawBar2D_DATAMATRIX((col_cr-1)*width+60,70,0,0,0,8,printItem.SNCode)
+      if(this.printConf.HasUDI===1){
+        PTK_DrawText_TrueType((col_cr-1)*width+35,210,3*mm,0,"Arial",1,900,0,0,0,printItem.UDI); //打udi
+      }
+      PTK_DrawText_TrueType((col_cr-1)*width+35,245,3*mm,0,"Arial",1,900,0,0,0,printItem.BatchCode); //打印
+      PTK_DrawText_TrueType((col_cr-1)*width+35,280,3*mm,0,"Arial",1,900,0,0,0,printItem.SNCode); //打
+      
+			console.log("-------打印第"+row_cr+"行，第"+col_cr+"列");
+			PTK_PrintLabel(1,1); //打印，必须要执行这一行，否则不会打印
+		  } 
+	},
+ printing(){
+	    	var data = {};
+	    	data.reqParam = "1";
+	      	data.printparams = JSON.stringify(printparamsJsonArray);
+	     	//jQuery.support.cors = true;  //适用于IE浏览器
+			clean(); //此函数必须使用
+      console.log(data.printparams)
+      var url = "http://127.0.0.1:888/postek/print";
+      //return request({    url: url,method: 'post',data: data,dataType:"json"});
+      print(url,data).then(response => {
+        
+        if (response.retval == '0') {
+	      
+	        		} else {
+	        			alert("存在错误，返回结果："+response.msg);
+	        		}
+      })
+      //console.log(JSON.stringify(res));
+	  },
+
     /** 查询装箱列表 */
     getList() {
       this.loading = true

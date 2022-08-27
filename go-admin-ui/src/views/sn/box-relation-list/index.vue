@@ -2,6 +2,19 @@
   <BasicLayout>
     <template #wrapper>
       <el-card class="box-card">
+          <el-form ref="printConf" :model="printConf" :rules="rules" :inline="true" label-width="120px">
+            <el-form-item label="打印数量" prop="Number">
+              <el-input-number :disabled="noEdit" readonly="noEdit" v-model="printConf.Number" controls-position="right" :min="0" />
+            </el-form-item>
+            <el-form-item label="编号" prop="sortCode">
+            <el-input
+              v-model="printConf.sortCode"
+              placeholder="请输入编号"
+              clearable
+              size="small"
+            />
+          </el-form-item>
+          </el-form>
         <el-form ref="queryForm" :model="queryParams" :inline="true" label-width="120px">
           <el-form-item label="箱号" prop="BoxId">
             <el-input
@@ -66,7 +79,7 @@
                     箱号：{{printItem.BoxId}}
                 </div>
                 <div style="font-size:10px;margin-top:7px;word-wrap:break-word">
-                    SN列表：{{printItem.SNCodeList}}
+                    SN列表：{{}}
                 </div>
        </div>
     </template>
@@ -76,8 +89,12 @@
 <script>
 import { listPost,packBox } from '@/api/sn/box-relation-info'
 import { formatJson } from '@/utils'
+import { print } from '@/api/sn/sn-info'
 import moment from 'moment'
-import getLodop from '@/utils/LodopFuncs'
+import {clean,printparamsJsonArray,PTK_OpenUSBPort, PTK_CloseUSBPort, PTK_ClearBuffer,PTK_SetDarkness,PTK_SetPrintSpeed,PTK_SetDirection,PTK_SetLabelHeight,PTK_SetLabelWidth,PTK_DrawText_TrueType,PTK_PrintLabel,PTK_DrawBar2D_DATAMATRIX} from '@/utils/POSTEK'
+import bwipjs from 'bwip-js'
+import request from '@/utils/request'
+
 export default {
   name: 'BoxRelationInfoManage',
   data() {
@@ -113,9 +130,10 @@ export default {
         status: 3,
         scanSource: '666'
       },
-      printItem:[
-  
-      ],
+      printItem:{
+        SNCodeList:[],
+      },
+      printConf:{Number:1},
               goodCodeList:[  
 　　　　 　　{uid: 1, brandName: '苹果',goodName: 'iphone13 Pro', code: '11112222333',price: 900, unit:'个', skuName: '8+526G', num: 1},
             {uid: 2, brandName: '阿里',goodName: 'iphone13 Pro', code: '11112222333',price: 900, unit:'个', skuName: '8+526G', num: 1},
@@ -125,7 +143,9 @@ export default {
       },
       // 表单校验
       rules: {
-
+        sortCode: [
+          { required: true, message: '编号不能为空', trigger: 'blur' }
+        ],
       }
     }
   },
@@ -175,6 +195,7 @@ export default {
         this.boxRelationList = response.data.list
         this.total = response.data.count
         this.loading = false
+                
       })
     },
     /** 搜索按钮操作 */
@@ -227,25 +248,28 @@ export default {
                 this.msgError(response.msg)
               } else if(Status==0) { //装箱成功
                 this.queryParams.BoxId = response.data.BoxId;//填充查询条件
+
                 this.getList()
 
+                
+                
+                
 
               } else if(Status==4) { //装满一箱，调用打印机执行打印动作
                 this.queryParams.BoxId = response.data.BoxId;//填充查询条件
-                this.getList()
-                 for (var i=0;i<response.data.BoxSNCodeList.length;i++)
-                { 
-                 
-                  this.printItem.BoxId=response.data.BoxSNCodeList[i].BoxId
-                  if(i===0){
-                  this.printItem.SNCodeList=response.data.BoxSNCodeList[i].SNCode  
-                  }
-                  else{
-                  this.printItem.SNCodeList=this.printItem.SNCodeList+' '+response.data.BoxSNCodeList[i].SNCode
-                  }
+
+                for (var i=0;i<response.data.BoxSNCodeList.length;i++)
+                {
+                  this.printItem.BoxId=response.data.BoxId
+                  this.printItem.sortCode=this.printConf.sortCode
+                  this.printItem.BatchCode=response.data.BoxSNCodeList[i].BatchCode
+                  this.printItem.SNCodeList[i]=response.data.BoxSNCodeList[i].SNCode
                 }
+                this.doPrint()
+                this.getList()
                 
-                this.doPrint()                
+                
+                //this.doPrint()                
               }
 
           } else {
@@ -254,26 +278,68 @@ export default {
       })
     },
     doPrint() {
-      var html = this.$refs.printDiv.innerHTML;
-      console.log(html);
-      var strFormHtml='<div data-v-a624bd14="" data-v-43eac8e8="" style="font-size: 10px; margin-top: 7px;"> 箱号：'+this.printItem.BoxId+' </div><div data-v-a624bd14="" data-v-43eac8e8="" style="width:30px;font-size: 10px; margin-top: 7px; overflow-wrap: break-word;"> SN列表：'+this.printItem.SNCodeList+' </div>'
-      
 
-      console.log(strFormHtml);
-          const LODOP = getLodop()
-          if (LODOP) {
-            LODOP.SET_LICENSES("","EE0887D00FCC7D29375A695F728489A6","C94CEE276DB2187AE6B65D56B3FC2848","")
-                          LODOP.PRINT_INIT('')  //初始化
-                          LODOP.SET_PRINT_PAGESIZE(3, 290, 0, 'abc')  // 设置横向(四个参数：打印方向及纸张类型（0(或其它)：打印方向由操作者自行选择或按打印机缺省设置；1：纵向打印,固定纸张；2：横向打印，固定纸张；3：纵向打印，宽度固定，高度按打印内容的高度自适应。），纸张宽(mm)，纸张高(mm),纸张名(必须纸张宽等于零时本参数才有效。))
-                          LODOP.ADD_PRINT_HTM('1%', '1%', '98%', '98%', strFormHtml)        // 设置打印内容
-                          // LODOP.ADD_PRINT_TEXT('1%', '1%', '98%', '98%', strFormHtml)    // 设置打印内容
-//                                LODOP.ADD_PRINT_BARCODE( 85, 55, 230, 60, '128Auto', item.code);   // 条码（六个参数：Top,Left,Width,Height,BarCodeType,BarCodeValue）
-                          LODOP.ADD_PRINT_BARCODE( 120, 5, 260, 60, 'QRCode', this.printItem.BoxId);   // 条码（六个参数：Top,Left,Width,Height,BarCodeType,BarCodeValue）
-                          // LODOP.SET_PREVIEW_WINDOW(2, 0, 0, 800, 600, '')  // 设置预览窗口模式和大小
-                          //LODOP.PREVIEW()  // 预览。（这里可以进行预览，注意这里打开时记得把下面的print先注释。）另外，这里的预览只显示单个商品 打印出来的效果即该预览效果。
-                          LODOP.PRINT();　　// 打印a
-          }
-        },
+      PTK_OpenUSBPort(255);//打开打印机USB端口
+        this.PrintContent();         //打印内容
+		    PTK_CloseUSBPort();  //关闭USB端口
+		    this.printing();          //请求数据并打印
+    },
+
+    PrintContent(){
+      var mm=12;
+     var printNum=this.printConf.Number; //打印份数
+    
+     var width=100*mm;//单列标签的宽度 （每张小标签的宽度）
+		 PTK_ClearBuffer();     //*清空缓存
+		 PTK_SetDarkness(20);   //设置打印黑度 取值范围 0-20
+		 PTK_SetPrintSpeed(8);  //设置打印速度
+		 PTK_SetDirection('B'); //设置打印方向
+		 PTK_SetLabelHeight(100*mm,24,24,true); //*设置标签高度、间隙及偏移
+		 PTK_SetLabelWidth(100*mm);//*设置标签宽度(底纸的宽度)，一定要准确，否则会导致打印内容位置不准确
+
+    for (var i = 1; i < printNum+1; i++) {
+			var col_cr=1
+      
+		  //PTK_DrawBar2D_QREx((col_cr-1)*width+10,10,0,5,1,0,8,"ss","博思得科技发展有限公司");//打印一个QR码（二维码） 				可根据版本号来固定二维码大小（注意：数据量超过版本所能容纳的量则打印失败） 版本号为0则根据内容自动生成二维码（大小固定）
+      PTK_DrawBar2D_DATAMATRIX((col_cr-1)*width+30,50,0,0,0,10,this.printItem.BoxId)
+      PTK_DrawText_TrueType((col_cr-1)*width+30,160,3*mm,0,"宋体",1,1200,0,0,0,"箱号"); //打印snCode
+      PTK_DrawText_TrueType((col_cr-1)*width+120,160,3*mm,0,"Arial",1,1200,0,0,0,this.printItem.BoxId); //打印snCode
+
+      PTK_DrawText_TrueType((col_cr-1)*width+30,210,3*mm,0,"宋体",1,1200,0,0,0,"编号"); //打印
+      PTK_DrawText_TrueType((col_cr-1)*width+120,210,3*mm,0,"Arial",1,1200,0,0,0,this.printConf.sortCode); //打印
+
+      PTK_DrawText_TrueType((col_cr-1)*width+30,260,3*mm,0,"宋体",1,1200,0,0,0,"批号"); //打印
+      PTK_DrawText_TrueType((col_cr-1)*width+120,260,3*mm,0,"Arial",1,1200,0,0,0,this.printItem.BatchCode); //打印
+      PTK_DrawText_TrueType((col_cr-1)*width+30,310,3*mm,0,"宋体",1,1200,0,0,0,"SN号"); //打印
+      for (var i=0;i<this.printItem.SNCodeList.length;i++)
+      {
+
+           PTK_DrawText_TrueType((col_cr-1)*width+120,310+i*50,3*mm,0,"Arial",1,1200,0,0,0,this.printItem.SNCodeList[i]); //打印
+      }
+
+			console.log("-------打印第"+i+"行----------");
+			PTK_PrintLabel(1,1); //打印，必须要执行这一行，否则不会打印
+		  }
+	},
+ printing(){
+	    	var data = {};
+	    	data.reqParam = "1";
+	      	data.printparams = JSON.stringify( printparamsJsonArray);
+	     	//jQuery.support.cors = true;  //适用于IE浏览器
+			clean(); //此函数必须使用
+	    	var url = "http://127.0.0.1:888/postek/print";
+        //alert(url);
+      //return request({    url: url,method: 'post',data: data,dataType:"json"});
+      print(url,data).then(response => {
+        
+        if (response.retval === '0') {
+	      alert("aasvv");
+	        		} else {
+	        			alert("存在错误，返回结果："+response.msg);
+	        		}
+      })
+	  },
+
   }
 }
 </script>
