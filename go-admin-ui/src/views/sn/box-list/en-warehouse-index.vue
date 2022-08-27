@@ -10,7 +10,7 @@
               type="warning"
               icon="el-icon-microphone"
               size="mini"
-              @click="doExWarehouse"
+              @click="doEnWarehouse"
             >测试入库功能</el-button>
           </el-col>
         </el-row>
@@ -167,20 +167,20 @@ export default {
         // 处理自己的逻辑
         //alert('条码合法：' + code)
         this.$emit('barCode', code) //通知父组件
-         this.doExWarehouse(code)
+         this.doEnWarehouse(code)
       } else if (code.length === 23) {
         console.log('B类条码:' + code)
       } else if (code.length === 0) {
         console.log('请输入条码！')
       } else {
-        this.doExWarehouse(code)
+        this.doEnWarehouse(code)
         //alert('条码不合法：' + code)
       }
     },
     
-    doExWarehouse(code) { //执行出库
+    doEnWarehouse(code) { //执行出库
 
-      code = '10001'
+      code = '10002'
       this.boxData.BoxId = parseInt(code)
 
       //alert(code)

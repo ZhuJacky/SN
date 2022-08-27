@@ -40,6 +40,15 @@
           <el-col :span="1.5">
             <el-button
               v-permisaction="['admin:sysPost:export']"
+              type="success"
+              icon="el-icon-edit"
+              size="mini"
+              @click="enWarehouse"
+            >入库</el-button>
+          </el-col>
+          <el-col :span="1.5">
+            <el-button
+              v-permisaction="['admin:sysPost:export']"
               type="primary"
               icon="el-icon-setting"
               size="mini"
@@ -170,8 +179,8 @@ export default {
     // 箱子状态翻译
     statusFormat(row) {
       return this.selectDictLabel(this.statusOptions, row.Status)
-    }, 
-    
+    },
+
     // 取消按钮
     cancel() {
       this.open = false
@@ -221,7 +230,11 @@ export default {
     doBox() {
       this.$router.push({path: '/sn/box-relation-list'});
     },
-    
+
+    //执行入库操作
+    enWarehouse() {
+      this.$router.push({path: '/sn/en-warehouse-manage'});
+    },
     //执行出库操作
     exWarehouse() {
       this.$router.push({path: '/sn/ex-warehouse-manage'});
