@@ -180,7 +180,7 @@ export default {
     
     doEnWarehouse(code) { //执行出库
 
-      code = '10002'
+      //code = '10002'
       this.boxData.BoxId = parseInt(code)
 
       //alert(code)
