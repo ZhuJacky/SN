@@ -92,7 +92,6 @@ import { formatJson } from '@/utils'
 import { print } from '@/api/sn/sn-info'
 import moment from 'moment'
 import {clean,printparamsJsonArray,PTK_OpenUSBPort, PTK_CloseUSBPort, PTK_ClearBuffer,PTK_SetDarkness,PTK_SetPrintSpeed,PTK_SetDirection,PTK_SetLabelHeight,PTK_SetLabelWidth,PTK_DrawText_TrueType,PTK_PrintLabel,PTK_DrawBar2D_DATAMATRIX} from '@/utils/POSTEK'
-import bwipjs from 'bwip-js'
 import request from '@/utils/request'
 
 export default {
