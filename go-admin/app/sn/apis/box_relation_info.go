@@ -75,7 +75,7 @@ func (e BoxRelationInfo) AddBox(c *gin.Context) {
 
 	//如果SN码，不在列表中，报错
 	var snList []models.SNInfo
-	e.Orm.Where("sn_code= ?", req.SNCode).Find(&snList)
+	e.Orm.Where("sn_code= ? or full_code=?", req.SNCode, req.SNCode).Find(&snList)
 
 	e.Logger.Info("AddBox snList: ", &snList)
 
@@ -83,6 +83,11 @@ func (e BoxRelationInfo) AddBox(c *gin.Context) {
 		resultObj.Status = 1 //
 		e.OK(resultObj, "SN无效，不存在SN码")
 		return
+	} else {
+		snInfo := snList[0]
+		req.SNCode = snInfo.SNCode
+
+		e.Logger.Info("AddBox req: ", req)
 	}
 
 	//SN码已经重复装箱，禁止重复操作

@@ -8,6 +8,7 @@ import (
 type SNInfo struct {
 	SNId        int    `gorm:"primaryKey;autoIncrement" json:"SNId"` //SNId
 	SNCode      string `gorm:"size:128;" json:"SNCode"`              //SN码
+	FullCode    string `gorm:"size:512;" json:"FullCode"`            //完整SN码
 	BatchId     int    `gorm:"size:19;" json:"BatchId"`              //批次ID
 	BatchName   string `gorm:"size:128;" json:"BatchName"`           //批次名称
 	BatchCode   string `gorm:"size:128;" json:"BatchCode"`

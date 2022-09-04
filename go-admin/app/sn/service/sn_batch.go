@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
 	"time"
 
 	"github.com/go-admin-team/go-admin-core/sdk/service"
@@ -211,6 +212,7 @@ func (e *BatchInfo) InsertSNInfo(batch *models.BatchInfo) error {
 
 			data.CreateBy = batch.CreateBy
 			data.UpdateBy = batch.UpdateBy
+			data.FullCode = getFullCode(data.UDI, data.BatchCode, data.SNCode)
 
 			err = e.Orm.Create(&data).Error
 			if err != nil {
@@ -221,6 +223,29 @@ func (e *BatchInfo) InsertSNInfo(batch *models.BatchInfo) error {
 	}
 
 	return nil
+}
+
+/*
+* 返回完整的SN二维码信息
+完整SN二维码=batchCode + udi + snCode
+如果包含括号信息，需要把括号信息去掉
+*/
+func getFullCode(udi string, bathCode string, snCode string) string {
+	var fullCode string = ""
+	fullCode = changeFormat(udi) + changeFormat(bathCode) + changeFormat(snCode)
+	return fullCode
+}
+
+/**
+去除括号
+*/
+func changeFormat(str string) string {
+	var str1 string
+	str1 = strings.Replace(str, "(", "", -1)
+	str1 = strings.Replace(str1, ")", "", -1)
+	str1 = strings.Replace(str1, "（", "", -1)
+	str1 = strings.Replace(str1, "）", "", -1)
+	return str1
 }
 
 // GetPage 获取SNInfo列表

@@ -68,6 +68,7 @@ DROP TABLE IF EXISTS sn_info;
 CREATE TABLE `sn_info` (
   `sn_id` bigint NOT NULL AUTO_INCREMENT,
   `sn_code` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `full_code` varchar(512) DEFAULT NULL,
   `batch_id` bigint DEFAULT NULL COMMENT 'batch_id',
   `batch_name` varchar(128) DEFAULT NULL,
   `batch_code` varchar(128) DEFAULT NULL,
@@ -225,6 +226,7 @@ CREATE TABLE `sn_box_relation` (
   `box_relation_id` bigint NOT NULL AUTO_INCREMENT,
   `box_id` bigint DEFAULT NULL COMMENT 'box_id',
   `sn_code` varchar(128) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci DEFAULT NULL,
+  `full_code` varchar(512) DEFAULT NULL,
   `scan_source` varchar(128) DEFAULT NULL,
   `batch_code` varchar(128) DEFAULT NULL,
   `product_code` varchar(128) DEFAULT NULL,
