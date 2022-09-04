@@ -228,7 +228,6 @@ export default {
     },
     addBox(code) { //开始装箱
       
-      //alert('开始装箱：' + code)
 
       //code = '8930500A000007'
       //alert(this.boxData.snCode)
