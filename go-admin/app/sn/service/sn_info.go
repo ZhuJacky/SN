@@ -67,14 +67,18 @@ func (e *SNInfo) Get(d *dto.SNInfoGetReq, model *models.SNInfo) error {
 func (e *SNInfo) GetSNInfoList(c *dto.SNInfoPageReq, list *[]models.SNInfo, count *int64) error {
 	var err error
 	var data models.SNInfo
-
-	err = e.Orm.Model(&data).
-		Scopes(
-			cDto.MakeCondition(c.GetNeedSearch()),
-			cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
-		).
-		Find(list).Limit(-1).Offset(-1).
-		Count(count).Error
+	if c.MixQRCode != "" {
+		err = e.Orm.Where("REPLACE(REPLACE(CONCAT(sn_code,product_code,udi),'(',''),')','')=?", c.MixQRCode).Find(list).Limit(-1).Offset(-1).
+			Count(count).Error
+	} else {
+		err = e.Orm.Model(&data).
+			Scopes(
+				cDto.MakeCondition(c.GetNeedSearch()),
+				cDto.Paginate(c.GetPageSize(), c.GetPageIndex()),
+			).
+			Find(list).Limit(-1).Offset(-1).
+			Count(count).Error
+	}
 
 	if err != nil {
 		e.Log.Errorf("db error:%s \r", err)

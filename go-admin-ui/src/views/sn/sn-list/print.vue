@@ -295,7 +295,7 @@ export default {
       // this.SNList.unshift(sn)
       // this.printItem=sn
       // this.reload()
-      this.queryParams.snCode=code
+      this.queryParams.mixQRCode=code
       listPost(this.queryParams).then(response => {
         this.total = response.data.count
         this.loading = false
